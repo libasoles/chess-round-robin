@@ -23,6 +23,7 @@ export function HomePage() {
     : currentRound
 
   function resumeTournament() {
+    if (!activeTournament) return
     setCurrentRound(displayRound)
     navigate(`/tournament/${activeTournament.id}/round/${displayRound}`)
   }
