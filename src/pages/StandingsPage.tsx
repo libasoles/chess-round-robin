@@ -109,8 +109,9 @@ export function StandingsPage() {
   const canShare = typeof navigator.share !== 'undefined'
 
   return (
-    <div {...bind()} style={{ touchAction: 'pan-y' }}>
+    <div>
       <AppShell
+        mainProps={bind()}
         topBar={
           <TopBar
             left={
