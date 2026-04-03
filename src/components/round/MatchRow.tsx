@@ -46,11 +46,11 @@ export function MatchRow({ match, participants, onResult, readonly = false }: Ma
     <div className="rounded-md bg-muted/40 px-2 py-2">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
         <div className="min-w-0">
-          <span className="font-medium break-words">{white.name}</span>
+          <span className="font-medium break-words text-chart-3">{white.name}</span>
         </div>
         <span className="text-muted-foreground text-xs text-center">vs</span>
         <div className="min-w-0 text-right">
-          <span className="font-medium text-right break-words">{black.name}</span>
+          <span className="font-medium text-right break-words text-chart-3">{black.name}</span>
         </div>
       </div>
       {!readonly && (

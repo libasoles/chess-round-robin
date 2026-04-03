@@ -20,31 +20,34 @@ interface TiebreakListProps {
 export function TiebreakList({ order, onChange }: TiebreakListProps) {
   const enabled = new Set(order)
   const [dragging, setDragging] = useState<TiebreakMethod | null>(null)
+  // Stable display order: all methods, initialized from prop order + remaining in ALL_METHODS sequence
+  const [localOrder, setLocalOrder] = useState<TiebreakMethod[]>(() => {
+    const rest = ALL_METHODS.map((m) => m.method).filter((m) => !order.includes(m))
+    return [...order, ...rest]
+  })
 
   function toggle(method: TiebreakMethod) {
     if (enabled.has(method)) {
       onChange(order.filter((m) => m !== method))
     } else {
-      onChange([...order, method])
+      // Re-enable in the position it occupies in localOrder
+      const newEnabled = new Set([...order, method])
+      onChange(localOrder.filter((m) => newEnabled.has(m)))
     }
   }
 
   function move(source: TiebreakMethod, target: TiebreakMethod) {
-    const sourceIdx = order.indexOf(source)
-    const targetIdx = order.indexOf(target)
+    const sourceIdx = localOrder.indexOf(source)
+    const targetIdx = localOrder.indexOf(target)
     if (sourceIdx === -1 || targetIdx === -1 || sourceIdx === targetIdx) return
-    const next = [...order]
+    const next = [...localOrder]
     const [moved] = next.splice(sourceIdx, 1)
     next.splice(targetIdx, 0, moved!)
-    onChange(next)
+    setLocalOrder(next)
+    onChange(next.filter((m) => enabled.has(m)))
   }
 
-  // Build display order: enabled items first (in their configured order), then disabled items
-  const disabledMethods = ALL_METHODS.filter((m) => !enabled.has(m.method))
-  const displayOrder = [
-    ...order.map((m) => ALL_METHODS.find((a) => a.method === m)!).filter(Boolean),
-    ...disabledMethods,
-  ]
+  const displayOrder = localOrder.map((m) => ALL_METHODS.find((a) => a.method === m)!).filter(Boolean)
 
   return (
     <div className="space-y-0.5">

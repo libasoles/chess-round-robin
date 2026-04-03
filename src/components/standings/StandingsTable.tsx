@@ -61,7 +61,7 @@ export function StandingsTable({
                     />
                   </td>
                 )}
-                <td className="py-2 font-medium truncate">{name}</td>
+                <td className="py-2 font-medium truncate text-chart-3">{name}</td>
                 <td className="py-2 text-center">
                   {entry.points % 1 === 0 ? entry.points : entry.points.toFixed(1)}
                 </td>

@@ -12,7 +12,7 @@ export function ArbitratorField({ value, onChange }: ArbitratorFieldProps) {
         htmlFor="arbitrator-name"
         className="block text-sm font-semibold text-muted-foreground uppercase tracking-wide"
       >
-        Árbitro (opcional)
+        Tu nombre
       </label>
       <Input
         id="arbitrator-name"

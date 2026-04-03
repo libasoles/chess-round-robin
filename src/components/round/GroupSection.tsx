@@ -36,7 +36,7 @@ export function GroupSection({
     <Card size="sm" className="mb-4">
       {showGroupName && (
         <CardHeader>
-          <CardTitle className="text-sm font-semibold text-muted-foreground">
+          <CardTitle className="text-sm font-semibold text-primary">
             Grupo {groupName}
           </CardTitle>
         </CardHeader>

@@ -1,5 +1,6 @@
 import type { MatchResult } from '@/domain/types'
-import { Trophy, Handshake, LogOut } from 'lucide-react'
+import { Trophy, Handshake } from 'lucide-react'
+import { MdDirectionsRun } from 'react-icons/md'
 
 interface ResultButtonsProps {
   current: MatchResult | null
@@ -15,9 +16,9 @@ type ButtonDef = {
 
 const BUTTONS: ButtonDef[] = [
   { result: 'white_win', icon: Trophy, label: 'Gana blancas', side: 'white' },
-  { result: 'forfeit_white', icon: LogOut, label: 'Abandona blancas', side: 'white' },
+  { result: 'forfeit_white', icon: MdDirectionsRun as typeof Trophy, label: 'Abandona blancas', side: 'white' },
   { result: 'draw', icon: Handshake, label: 'Tablas', side: 'center' },
-  { result: 'forfeit_black', icon: LogOut, label: 'Abandona negras', side: 'black' },
+  { result: 'forfeit_black', icon: MdDirectionsRun as typeof Trophy, label: 'Abandona negras', side: 'black' },
   { result: 'black_win', icon: Trophy, label: 'Gana negras', side: 'black' },
 ]
 
@@ -31,7 +32,7 @@ export function ResultButtons({ current, onChange }: ResultButtonsProps) {
   const centerButton = BUTTONS.find((b) => b.side === 'center')!
   const rightButtons = BUTTONS.filter((b) => b.side === 'black')
 
-  function renderButton({ result, icon: Icon, label }: ButtonDef) {
+  function renderButton({ result, icon: Icon, label, side }: ButtonDef) {
     const isActive = current === result
     return (
       <button
@@ -46,7 +47,7 @@ export function ResultButtons({ current, onChange }: ResultButtonsProps) {
             : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'
         }`}
       >
-        <Icon className="h-5 w-5" />
+        <Icon className={`h-5 w-5${side === 'black' ? ' scale-x-[-1]' : ''}`} />
       </button>
     )
   }

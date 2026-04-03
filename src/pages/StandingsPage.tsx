@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Share2, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Share2, Hourglass } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { BottomAction } from '@/components/layout/BottomAction'
@@ -24,7 +24,7 @@ export function StandingsPage() {
   const { activeTournament, setCurrentRound, createNewPhase, finishTournament } =
     useTournamentStore()
   const { addToHistory } = useHistoryStore()
-  const { addToParticipantsPool, ownedTournamentIds } = useSettingsStore()
+  const { addToParticipantsPool } = useSettingsStore()
 
   const [showFinishDialog, setShowFinishDialog] = useState(false)
 
@@ -126,7 +126,7 @@ export function StandingsPage() {
         <div className="space-y-6 pb-4">
           {hasPendingMatches && (
             <div className="flex items-center gap-2 rounded-lg bg-primary/15 border border-primary/40 px-4 py-3 text-primary">
-              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <Hourglass className="h-4 w-4 shrink-0" />
               <p className="text-sm font-medium">Hay partidas con resultado pendiente</p>
             </div>
           )}
@@ -142,7 +142,7 @@ export function StandingsPage() {
                   <Card key={group.name}>
                     {useGroups && (
                       <CardHeader>
-                        <CardTitle className="text-base">Grupo {group.name}</CardTitle>
+                        <CardTitle className="text-base text-primary">Grupo {group.name}</CardTitle>
                       </CardHeader>
                     )}
                     <CardContent>

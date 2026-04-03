@@ -8,15 +8,23 @@ import { EmptyHistory } from '@/components/home/EmptyHistory'
 import { Button } from '@/components/ui/button'
 import { useHistoryStore } from '@/store/historyStore'
 import { useTournamentStore } from '@/store/tournamentStore'
-import { getTotalRounds } from '@/hooks/useCurrentRound'
+import { getTotalRounds, isRoundComplete } from '@/hooks/useCurrentRound'
 
 export function HomePage() {
   const navigate = useNavigate()
   const { tournaments } = useHistoryStore()
-  const { activeTournament, currentRound } = useTournamentStore()
+  const { activeTournament, currentRound, setCurrentRound } = useTournamentStore()
+
+  const totalRounds = activeTournament ? getTotalRounds(activeTournament.phases) : 0
+  const displayRound = activeTournament
+    ? (Array.from({ length: totalRounds }, (_, i) => i + 1).find(
+        (r) => !isRoundComplete(activeTournament.phases, r),
+      ) ?? totalRounds)
+    : currentRound
 
   function resumeTournament() {
-    navigate(`/tournament/round/${currentRound}`)
+    setCurrentRound(displayRound)
+    navigate(`/tournament/round/${displayRound}`)
   }
 
   return (
@@ -41,13 +49,16 @@ export function HomePage() {
         <div className="space-y-3">
           {activeTournament && (
             <div className="rounded-lg border border-primary bg-primary/5 px-4 py-3 space-y-2">
-              <p className="text-sm font-semibold text-primary flex items-center gap-1.5">
+              <p
+                className="text-sm font-semibold text-primary flex items-center gap-1.5 cursor-pointer"
+                onClick={resumeTournament}
+              >
                 <Play className="h-3.5 w-3.5 fill-current" />
                 Torneo en curso
               </p>
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm text-muted-foreground">
-                  Ronda {currentRound} de {getTotalRounds(activeTournament.phases)}
+                  Ronda {displayRound} de {getTotalRounds(activeTournament.phases)}
                 </p>
                 <Button size="sm" onClick={resumeTournament} className="gap-1.5 shrink-0">
                   Continuar

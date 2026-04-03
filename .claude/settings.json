@@ -11,7 +11,8 @@
       "Bash(npx tsc:*)",
       "Bash(npx shadcn@latest add tabs --yes)",
       "WebSearch",
-      "WebFetch(domain:shadcnstudio.com)"
+      "WebFetch(domain:shadcnstudio.com)",
+      "Bash(npm ls:*)"
     ]
   }
 }

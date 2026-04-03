@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useGesture } from '@use-gesture/react'
-import { Share2 } from 'lucide-react'
+import { Check, Share2 } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { BottomAction } from '@/components/layout/BottomAction'
 import { GroupSection } from '@/components/round/GroupSection'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useTournamentStore } from '@/store/tournamentStore'
-import { getCurrentRoundMatches, getTotalRounds } from '@/hooks/useCurrentRound'
+import { getCurrentRoundMatches, getTotalRounds, isRoundComplete } from '@/hooks/useCurrentRound'
 import type { MatchResult, Participant } from '@/domain/types'
 
 export function RoundPage() {
@@ -122,16 +122,19 @@ export function RoundPage() {
             }}
             className="w-full"
           >
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Rondas</p>
             <TabsList
               variant="line"
               className="w-full h-auto gap-1 flex-wrap justify-start"
             >
-              {Array.from({ length: totalRounds }, (_, i) => i + 1).map((r) => (
-                <TabsTrigger key={r} value={String(r)} className="rounded-full min-w-10 shrink-0">
-                  {r}
-                </TabsTrigger>
-              ))}
+              {Array.from({ length: totalRounds }, (_, i) => i + 1).map((r) => {
+                const done = isRoundComplete(activeTournament.phases, r)
+                return (
+                  <TabsTrigger key={r} value={String(r)} className="rounded-full min-w-10 shrink-0 gap-1">
+                    {r === currentRound ? `Ronda ${r}` : r}
+                    {done && <Check className="h-3 w-3" />}
+                  </TabsTrigger>
+                )
+              })}
               <TabsTrigger value="fin" className="rounded-full shrink-0">
                 Fin
               </TabsTrigger>

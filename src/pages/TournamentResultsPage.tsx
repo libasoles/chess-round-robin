@@ -98,7 +98,7 @@ export function TournamentResultsPage() {
                 <Card key={group.name}>
                   {useGroups && (
                     <CardHeader>
-                      <CardTitle className="text-base">Grupo {group.name}</CardTitle>
+                      <CardTitle className="text-base text-primary">Grupo {group.name}</CardTitle>
                     </CardHeader>
                   )}
                   <CardContent>

@@ -1,6 +1,5 @@
 import type { Tournament } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
-import { Badge } from '@/components/ui/badge'
 
 interface TournamentCardProps {
   tournament: Tournament
@@ -27,9 +26,9 @@ function formatDateAndTimeParts(startIso: string, endIso?: string): { date: stri
   const startDate = formatDate(startIso)
   const startTime = formatTime(startIso)
 
-  if (!endIso) return { date: startDate, time: `Inicio ${startTime} · En curso` }
+  if (!endIso) return { date: startDate, time: `Inicio ${startTime} hs · En curso` }
 
-  return { date: startDate, time: `Inicio ${startTime}` }
+  return { date: startDate, time: `Inicio ${startTime} hs` }
 }
 
 function getRoundCount(tournament: Tournament): number {
@@ -74,9 +73,7 @@ export function TournamentCard({ tournament, onClick }: TournamentCardProps) {
       role={onClick ? 'button' : undefined}
     >
       <div className="flex items-center gap-2">
-        <Badge variant="secondary" className="h-7 px-3 text-sm font-semibold">
-          {dateTime.date}
-        </Badge>
+        <span className="text-sm font-semibold text-primary">{dateTime.date}</span>
         <span className="text-sm text-muted-foreground">{dateTime.time}</span>
       </div>
       <p className="text-sm text-muted-foreground">
