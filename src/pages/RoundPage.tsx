@@ -3,6 +3,7 @@ import { useGesture } from '@use-gesture/react'
 import { Share2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
+import { BottomAction } from '@/components/layout/BottomAction'
 import { GroupSection } from '@/components/round/GroupSection'
 import { useTournamentStore } from '@/store/tournamentStore'
 import { getCurrentRoundMatches, getTotalRounds } from '@/hooks/useCurrentRound'
@@ -75,42 +76,22 @@ export function RoundPage() {
         topBar={
           <TopBar
             right={
-              <div className="flex flex-col items-end gap-1">
-                {canShare && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigator.share({ title: 'Torneo de ajedrez', url: window.location.href })
-                    }
-                    className="p-2 text-muted-foreground hover:text-foreground"
-                    aria-label="Compartir"
-                  >
-                    <Share2 className="h-5 w-5" />
-                  </button>
-                )}
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={goPrev}
-                    disabled={isFirstRound}
-                    className="p-2 text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Ronda anterior"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={goNext}
-                    className="p-2 text-foreground"
-                    aria-label={isLastRound ? 'Ver resultados' : 'Siguiente ronda'}
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
+              canShare ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigator.share({ title: 'Torneo de ajedrez', url: window.location.href })
+                  }
+                  className="p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Compartir"
+                >
+                  <Share2 className="h-5 w-5" />
+                </button>
+              ) : null
             }
           />
         }
+        hasBottomAction
       >
         <div className="space-y-2">
           <h1 className="text-lg font-semibold mb-4">Ronda {currentRound}</h1>
@@ -131,6 +112,28 @@ export function RoundPage() {
           )}
         </div>
       </AppShell>
+
+      <BottomAction>
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={goPrev}
+            disabled={isFirstRound}
+            className="h-14 w-14 rounded-full border border-border bg-background text-foreground inline-flex items-center justify-center disabled:opacity-35 disabled:cursor-not-allowed"
+            aria-label="Ronda anterior"
+          >
+            <ChevronLeft className="h-8 w-8" />
+          </button>
+          <button
+            type="button"
+            onClick={goNext}
+            className="h-14 w-14 rounded-full border border-border bg-background text-foreground inline-flex items-center justify-center"
+            aria-label={isLastRound ? 'Ver resultados' : 'Siguiente ronda'}
+          >
+            <ChevronRight className="h-8 w-8" />
+          </button>
+        </div>
+      </BottomAction>
     </div>
   )
 }

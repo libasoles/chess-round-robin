@@ -32,6 +32,7 @@ export function NewTournamentPage() {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [removeIdx, setRemoveIdx] = useState<number | null>(null)
   const [errors, setErrors] = useState<string[]>([])
+  const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(null)
 
   // Suggestions = pool minus already-entered names
   const enteredNames = new Set(participants.map((p) => p.trim().toLowerCase()).filter(Boolean))
@@ -43,16 +44,17 @@ export function NewTournamentPage() {
     setParticipants(next)
   }
 
-  function addParticipantRow() {
+  function addParticipantRow(nextValue?: string) {
     const lastIdx = participants.length - 1
     if (lastIdx < 0) return
-    const normalized = normalizeName(participants[lastIdx] ?? '')
+    const normalized = normalizeName(nextValue ?? participants[lastIdx] ?? '')
     if (!normalized) return
 
     const next = [...participants]
     next[lastIdx] = normalized
     next.push('')
     setParticipants(next)
+    setPendingFocusIndex(next.length - 1)
   }
 
   function localizeValidationErrors(validationErrors: string[]) {
@@ -121,12 +123,12 @@ export function NewTournamentPage() {
         <div className="space-y-6">
           <section className="space-y-3">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Árbitro
+              Árbitro (opcional)
             </h2>
             <Input
               value={arbitrator}
               onChange={(e) => setArbitrator(e.target.value)}
-              placeholder="Ej: Juan Pérez (opcional)"
+              placeholder="María Gómez"
               className="text-base h-12"
             />
           </section>
@@ -149,6 +151,8 @@ export function NewTournamentPage() {
                     submitMode={idx === participants.length - 1}
                     onSubmit={addParticipantRow}
                     submitDisabled={!name.trim()}
+                    autoFocus={idx === pendingFocusIndex}
+                    onAutoFocusHandled={() => setPendingFocusIndex(null)}
                   />
                 </div>
               ))}
@@ -164,11 +168,7 @@ export function NewTournamentPage() {
               ))}
             </div>
           )}
-        </div>
-      </AppShell>
 
-      <BottomAction>
-        <div className="space-y-3">
           <div className="flex items-center gap-3">
             <Checkbox
               id="use-groups"
@@ -179,6 +179,11 @@ export function NewTournamentPage() {
               Por grupos
             </Label>
           </div>
+        </div>
+      </AppShell>
+
+      <BottomAction>
+        <div>
           <Button className="w-full h-12 text-base" onClick={handleStart}>
             Comenzar
           </Button>

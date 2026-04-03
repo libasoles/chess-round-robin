@@ -64,14 +64,24 @@ export function StandingsTable({
                 <td className="py-2 text-center px-2">
                   {entry.points % 1 === 0 ? entry.points : entry.points.toFixed(1)}
                 </td>
-                {tiebreakCols.map((m) => (
-                  <td key={m} className="py-2 text-center px-2">
-                    {entry.tiebreakUsed === m ? (
-                      <span className="text-primary font-medium">✓</span>
-                    ) : null}
-                  </td>
-                ))}
-                <td className="py-2 text-right text-muted-foreground">{ordinal(entry.rank)}</td>
+                {tiebreakCols.map((m) => {
+                  const score = entry.tiebreakScores[m]
+                  const isDeciding = entry.tiebreakUsed === m
+                  return (
+                    <td key={m} className={`py-2 text-center px-2${isDeciding ? ' font-semibold text-foreground' : ' text-muted-foreground'}`}>
+                      {score !== undefined
+                        ? (score % 1 === 0 ? score : score.toFixed(1))
+                        : null}
+                      {isDeciding && <span className="ml-0.5 text-primary">✓</span>}
+                    </td>
+                  )
+                })}
+                <td className="py-2 text-right text-muted-foreground">
+                  {ordinal(entry.rank)}
+                  {entry.tiebreakUsed === 'DE' && (
+                    <span className="ml-1 text-xs font-medium text-primary">DE</span>
+                  )}
+                </td>
               </tr>
             )
           })}
