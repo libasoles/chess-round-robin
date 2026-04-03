@@ -46,7 +46,7 @@ export function ParticipantsPool({ pool, onAdd, onRemove }: ParticipantsPoolProp
 
       <ul className="space-y-1">
         {pool.map((name) => (
-          <li key={name} className="flex items-center gap-2 py-1">
+          <li key={name} className="flex items-center gap-2 px-3 py-1.5">
             <span className="flex-1 text-sm">{name}</span>
             <button
               type="button"

@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { useGesture } from '@use-gesture/react'
-import { Share2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Share2 } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { BottomAction } from '@/components/layout/BottomAction'
 import { GroupSection } from '@/components/round/GroupSection'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useTournamentStore } from '@/store/tournamentStore'
 import { getCurrentRoundMatches, getTotalRounds } from '@/hooks/useCurrentRound'
 import type { MatchResult, Participant } from '@/domain/types'
@@ -41,11 +42,7 @@ export function RoundPage() {
   }
 
   function goNext() {
-    if (isLastRound) {
-      navigate('/tournament/standings')
-    } else {
-      goToRound(currentRound + 1)
-    }
+    if (!isLastRound) goToRound(currentRound + 1)
   }
 
   function goPrev() {
@@ -76,26 +73,26 @@ export function RoundPage() {
         topBar={
           <TopBar
             right={
-              canShare ? (
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigator.share({ title: 'Torneo de ajedrez', url: window.location.href })
-                  }
-                  className="p-2 text-muted-foreground hover:text-foreground"
-                  aria-label="Compartir"
-                >
-                  <Share2 className="h-5 w-5" />
-                </button>
-              ) : null
+              <div className="flex items-center gap-1">
+                {canShare && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigator.share({ title: 'Torneo de ajedrez', url: window.location.href })
+                    }
+                    className="p-2 text-muted-foreground hover:text-foreground"
+                    aria-label="Compartir"
+                  >
+                    <Share2 className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
             }
           />
         }
         hasBottomAction
       >
         <div className="space-y-2">
-          <h1 className="text-lg font-semibold mb-4">Ronda {currentRound}</h1>
-
           {roundMatches.length === 0 ? (
             <p className="text-muted-foreground text-sm">No hay partidas en esta ronda.</p>
           ) : (
@@ -114,25 +111,32 @@ export function RoundPage() {
       </AppShell>
 
       <BottomAction>
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={goPrev}
-            disabled={isFirstRound}
-            className="h-14 w-14 rounded-full border border-border bg-background text-foreground inline-flex items-center justify-center disabled:opacity-35 disabled:cursor-not-allowed"
-            aria-label="Ronda anterior"
+        <Tabs
+            value={String(currentRound)}
+            onValueChange={(val) => {
+              if (val === 'fin') {
+                navigate('/tournament/standings')
+              } else {
+                goToRound(Number(val))
+              }
+            }}
+            className="w-full"
           >
-            <ChevronLeft className="h-8 w-8" />
-          </button>
-          <button
-            type="button"
-            onClick={goNext}
-            className="h-14 w-14 rounded-full border border-border bg-background text-foreground inline-flex items-center justify-center"
-            aria-label={isLastRound ? 'Ver resultados' : 'Siguiente ronda'}
-          >
-            <ChevronRight className="h-8 w-8" />
-          </button>
-        </div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Rondas</p>
+            <TabsList
+              variant="line"
+              className="w-full h-auto gap-1 flex-wrap justify-start"
+            >
+              {Array.from({ length: totalRounds }, (_, i) => i + 1).map((r) => (
+                <TabsTrigger key={r} value={String(r)} className="rounded-full min-w-10 shrink-0">
+                  {r}
+                </TabsTrigger>
+              ))}
+              <TabsTrigger value="fin" className="rounded-full shrink-0">
+                Fin
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
       </BottomAction>
     </div>
   )

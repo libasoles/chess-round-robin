@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
@@ -6,6 +6,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { BottomAction } from '@/components/layout/BottomAction'
 import { ParticipantInput } from '@/components/tournament/ParticipantInput'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -20,19 +21,43 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { useTournamentStore } from '@/store/tournamentStore'
 import { normalizeName, validateParticipants } from '@/domain/participants'
 
+type ValidationToast = {
+  id: number
+  message: string
+}
+
 export function NewTournamentPage() {
   const navigate = useNavigate()
-  const { arbitratorName, lastTournamentSettings, participantsPool, setArbitratorName } = useSettingsStore()
+  const {
+    arbitratorName,
+    organizerName,
+    lastTournamentSettings,
+    participantsPool,
+    setArbitratorName,
+    setOrganizerName,
+  } = useSettingsStore()
   const { createTournament } = useTournamentStore()
-  const currentPersonName = (arbitratorName ?? lastTournamentSettings.arbitratorName ?? '').trim()
+  const currentArbitratorName = (arbitratorName ?? lastTournamentSettings.arbitratorName ?? '').trim()
+  const currentOrganizerName = (organizerName ?? lastTournamentSettings.organizerName ?? '').trim()
 
-  const [arbitrator, setArbitrator] = useState(currentPersonName)
+  const [arbitrator, setArbitrator] = useState(currentArbitratorName)
+  const [organizer, setOrganizer] = useState(currentOrganizerName)
   const [participants, setParticipants] = useState<string[]>([''])
   const [useGroups, setUseGroups] = useState(lastTournamentSettings.useGroups)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [removeIdx, setRemoveIdx] = useState<number | null>(null)
-  const [errors, setErrors] = useState<string[]>([])
+  const [toasts, setToasts] = useState<ValidationToast[]>([])
   const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(null)
+  const toastTimeoutsRef = useRef<number[]>([])
+
+  useEffect(() => {
+    return () => {
+      for (const timeoutId of toastTimeoutsRef.current) {
+        window.clearTimeout(timeoutId)
+      }
+      toastTimeoutsRef.current = []
+    }
+  }, [])
 
   // Suggestions = pool minus already-entered names
   const enteredNames = new Set(participants.map((p) => p.trim().toLowerCase()).filter(Boolean))
@@ -76,23 +101,43 @@ export function NewTournamentPage() {
     setRemoveIdx(null)
   }
 
+  function showValidationToasts(messages: string[]) {
+    const uniqueMessages = [...new Set(messages)]
+    const nextToasts = uniqueMessages.map((message, idx) => ({
+      id: Date.now() + idx,
+      message,
+    }))
+    setToasts((current) => [...current, ...nextToasts])
+
+    for (const toast of nextToasts) {
+      const timeoutId = window.setTimeout(() => {
+        setToasts((current) => current.filter((t) => t.id !== toast.id))
+      }, 5000)
+      toastTimeoutsRef.current.push(timeoutId)
+    }
+  }
+
   function handleStart() {
     const cleanNames = participants.map(normalizeName).filter((n) => n.length > 0)
     const validation = validateParticipants(cleanNames)
     if (!validation.valid) {
-      setErrors(localizeValidationErrors(validation.errors))
+      showValidationToasts(localizeValidationErrors(validation.errors))
       return
     }
     const normalizedArbitrator = normalizeName(arbitrator)
-    const effectiveArbitrator = normalizedArbitrator || currentPersonName
+    const effectiveArbitrator = normalizedArbitrator || currentArbitratorName
+    const normalizedOrganizer = normalizeName(organizer)
+    const effectiveOrganizer = normalizedOrganizer || currentOrganizerName
 
     const settings = {
       ...lastTournamentSettings,
       arbitratorName: effectiveArbitrator,
+      organizerName: effectiveOrganizer,
       useGroups,
     }
 
     if (effectiveArbitrator) setArbitratorName(effectiveArbitrator)
+    if (effectiveOrganizer) setOrganizerName(effectiveOrganizer)
     createTournament(cleanNames, settings)
     navigate('/tournament/round/1')
   }
@@ -120,24 +165,37 @@ export function NewTournamentPage() {
         }
         hasBottomAction
       >
-        <div className="space-y-6">
-          <section className="space-y-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Árbitro (opcional)
-            </h2>
-            <Input
-              value={arbitrator}
-              onChange={(e) => setArbitrator(e.target.value)}
-              placeholder="María Gómez"
-              className="text-base h-12"
-            />
-          </section>
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="arbitrator">Árbitro (opcional)</Label>
+                <Input
+                  id="arbitrator"
+                  value={arbitrator}
+                  onChange={(e) => setArbitrator(e.target.value)}
+                  placeholder="María Gómez"
+                  className="text-base h-12"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="organizer">Organizador (opcional)</Label>
+                <Input
+                  id="organizer"
+                  value={organizer}
+                  onChange={(e) => setOrganizer(e.target.value)}
+                  placeholder="Club de Ajedrez Central"
+                  className="text-base h-12"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-          <section className="space-y-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Participantes
-            </h2>
-            <div className="space-y-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Participantes</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
               {participants.map((name, idx) => (
                 <div key={idx}>
                   <ParticipantInput
@@ -156,19 +214,26 @@ export function NewTournamentPage() {
                   />
                 </div>
               ))}
-            </div>
-          </section>
+            </CardContent>
+          </Card>
+        </div>
+      </AppShell>
 
-          {errors.length > 0 && (
-            <div className="rounded-md bg-destructive/10 p-3 space-y-1">
-              {errors.map((e) => (
-                <p key={e} className="text-sm text-destructive">
-                  {e}
-                </p>
-              ))}
+      <div className="fixed top-16 left-0 right-0 z-[70] px-4 pointer-events-none">
+        <div className="mx-auto max-w-lg space-y-2">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className="rounded-md border border-destructive/60 bg-card px-3 py-2 text-sm text-foreground shadow-lg"
+            >
+              {toast.message}
             </div>
-          )}
+          ))}
+        </div>
+      </div>
 
+      <BottomAction>
+        <div className="space-y-3">
           <div className="flex items-center gap-3">
             <Checkbox
               id="use-groups"
@@ -179,11 +244,6 @@ export function NewTournamentPage() {
               Por grupos
             </Label>
           </div>
-        </div>
-      </AppShell>
-
-      <BottomAction>
-        <div>
           <Button className="w-full h-12 text-base" onClick={handleStart}>
             Comenzar
           </Button>

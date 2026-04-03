@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Share2 } from 'lucide-react'
+import { ArrowLeft, Share2, AlertTriangle } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { BottomAction } from '@/components/layout/BottomAction'
 import { StandingsTable } from '@/components/standings/StandingsTable'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ export function StandingsPage() {
   const { activeTournament, setCurrentRound, createNewPhase, finishTournament } =
     useTournamentStore()
   const { addToHistory } = useHistoryStore()
-  const { addToParticipantsPool } = useSettingsStore()
+  const { addToParticipantsPool, ownedTournamentIds } = useSettingsStore()
 
   const [showFinishDialog, setShowFinishDialog] = useState(false)
 
@@ -104,7 +104,7 @@ export function StandingsPage() {
                 <ArrowLeft className="h-5 w-5" />
               </button>
             }
-            title="Resultados"
+            title={hasPendingMatches ? 'Resultados provisorios' : 'Resultados'}
             right={
               canShare ? (
                 <button
@@ -124,6 +124,12 @@ export function StandingsPage() {
         hasBottomAction={isActive}
       >
         <div className="space-y-6 pb-4">
+          {hasPendingMatches && (
+            <div className="flex items-center gap-2 rounded-lg bg-primary/15 border border-primary/40 px-4 py-3 text-primary">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <p className="text-sm font-medium">Hay partidas con resultado pendiente</p>
+            </div>
+          )}
           {phases.map((phase, phaseIdx) => (
             <div key={phaseIdx}>
               {phases.length > 1 && (
@@ -131,23 +137,26 @@ export function StandingsPage() {
                   Fase {phaseIdx + 1}
                 </h2>
               )}
-              {phase.groups.map((group, groupIdx) => (
-                <div key={group.name}>
-                  {useGroups && (
-                    <h3 className="text-base font-semibold mb-2">Grupo {group.name}</h3>
-                  )}
-                  <div className="rounded-lg border border-border bg-card px-3 py-2 mb-4">
-                    <StandingsTable
-                      group={group}
-                      settings={settings}
-                      showAdvanceSelector={useGroups && isActive}
-                      selectedIds={selectedIds}
-                      onToggleAdvance={toggleSelect}
-                    />
-                  </div>
-                  {groupIdx < phase.groups.length - 1 && <Separator className="my-4" />}
-                </div>
-              ))}
+              <div className="space-y-4">
+                {phase.groups.map((group) => (
+                  <Card key={group.name}>
+                    {useGroups && (
+                      <CardHeader>
+                        <CardTitle className="text-base">Grupo {group.name}</CardTitle>
+                      </CardHeader>
+                    )}
+                    <CardContent>
+                      <StandingsTable
+                        group={group}
+                        settings={settings}
+                        showAdvanceSelector={useGroups && isActive && !hasPendingMatches}
+                        selectedIds={selectedIds}
+                        onToggleAdvance={toggleSelect}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -156,7 +165,7 @@ export function StandingsPage() {
       {isActive && (
         <BottomAction>
           <div className="flex flex-col gap-2">
-            {useGroups && (
+            {useGroups && !hasPendingMatches && (
               <Button
                 variant="outline"
                 className="w-full h-12 text-base"

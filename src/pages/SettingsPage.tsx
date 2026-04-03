@@ -6,7 +6,7 @@ import { ArbitratorField } from '@/components/settings/ArbitratorField'
 import { TiebreakList } from '@/components/settings/TiebreakList'
 import { PointSelector } from '@/components/settings/PointSelector'
 import { ParticipantsPool } from '@/components/settings/ParticipantsPool'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSettingsStore } from '@/store/settingsStore'
 import type { Theme } from '@/store/settingsStore'
 import type { TiebreakMethod } from '@/domain/types'
@@ -78,55 +78,63 @@ export function SettingsPage() {
       }
     >
       <div className="space-y-6 pb-8">
-        <section className="space-y-3">
-          <ArbitratorField
-            value={arbitratorName ?? ''}
-            onChange={setArbitratorName}
-          />
-        </section>
+        <Card>
+          <CardContent>
+            <ArbitratorField
+              value={arbitratorName ?? ''}
+              onChange={setArbitratorName}
+            />
+          </CardContent>
+        </Card>
 
-        <Separator />
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Desempates
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TiebreakList
+              order={lastTournamentSettings.tiebreakOrder}
+              onChange={(order: TiebreakMethod[]) => updateSettings('tiebreakOrder', order)}
+            />
+          </CardContent>
+        </Card>
 
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Desempates
-          </h2>
-          <TiebreakList
-            order={lastTournamentSettings.tiebreakOrder}
-            onChange={(order: TiebreakMethod[]) => updateSettings('tiebreakOrder', order)}
-          />
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Puntos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <PointSelector
+              label="Por bye"
+              value={lastTournamentSettings.byePoints}
+              onChange={(v) => updateSettings('byePoints', v)}
+            />
+            <PointSelector
+              label="Por abandono"
+              value={lastTournamentSettings.forfeitPoints}
+              onChange={(v) => updateSettings('forfeitPoints', v)}
+            />
+          </CardContent>
+        </Card>
 
-        <Separator />
-
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Puntos
-          </h2>
-          <PointSelector
-            label="Puntos por Bye"
-            value={lastTournamentSettings.byePoints}
-            onChange={(v) => updateSettings('byePoints', v)}
-          />
-          <PointSelector
-            label="Puntos por Abandono"
-            value={lastTournamentSettings.forfeitPoints}
-            onChange={(v) => updateSettings('forfeitPoints', v)}
-          />
-        </section>
-
-        <Separator />
-
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Participantes guardados
-          </h2>
-          <ParticipantsPool
-            pool={participantsPool}
-            onAdd={addToParticipantsPool}
-            onRemove={removeFromParticipantsPool}
-          />
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Participantes guardados
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ParticipantsPool
+              pool={participantsPool}
+              onAdd={addToParticipantsPool}
+              onRemove={removeFromParticipantsPool}
+            />
+          </CardContent>
+        </Card>
       </div>
     </AppShell>
   )

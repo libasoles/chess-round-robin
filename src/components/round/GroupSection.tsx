@@ -1,8 +1,7 @@
 import type { Match, MatchResult, Participant } from '@/domain/types'
 import { MatchRow } from './MatchRow'
-
-const WHITE_KNIGHT = '♘'
-const BLACK_KNIGHT = '♞'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChessKnight } from 'lucide-react'
 
 interface GroupSectionProps {
   groupName: string
@@ -34,21 +33,25 @@ export function GroupSection({
   })
 
   return (
-    <div className="mb-4">
+    <Card size="sm" className="mb-4">
       {showGroupName && (
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">Grupo {groupName}</h3>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold text-muted-foreground">
+            Grupo {groupName}
+          </CardTitle>
+        </CardHeader>
       )}
-      <div className="rounded-lg border border-border bg-card px-3">
-        <div className="py-2 border-b border-border">
+      <CardContent className="space-y-2">
+        <div className="rounded-md bg-muted/50 px-2 py-1.5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-xs text-muted-foreground">
             <div className="min-w-0 flex items-center gap-1">
-              <span className="text-base leading-none shrink-0">{WHITE_KNIGHT}</span>
+              <ChessKnight className="h-5 w-5 shrink-0 text-white" />
               <span>Blancas</span>
             </div>
             <span className="text-center"> </span>
             <div className="min-w-0 flex items-center justify-end gap-1">
               <span>Negras</span>
-              <span className="text-base leading-none shrink-0">{BLACK_KNIGHT}</span>
+              <ChessKnight className="h-5 w-5 shrink-0 scale-x-[-1] text-foreground" />
             </div>
           </div>
         </div>
@@ -61,7 +64,7 @@ export function GroupSection({
             readonly={readonly}
           />
         ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

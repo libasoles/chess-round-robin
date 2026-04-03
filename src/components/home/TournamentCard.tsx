@@ -1,8 +1,10 @@
 import type { Tournament } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
+import { Badge } from '@/components/ui/badge'
 
 interface TournamentCardProps {
   tournament: Tournament
+  onClick?: () => void
 }
 
 function formatDate(iso: string): string {
@@ -11,6 +13,23 @@ function formatDate(iso: string): string {
     month: 'numeric',
     year: 'numeric',
   })
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('es-AR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+}
+
+function formatDateAndTimeParts(startIso: string, endIso?: string): { date: string; time: string } {
+  const startDate = formatDate(startIso)
+  const startTime = formatTime(startIso)
+
+  if (!endIso) return { date: startDate, time: `Inicio ${startTime} · En curso` }
+
+  return { date: startDate, time: `Inicio ${startTime}` }
 }
 
 function getRoundCount(tournament: Tournament): number {
@@ -42,16 +61,24 @@ function getWinners(tournament: Tournament): string[] {
   return winners
 }
 
-export function TournamentCard({ tournament }: TournamentCardProps) {
+export function TournamentCard({ tournament, onClick }: TournamentCardProps) {
   const rounds = getRoundCount(tournament)
   const phases = tournament.phases.length
   const winners = getWinners(tournament)
-
-  const date = tournament.finishedAt ?? tournament.createdAt
+  const dateTime = formatDateAndTimeParts(tournament.createdAt, tournament.finishedAt)
 
   return (
-    <div className="rounded-lg border border-border bg-card px-4 py-3 space-y-1">
-      <p className="text-sm font-semibold">{formatDate(date)}</p>
+    <div
+      className={`rounded-lg border border-border bg-card px-4 py-3 space-y-1${onClick ? ' cursor-pointer hover:bg-accent transition-colors' : ''}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+    >
+      <div className="flex items-center gap-2">
+        <Badge variant="secondary" className="h-7 px-3 text-sm font-semibold">
+          {dateTime.date}
+        </Badge>
+        <span className="text-sm text-muted-foreground">{dateTime.time}</span>
+      </div>
       <p className="text-sm text-muted-foreground">
         {rounds} {rounds === 1 ? 'ronda' : 'rondas'}
         {phases > 1 && ` · ${phases} fases`}

@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import type { Group, StandingEntry, TiebreakMethod, TournamentSettings } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
@@ -31,18 +32,18 @@ export function StandingsTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm table-fixed">
         <thead>
           <tr className="text-muted-foreground border-b border-border">
             {showAdvanceSelector && <th className="w-8 pb-2 text-left" />}
             <th className="text-left pb-2 font-medium">Nombre</th>
-            <th className="text-center pb-2 font-medium px-2">Pts</th>
+            <th className="w-12 text-center pb-2 font-medium">Pts</th>
             {tiebreakCols.map((m) => (
-              <th key={m} className="text-center pb-2 font-medium px-2">
+              <th key={m} className="w-12 text-center pb-2 font-medium">
                 {m}
               </th>
             ))}
-            <th className="text-right pb-2 font-medium">Pos.</th>
+            <th className="w-12 text-right pb-2 font-medium">Pos.</th>
           </tr>
         </thead>
         <tbody>
@@ -60,15 +61,24 @@ export function StandingsTable({
                     />
                   </td>
                 )}
-                <td className="py-2 font-medium">{name}</td>
-                <td className="py-2 text-center px-2">
+                <td className="py-2 font-medium truncate">{name}</td>
+                <td className="py-2 text-center">
                   {entry.points % 1 === 0 ? entry.points : entry.points.toFixed(1)}
                 </td>
                 {tiebreakCols.map((m) => {
                   const score = entry.tiebreakScores[m]
                   const isDeciding = entry.tiebreakUsed === m
+                  if (m === 'SB') {
+                    return (
+                      <td key={m} className="py-2 text-center">
+                        {score !== undefined && score > 0 ? (
+                          <Check className={`h-4 w-4 mx-auto${isDeciding ? ' text-primary' : ' text-muted-foreground'}`} />
+                        ) : null}
+                      </td>
+                    )
+                  }
                   return (
-                    <td key={m} className={`py-2 text-center px-2${isDeciding ? ' font-semibold text-foreground' : ' text-muted-foreground'}`}>
+                    <td key={m} className={`py-2 text-center${isDeciding ? ' font-semibold text-foreground' : ' text-muted-foreground'}`}>
                       {score !== undefined
                         ? (score % 1 === 0 ? score : score.toFixed(1))
                         : null}

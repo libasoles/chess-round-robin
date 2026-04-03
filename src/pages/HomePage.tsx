@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Settings } from 'lucide-react'
+import { Settings, ArrowRight, Play } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { BottomAction } from '@/components/layout/BottomAction'
@@ -40,16 +40,21 @@ export function HomePage() {
       >
         <div className="space-y-3">
           {activeTournament && (
-            <button
-              type="button"
-              onClick={resumeTournament}
-              className="w-full rounded-lg border border-primary bg-primary/5 px-4 py-3 text-left space-y-0.5 hover:bg-primary/10 transition-colors"
-            >
-              <p className="text-sm font-semibold text-primary">▶ Torneo en curso</p>
-              <p className="text-xs text-muted-foreground">
-                Ronda {currentRound} de {getTotalRounds(activeTournament.phases)} · Continuar →
+            <div className="rounded-lg border border-primary bg-primary/5 px-4 py-3 space-y-2">
+              <p className="text-sm font-semibold text-primary flex items-center gap-1.5">
+                <Play className="h-3.5 w-3.5 fill-current" />
+                Torneo en curso
               </p>
-            </button>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm text-muted-foreground">
+                  Ronda {currentRound} de {getTotalRounds(activeTournament.phases)}
+                </p>
+                <Button size="sm" onClick={resumeTournament} className="gap-1.5 shrink-0">
+                  Continuar
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
           )}
 
           {tournaments.length === 0 && !activeTournament ? (
@@ -57,7 +62,11 @@ export function HomePage() {
           ) : (
             <div className="space-y-2">
               {tournaments.map((t) => (
-                <TournamentCard key={t.id} tournament={t} />
+                <TournamentCard
+                  key={t.id}
+                  tournament={t}
+                  onClick={() => navigate(`/tournament/history/${t.id}`)}
+                />
               ))}
             </div>
           )}

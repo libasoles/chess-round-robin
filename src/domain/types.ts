@@ -10,6 +10,7 @@ export type TiebreakMethod = 'DE' | 'SB' | 'Buchholz' | 'PN'
 
 export type TournamentSettings = {
   arbitratorName: string
+  organizerName?: string
   forfeitPoints: 0 | 0.5 | 1
   byePoints: 0 | 0.5 | 1
   tiebreakOrder: TiebreakMethod[]
@@ -18,6 +19,7 @@ export type TournamentSettings = {
 
 export type AppSettings = {
   arbitratorName: string | null
+  organizerName?: string | null
   lastTournamentSettings: TournamentSettings
 }
 

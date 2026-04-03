@@ -22,7 +22,7 @@ export function MatchRow({ match, participants, onResult, readonly = false }: Ma
     const blackName = black.isBye ? 'Libre' : black.name
 
     return (
-      <div className="py-3 border-b border-border last:border-0">
+      <div className="rounded-md bg-muted/40 px-2 py-2">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
           <div className="min-w-0">
             <span className="font-medium break-words">{whiteName}</span>
@@ -33,7 +33,9 @@ export function MatchRow({ match, participants, onResult, readonly = false }: Ma
           </div>
         </div>
         <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-          <Trophy className="h-4 w-4" />
+          <span className="inline-flex items-center justify-center p-1 rounded-md bg-primary text-primary-foreground">
+            <Trophy className="h-4 w-4" />
+          </span>
           <span>punto de bye</span>
         </div>
       </div>
@@ -41,7 +43,7 @@ export function MatchRow({ match, participants, onResult, readonly = false }: Ma
   }
 
   return (
-    <div className="py-3 border-b border-border last:border-0">
+    <div className="rounded-md bg-muted/40 px-2 py-2">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
         <div className="min-w-0">
           <span className="font-medium break-words">{white.name}</span>

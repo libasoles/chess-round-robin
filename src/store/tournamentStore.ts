@@ -4,6 +4,7 @@ import type { Group, Match, MatchResult, Phase, Tournament, TournamentSettings }
 import { buildGroupSizes } from '@/domain/groupSizes'
 import { normalizeName, assignParticipantsToGroups, GROUP_NAMES, BYE_PARTICIPANT } from '@/domain/participants'
 import { generateRoundRobinPairings } from '@/domain/roundRobin'
+import { useSettingsStore } from '@/store/settingsStore'
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
@@ -114,6 +115,7 @@ export const useTournamentStore = create<TournamentState>()(
         }
 
         set({ activeTournament: tournament, currentRound: 1 })
+        useSettingsStore.getState().addOwnedTournamentId(tournament.id)
       },
 
       abandonTournament: () => set({ activeTournament: null, currentRound: 1 }),

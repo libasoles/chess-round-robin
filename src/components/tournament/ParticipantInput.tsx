@@ -133,8 +133,8 @@ export function ParticipantInput({
                 <li key={s} role="option" aria-selected={idx === activeSuggestionIndex}>
                   <button
                     type="button"
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground ${
-                      idx === activeSuggestionIndex ? 'bg-accent text-accent-foreground' : ''
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-primary/20 hover:text-foreground ${
+                      idx === activeSuggestionIndex ? 'bg-primary/30 text-foreground font-medium' : ''
                     }`}
                     onMouseEnter={() => setActiveSuggestionIndex(idx)}
                     onMouseDown={() => selectSuggestion(normalizeName(s))}

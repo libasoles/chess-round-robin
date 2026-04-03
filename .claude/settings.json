@@ -8,7 +8,10 @@
       "Bash(npx shadcn@latest init --defaults)",
       "Bash(npx shadcn@latest add dialog input checkbox label card badge separator)",
       "Bash(npx shadcn@latest add dialog input checkbox label card badge separator --overwrite)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx shadcn@latest add tabs --yes)",
+      "WebSearch",
+      "WebFetch(domain:shadcnstudio.com)"
     ]
   }
 }
