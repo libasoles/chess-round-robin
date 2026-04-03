@@ -1,5 +1,7 @@
 import type { Tournament } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
+import { ParticipantName } from '@/components/participants/ParticipantName'
+import { Trophy } from 'lucide-react'
 
 interface TournamentCardProps {
   tournament: Tournament
@@ -81,9 +83,10 @@ export function TournamentCard({ tournament, onClick }: TournamentCardProps) {
         {phases > 1 && ` · ${phases} fases`}
       </p>
       {winners.length > 0 && (
-        <p className="text-sm">
+        <p className="text-sm flex items-center gap-1.5">
+          <Trophy className="h-4 w-4 text-primary shrink-0" />
           {winners.length === 1 ? 'Ganó' : 'Ganaron'}{' '}
-          <span className="font-medium">{winners.join(' y ')}</span>
+          <ParticipantName>{winners.join(' y ')}</ParticipantName>
         </p>
       )}
     </div>

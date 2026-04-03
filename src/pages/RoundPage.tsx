@@ -129,9 +129,15 @@ export function RoundPage() {
             >
               {Array.from({ length: totalRounds }, (_, i) => i + 1).map((r) => {
                 const done = isRoundComplete(activeTournament.phases, r)
+                const triggerLabel = totalRounds > 4 ? r : (r === currentRound ? `Ronda ${r}` : r)
+                const isDenseModeCurrent = totalRounds > 4 && r === currentRound
                 return (
-                  <TabsTrigger key={r} value={String(r)} className="rounded-full min-w-10 shrink-0 gap-1">
-                    {r === currentRound ? `Ronda ${r}` : r}
+                  <TabsTrigger
+                    key={r}
+                    value={String(r)}
+                    className={`rounded-full min-w-10 shrink-0 gap-1 ${isDenseModeCurrent ? 'font-bold text-base' : ''}`}
+                  >
+                    {triggerLabel}
                     {done && <Check className="h-3 w-3 text-primary" />}
                   </TabsTrigger>
                 )
