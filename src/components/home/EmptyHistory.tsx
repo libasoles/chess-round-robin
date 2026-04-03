@@ -4,11 +4,11 @@ export function EmptyHistory() {
       <img
         src="/empty.png"
         alt="Sin torneos"
-        className="mb-4 h-28 w-auto select-none"
+        className="h-44 w-auto select-none md:h-52"
         loading="lazy"
       />
-      <p className="text-muted-foreground text-sm">
-        Aún no hay torneos. ¡Crea uno nuevo para empezar!
+      <p className="empty-history-text text-muted-foreground text-sm">
+        Aún no hay torneos.
       </p>
     </div>
   )

@@ -174,7 +174,7 @@ export function NewTournamentPage() {
                   id="arbitrator"
                   value={arbitrator}
                   onChange={(e) => setArbitrator(e.target.value)}
-                  placeholder="María Gómez"
+                  placeholder="José Raúl"
                   className="text-base h-12"
                 />
               </div>
@@ -184,7 +184,7 @@ export function NewTournamentPage() {
                   id="organizer"
                   value={organizer}
                   onChange={(e) => setOrganizer(e.target.value)}
-                  placeholder="Club de Ajedrez Central"
+                  placeholder="Club de Ajedrez"
                   className="text-base h-12"
                 />
               </div>

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource/gabriela";
 @import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
@@ -223,6 +224,10 @@
   --font-sans: Nunito, sans-serif;
   --font-serif: Gabriela, Geist Fallback, ui-serif;
   --font-mono: Geist Mono, Geist Mono Fallback, ui-monospace;
+}
+
+.empty-history-text {
+  font-family: Gabriela, "Geist Fallback";
 }
 
 .dark {
