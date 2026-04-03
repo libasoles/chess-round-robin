@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 
@@ -6,6 +6,17 @@ import babel from '@rolldown/plugin-babel'
 export default defineConfig({
   plugins: [
     react(),
-    babel({ presets: [reactCompilerPreset()] })
+    babel({ presets: [reactCompilerPreset()] }),
   ],
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['src/**/__tests__/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/domain/**', 'src/lib/**'],
+      exclude: ['src/domain/__tests__/**', 'src/lib/__tests__/**'],
+      reporter: ['text', 'html'],
+    },
+  },
 })
