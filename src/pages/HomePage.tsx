@@ -24,7 +24,7 @@ export function HomePage() {
 
   function resumeTournament() {
     setCurrentRound(displayRound)
-    navigate(`/tournament/round/${displayRound}`)
+    navigate(`/tournament/${activeTournament.id}/round/${displayRound}`)
   }
 
   return (

@@ -71,7 +71,7 @@ interface TournamentState {
   currentRound: number // 1-based global round number
   draftParticipants: string[] // ephemeral, NOT persisted
 
-  createTournament: (names: string[], settings: TournamentSettings) => void
+  createTournament: (names: string[], settings: TournamentSettings) => string
   abandonTournament: () => void
   recordResult: (matchId: string, result: MatchResult) => void
   clearResult: (matchId: string) => void
@@ -116,6 +116,7 @@ export const useTournamentStore = create<TournamentState>()(
 
         set({ activeTournament: tournament, currentRound: 1 })
         useSettingsStore.getState().addOwnedTournamentId(tournament.id)
+        return tournament.id
       },
 
       abandonTournament: () => set({ activeTournament: null, currentRound: 1 }),

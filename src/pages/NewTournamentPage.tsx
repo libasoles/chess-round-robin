@@ -138,8 +138,8 @@ export function NewTournamentPage() {
 
     if (effectiveArbitrator) setArbitratorName(effectiveArbitrator)
     if (effectiveOrganizer) setOrganizerName(effectiveOrganizer)
-    createTournament(cleanNames, settings)
-    navigate('/tournament/round/1')
+    const id = createTournament(cleanNames, settings)
+    navigate(`/tournament/${id}/round/1`)
   }
 
   function handleCancel() {

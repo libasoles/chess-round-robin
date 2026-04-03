@@ -1,6 +1,6 @@
 export function EmptyHistory() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
+    <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
       <img
         src="/empty.png"
         alt="Sin torneos"

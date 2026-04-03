@@ -23,7 +23,7 @@ export function ParticipantInput({
   onChange,
   onRemove,
   suggestions,
-  placeholder = 'Nombre del participante',
+  placeholder = 'Nombre',
   canRemove = true,
   submitMode = false,
   onSubmit,

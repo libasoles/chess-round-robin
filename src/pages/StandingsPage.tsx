@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Share2, Hourglass } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
@@ -21,6 +21,8 @@ import { getTotalRounds } from '@/hooks/useCurrentRound'
 
 export function StandingsPage() {
   const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
+  const [hydrated, setHydrated] = useState(() => useTournamentStore.persist.hasHydrated())
   const { activeTournament, setCurrentRound, createNewPhase, finishTournament } =
     useTournamentStore()
   const { addToHistory } = useHistoryStore()
@@ -28,10 +30,20 @@ export function StandingsPage() {
 
   const [showFinishDialog, setShowFinishDialog] = useState(false)
 
-  if (!activeTournament) {
-    navigate('/', { replace: true })
-    return null
-  }
+  useEffect(() => {
+    const unsub = useTournamentStore.persist.onFinishHydration(() => setHydrated(true))
+    // Check again after subscribing to catch hydration that completed between render and effect
+    if (useTournamentStore.persist.hasHydrated()) setHydrated(true)
+    return unsub
+  }, [])
+
+  useEffect(() => {
+    if (hydrated && !activeTournament) {
+      navigate('/', { replace: true })
+    }
+  }, [hydrated, activeTournament, navigate])
+
+  if (!hydrated || !activeTournament) return null
 
   const { settings, phases } = activeTournament
   const useGroups = settings.useGroups
@@ -67,7 +79,7 @@ export function StandingsPage() {
     createNewPhase([...selectedIds])
     const totalRounds = getTotalRounds(activeTournament!.phases)
     setCurrentRound(totalRounds + 1)
-    navigate(`/tournament/round/${totalRounds + 1}`)
+    navigate(`/tournament/${id}/round/${totalRounds + 1}`)
   }
 
   function handleFinish() {
@@ -83,7 +95,7 @@ export function StandingsPage() {
   function goBack() {
     const total = getTotalRounds(phases)
     setCurrentRound(total)
-    navigate(`/tournament/round/${total}`)
+    navigate(`/tournament/${id}/round/${total}`)
   }
 
   const isActive = activeTournament.status === 'active'
@@ -112,7 +124,7 @@ export function StandingsPage() {
                   onClick={() =>
                     navigator.share({ title: 'Torneo de ajedrez', url: window.location.href })
                   }
-                  className="p-2 text-muted-foreground hover:text-foreground"
+                  className="p-2 text-chart-3 hover:text-chart-3/80"
                   aria-label="Compartir"
                 >
                   <Share2 className="h-5 w-5" />

@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useGesture } from '@use-gesture/react'
 import { Check, Share2 } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
@@ -12,14 +13,26 @@ import type { MatchResult, Participant } from '@/domain/types'
 
 export function RoundPage() {
   const navigate = useNavigate()
-  const { activeTournament, currentRound, setCurrentRound, recordResult, clearResult } =
-    useTournamentStore()
+  const { id, round: roundParam } = useParams<{ id: string; round: string }>()
+  const [hydrated, setHydrated] = useState(() => useTournamentStore.persist.hasHydrated())
+  const { activeTournament, setCurrentRound, recordResult, clearResult } = useTournamentStore()
 
-  if (!activeTournament) {
-    navigate('/', { replace: true })
-    return null
-  }
+  useEffect(() => {
+    const unsub = useTournamentStore.persist.onFinishHydration(() => setHydrated(true))
+    // Check again after subscribing to catch hydration that completed between render and effect
+    if (useTournamentStore.persist.hasHydrated()) setHydrated(true)
+    return unsub
+  }, [])
 
+  useEffect(() => {
+    if (hydrated && !activeTournament) {
+      navigate('/', { replace: true })
+    }
+  }, [hydrated, activeTournament, navigate])
+
+  if (!hydrated || !activeTournament) return null
+
+  const currentRound = Number(roundParam) || 1
   const totalRounds = getTotalRounds(activeTournament.phases)
   const isFirstRound = currentRound === 1
   const isLastRound = currentRound === totalRounds
@@ -38,7 +51,7 @@ export function RoundPage() {
 
   function goToRound(round: number) {
     setCurrentRound(round)
-    navigate(`/tournament/round/${round}`, { replace: true })
+    navigate(`/tournament/${id}/round/${round}`, { replace: true })
   }
 
   function goNext() {
@@ -80,7 +93,7 @@ export function RoundPage() {
                     onClick={() =>
                       navigator.share({ title: 'Torneo de ajedrez', url: window.location.href })
                     }
-                    className="p-2 text-muted-foreground hover:text-foreground"
+                    className="p-2 text-chart-3 hover:text-chart-3/80"
                     aria-label="Compartir"
                   >
                     <Share2 className="h-5 w-5" />
@@ -115,7 +128,7 @@ export function RoundPage() {
             value={String(currentRound)}
             onValueChange={(val) => {
               if (val === 'fin') {
-                navigate('/tournament/standings')
+                navigate(`/tournament/${id}/standings`)
               } else {
                 goToRound(Number(val))
               }

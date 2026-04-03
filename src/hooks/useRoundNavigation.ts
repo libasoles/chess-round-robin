@@ -12,12 +12,12 @@ export function useRoundNavigation() {
 
   function goToRound(round: number) {
     setCurrentRound(round)
-    navigate(`/tournament/round/${round}`, { replace: true })
+    navigate(`/tournament/${activeTournament!.id}/round/${round}`, { replace: true })
   }
 
   function goNext() {
     if (isLastRound) {
-      navigate('/tournament/standings')
+      navigate(`/tournament/${activeTournament!.id}/standings`)
     } else {
       goToRound(currentRound + 1)
     }
