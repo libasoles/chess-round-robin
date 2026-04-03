@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useGesture } from '@use-gesture/react'
-import { ArrowLeft, Share2, Hourglass } from 'lucide-react'
+import { ArrowLeft, Hourglass } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
+import { TopBarShareAction } from '@/components/layout/TopBarShareAction'
 import { BottomAction } from '@/components/layout/BottomAction'
 import { StandingsTable } from '@/components/standings/StandingsTable'
 import { Button } from '@/components/ui/button'
@@ -106,8 +107,6 @@ export function StandingsPage() {
   })
 
   const isActive = activeTournament.status === 'active'
-  const canShare = typeof navigator.share !== 'undefined'
-
   return (
     <div>
       <AppShell
@@ -125,20 +124,7 @@ export function StandingsPage() {
               </button>
             }
             title={hasPendingMatches ? 'Resultados provisorios' : 'Resultados'}
-            right={
-              canShare ? (
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigator.share({ title: 'Torneo de ajedrez', url: window.location.href })
-                  }
-                  className="p-2 text-chart-3 hover:text-chart-3/80"
-                  aria-label="Compartir"
-                >
-                  <Share2 className="h-5 w-5" />
-                </button>
-              ) : undefined
-            }
+            right={<TopBarShareAction />}
           />
         }
         hasBottomAction={isActive}

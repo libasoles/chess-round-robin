@@ -135,6 +135,10 @@ export function SettingsPage() {
             />
           </CardContent>
         </Card>
+
+        <p className="px-1 text-right text-xs text-muted-foreground">
+          Versión {__APP_VERSION__}
+        </p>
       </div>
     </AppShell>
   )

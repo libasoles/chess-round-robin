@@ -2,10 +2,18 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { readFileSync } from 'fs'
 import path from 'path'
+
+const packageJson = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
+) as { version: string }
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+  },
   plugins: [
     tailwindcss(),
     react(),
@@ -13,8 +21,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Round Robin',
-        short_name: 'Round Robin',
+        name: 'Torneo Round Robin',
+        short_name: 'Torneo Round Robin',
         description: 'Gestión de torneos de ajedrez round robin',
         theme_color: '#000000',
         background_color: '#ffffff',

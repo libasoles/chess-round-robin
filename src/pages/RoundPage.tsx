@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useGesture } from '@use-gesture/react'
-import { Check, Share2 } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
+import { TopBarShareAction } from '@/components/layout/TopBarShareAction'
 import { BottomAction } from '@/components/layout/BottomAction'
 import { GroupSection } from '@/components/round/GroupSection'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -79,30 +80,13 @@ export function RoundPage() {
     },
   })
 
-  const canShare = typeof navigator.share !== 'undefined'
-
   return (
     <div>
       <AppShell
         mainProps={bind()}
         topBar={
           <TopBar
-            right={
-              <div className="flex items-center gap-1">
-                {canShare && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigator.share({ title: 'Torneo de ajedrez', url: window.location.href })
-                    }
-                    className="p-2 text-chart-3 hover:text-chart-3/80"
-                    aria-label="Compartir"
-                  >
-                    <Share2 className="h-5 w-5" />
-                  </button>
-                )}
-              </div>
-            }
+            right={<TopBarShareAction />}
           />
         }
         hasBottomAction
