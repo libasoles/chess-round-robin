@@ -38,9 +38,17 @@ export function computeStandings(
     }
   }
 
-  const entries: StandingEntry[] = Array.from(points.entries()).map(
-    ([participantId, pts]) => ({ participantId, points: pts }),
+  const unsorted: StandingEntry[] = Array.from(points.entries()).map(
+    ([participantId, pts]) => ({
+      participantId,
+      points: pts,
+      tiebreakScores: {},
+      rank: 0,
+      tiebreakUsed: null,
+    }),
   )
 
-  return entries.sort((a, b) => b.points - a.points)
+  const sorted = unsorted.sort((a, b) => b.points - a.points)
+  sorted.forEach((entry, index) => { entry.rank = index + 1 })
+  return sorted
 }

@@ -6,7 +6,7 @@ export type MatchResult =
   | 'forfeit_black'
   | 'auto_bye'
 
-export type TiebreakMethod = 'DE' | 'SB'
+export type TiebreakMethod = 'DE' | 'SB' | 'Buchholz' | 'PN'
 
 export type TournamentSettings = {
   arbitratorName: string
@@ -58,6 +58,9 @@ export type Tournament = {
 export type StandingEntry = {
   participantId: string
   points: number
+  tiebreakScores: Partial<Record<TiebreakMethod, number>>
+  rank: number
+  tiebreakUsed: TiebreakMethod | null
 }
 
 export type ValidationResult =
