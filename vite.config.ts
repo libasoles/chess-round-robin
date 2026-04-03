@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 // https://vite.dev/config/
@@ -10,6 +11,33 @@ export default defineConfig({
     tailwindcss(),
     react(),
     babel({ presets: [reactCompilerPreset()] }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      manifest: {
+        name: 'Torneos de Ajedrez',
+        short_name: 'Ajedrez',
+        description: 'Gestión de torneos de ajedrez round robin',
+        theme_color: '#000000',
+        background_color: '#ffffff',
+        display: 'standalone',
+        icons: [
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*/i,
+            handler: 'NetworkFirst',
+            options: { cacheName: 'external-cache' },
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: {
