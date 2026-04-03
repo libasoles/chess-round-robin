@@ -39,6 +39,11 @@ export function ParticipantInput({
     if (!autoFocus) return
     inputRef.current?.focus()
     onAutoFocusHandled?.()
+    // Delay scroll to give the soft keyboard time to appear and resize the viewport
+    const id = window.setTimeout(() => {
+      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }, 300)
+    return () => window.clearTimeout(id)
   }, [autoFocus, onAutoFocusHandled])
 
   const filtered = suggestions.filter(

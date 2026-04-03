@@ -56,6 +56,7 @@ export function RoundPage() {
 
   function goNext() {
     if (!isLastRound) goToRound(currentRound + 1)
+    else navigate(`/tournament/${id}/standings`)
   }
 
   function goPrev() {

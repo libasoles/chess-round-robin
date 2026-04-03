@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useGesture } from '@use-gesture/react'
 import { ArrowLeft, Share2, Hourglass } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
@@ -98,11 +99,17 @@ export function StandingsPage() {
     navigate(`/tournament/${id}/round/${total}`)
   }
 
+  const bind = useGesture({
+    onDrag: ({ swipe: [swipeX] }) => {
+      if (swipeX === 1) goBack()
+    },
+  })
+
   const isActive = activeTournament.status === 'active'
   const canShare = typeof navigator.share !== 'undefined'
 
   return (
-    <>
+    <div {...bind()} style={{ touchAction: 'pan-y' }}>
       <AppShell
         topBar={
           <TopBar
@@ -219,6 +226,6 @@ export function StandingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   )
 }

@@ -25,7 +25,7 @@ const DEFAULT_TOURNAMENT_SETTINGS: TournamentSettings = {
   organizerName: '',
   forfeitPoints: 1,
   byePoints: 1,
-  tiebreakOrder: ['DE', 'SB'],
+  tiebreakOrder: ['DE', 'PN'],
   useGroups: true,
 }
 
@@ -36,7 +36,7 @@ export const useSettingsStore = create<SettingsState>()(
       organizerName: null,
       lastTournamentSettings: DEFAULT_TOURNAMENT_SETTINGS,
       participantsPool: [],
-      theme: 'system',
+      theme: 'dark',
       ownedTournamentIds: [],
 
       setArbitratorName: (name) =>
