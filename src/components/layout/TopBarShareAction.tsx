@@ -20,7 +20,7 @@ export function TopBarShareAction({
       <button
         type="button"
         onClick={() => navigator.share({ title, url })}
-        className="p-2 -mr-1 text-chart-3 hover:text-chart-3/80"
+        className="p-2 -mr-1 text-blue-800/80 hover:text-blue-800 dark:text-blue-300/85 dark:hover:text-blue-300"
         aria-label="Compartir"
       >
         <Share2 className="h-5 w-5" />

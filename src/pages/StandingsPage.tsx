@@ -7,6 +7,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { TopBarShareAction } from '@/components/layout/TopBarShareAction'
 import { BottomAction } from '@/components/layout/BottomAction'
 import { StandingsTable } from '@/components/standings/StandingsTable'
+import { ResultsOfficials } from '@/components/standings/ResultsOfficials'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -131,8 +132,8 @@ export function StandingsPage() {
       >
         <div className="space-y-6 pb-4">
           {hasPendingMatches && (
-            <div className="flex items-center gap-2 rounded-lg bg-primary/15 border border-primary/40 px-4 py-3 text-primary">
-              <Hourglass className="h-4 w-4 shrink-0" />
+            <div className="flex items-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-3 text-foreground">
+              <Hourglass className="h-4 w-4 shrink-0 text-primary motion-safe:animate-[hourglass-flip_3.2s_ease-in-out_infinite]" />
               <p className="text-sm font-medium">Hay partidas con resultado pendiente</p>
             </div>
           )}
@@ -165,6 +166,10 @@ export function StandingsPage() {
               </div>
             </div>
           ))}
+          <ResultsOfficials
+            arbitratorName={settings.arbitratorName}
+            organizerName={settings.organizerName}
+          />
         </div>
       </AppShell>
 

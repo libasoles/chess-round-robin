@@ -61,7 +61,11 @@ export function HomePage() {
                 <p className="text-sm text-muted-foreground">
                   Ronda {displayRound} de {getTotalRounds(activeTournament.phases)}
                 </p>
-                <Button size="sm" onClick={resumeTournament} className="gap-1.5 shrink-0">
+                <Button
+                  size="sm"
+                  onClick={resumeTournament}
+                  className="gap-1.5 shrink-0 border border-primary/50 bg-primary/15 text-foreground hover:bg-primary/25"
+                >
                   Continuar
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Button>

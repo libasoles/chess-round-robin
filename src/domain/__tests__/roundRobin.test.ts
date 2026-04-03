@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateRoundRobinPairings } from '../roundRobin'
+import { BYE_PARTICIPANT } from '../participants'
 import type { Group, Participant } from '../types'
 
 function makeParticipant(id: string): Participant {
@@ -161,6 +162,22 @@ describe('generateRoundRobinPairings', () => {
           m => m.result === 'auto_bye' && (m.white === p.id || m.black === p.id),
         )
         expect(byeMatches).toHaveLength(1)
+      }
+    })
+  })
+
+  describe('bye participant ID invariant', () => {
+    it('auto_bye matches always reference BYE_PARTICIPANT.id on the bye side', () => {
+      for (const count of [3, 5]) {
+        const players = Array.from({ length: count }, (_, i) =>
+          makeParticipant(String.fromCharCode(65 + i)),
+        )
+        const group = makeGroup(players)
+        const matches = generateRoundRobinPairings(group)
+        for (const match of matches.filter(m => m.result === 'auto_bye')) {
+          const byeSide = match.white === BYE_PARTICIPANT.id || match.black === BYE_PARTICIPANT.id
+          expect(byeSide).toBe(true)
+        }
       }
     })
   })

@@ -3,6 +3,7 @@ import { ArrowLeft, AlertTriangle } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { StandingsTable } from '@/components/standings/StandingsTable'
+import { ResultsOfficials } from '@/components/standings/ResultsOfficials'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useHistoryStore } from '@/store/historyStore'
@@ -72,8 +73,8 @@ export function TournamentResultsPage() {
     >
       <div className="space-y-6 pb-4">
         {hasPending && (
-          <div className="flex items-center gap-2 rounded-lg bg-primary/15 border border-primary/40 px-4 py-3 text-primary">
-            <AlertTriangle className="h-4 w-4 shrink-0" />
+          <div className="flex items-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-3 text-foreground">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-primary" />
             <p className="text-sm font-medium">Hay partidas con resultado pendiente</p>
           </div>
         )}
@@ -109,6 +110,10 @@ export function TournamentResultsPage() {
             </div>
           </div>
         ))}
+        <ResultsOfficials
+          arbitratorName={settings.arbitratorName}
+          organizerName={settings.organizerName}
+        />
       </div>
     </AppShell>
   )

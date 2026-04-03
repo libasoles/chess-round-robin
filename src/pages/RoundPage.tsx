@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useTournamentStore } from '@/store/tournamentStore'
 import { getCurrentRoundMatches, getTotalRounds, isRoundComplete } from '@/hooks/useCurrentRound'
 import type { MatchResult, Participant } from '@/domain/types'
+import { BYE_PARTICIPANT } from '@/domain/participants'
 
 export function RoundPage() {
   const navigate = useNavigate()
@@ -42,6 +43,7 @@ export function RoundPage() {
 
   // Build participant lookup map across all phases
   const participants = new Map<string, Participant>()
+  participants.set(BYE_PARTICIPANT.id, BYE_PARTICIPANT)
   for (const phase of activeTournament.phases) {
     for (const group of phase.groups) {
       for (const p of group.participants) {
@@ -130,7 +132,7 @@ export function RoundPage() {
                 return (
                   <TabsTrigger key={r} value={String(r)} className="rounded-full min-w-10 shrink-0 gap-1">
                     {r === currentRound ? `Ronda ${r}` : r}
-                    {done && <Check className="h-3 w-3" />}
+                    {done && <Check className="h-3 w-3 text-primary" />}
                   </TabsTrigger>
                 )
               })}

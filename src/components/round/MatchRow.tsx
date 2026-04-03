@@ -1,80 +1,85 @@
-import type { Match, MatchResult, Participant } from '@/domain/types'
-import { ResultButtons } from './ResultButtons'
-import { Trophy } from 'lucide-react'
+import { ParticipantName } from "@/components/participants/ParticipantName";
+import type { Match, MatchResult, Participant } from "@/domain/types";
+import { Trophy } from "lucide-react";
+import { ResultButtons } from "./ResultButtons";
 
 interface MatchRowProps {
-  match: Match
-  participants: Map<string, Participant>
-  onResult: (matchId: string, result: MatchResult | null) => void
-  readonly?: boolean
+  match: Match;
+  participants: Map<string, Participant>;
+  onResult: (matchId: string, result: MatchResult | null) => void;
+  readonly?: boolean;
 }
 
-export function MatchRow({ match, participants, onResult, readonly = false }: MatchRowProps) {
-  const white = participants.get(match.white)
-  const black = participants.get(match.black)
+export function MatchRow({
+  match,
+  participants,
+  onResult,
+  readonly = false,
+}: MatchRowProps) {
+  const white = participants.get(match.white);
+  const black = participants.get(match.black);
 
-  if (!white || !black) return null
+  if (!white || !black) return null;
 
-  const isBye = white.isBye || black.isBye
+  const isBye = white.isBye || black.isBye;
 
   if (isBye) {
-    const whiteName = white.isBye ? 'Libre' : white.name
-    const blackName = black.isBye ? 'Libre' : black.name
+    const playerName = white.isBye ? black.name : white.name;
 
     return (
       <div className="rounded-md bg-muted/40 px-2 py-2">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
-          <div className="min-w-0">
-            <span className="font-medium break-words">{whiteName}</span>
-          </div>
-          <span className="text-muted-foreground text-xs text-center">vs</span>
-          <div className="min-w-0 text-right">
-            <span className="font-medium break-words">{blackName}</span>
-          </div>
+        <div className="min-w-0 mb-1.5 text-sm">
+          <ParticipantName>{playerName}</ParticipantName>
         </div>
         <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-          <span className="inline-flex items-center justify-center p-1 rounded-md bg-primary text-primary-foreground">
-            <Trophy className="h-4 w-4" />
+          <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Trophy className="h-5 w-5" />
           </span>
           <span>punto de bye</span>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="rounded-md bg-muted/40 px-2 py-2">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
         <div className="min-w-0">
-          <span className="font-medium break-words text-chart-3">{white.name}</span>
+          <ParticipantName>{white.name}</ParticipantName>
         </div>
         <span className="text-muted-foreground text-xs text-center">vs</span>
         <div className="min-w-0 text-right">
-          <span className="font-medium text-right break-words text-chart-3">{black.name}</span>
+          <ParticipantName className="text-right">{black.name}</ParticipantName>
         </div>
       </div>
       {!readonly && (
         <ResultButtons
-          current={match.result === 'auto_bye' ? null : match.result}
+          current={match.result === "auto_bye" ? null : match.result}
           onChange={(result) => onResult(match.id, result)}
         />
       )}
-      {readonly && match.result && match.result !== 'auto_bye' && (
+      {readonly && match.result && match.result !== "auto_bye" && (
         <p className="text-xs text-muted-foreground mt-1 text-center">
           {resultLabel(match.result)}
         </p>
       )}
     </div>
-  )
+  );
 }
 
 function resultLabel(result: MatchResult): string {
   switch (result) {
-    case 'white_win': return 'Ganan blancas'
-    case 'black_win': return 'Ganan negras'
-    case 'draw': return 'Tablas'
-    case 'forfeit_white': return 'Abandono blancas'
-    case 'forfeit_black': return 'Abandono negras'
-    case 'auto_bye': return 'Bye'
+    case "white_win":
+      return "Ganan blancas";
+    case "black_win":
+      return "Ganan negras";
+    case "draw":
+      return "Tablas";
+    case "forfeit_white":
+      return "Abandono blancas";
+    case "forfeit_black":
+      return "Abandono negras";
+    case "auto_bye":
+      return "Bye";
   }
 }

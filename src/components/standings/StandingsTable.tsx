@@ -1,7 +1,49 @@
 import { Check } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
+import { ParticipantName } from '@/components/participants/ParticipantName'
 import type { Group, StandingEntry, TiebreakMethod, TournamentSettings } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
+
+type TiebreakReason = { label: string; reason: string }
+
+function explainUnresolvedTie(
+  tiedIds: string[],
+  group: Group,
+  settings: TournamentSettings,
+): TiebreakReason[] {
+  if (settings.tiebreakOrder.length === 0) {
+    return [{ label: '', reason: 'Sin criterios de desempate configurados.' }]
+  }
+
+  const results: TiebreakReason[] = []
+
+  for (const method of settings.tiebreakOrder) {
+    if (method === 'DE') {
+      if (tiedIds.length > 2) {
+        results.push({ label: 'Encuentro Directo', reason: 'solo aplica a empates de 2 jugadores.' })
+      } else {
+        const [a, b] = tiedIds
+        const match = group.matches.find(
+          m => (m.white === a && m.black === b) || (m.white === b && m.black === a),
+        )
+        if (!match || match.result === null) {
+          results.push({ label: 'Encuentro Directo', reason: 'la partida no fue jugada.' })
+        } else {
+          results.push({ label: 'Encuentro Directo', reason: 'la partida terminó en tablas.' })
+        }
+      }
+    } else {
+      const labels: Record<string, string> = {
+        SB: 'Sonneborn-Berger',
+        Buchholz: 'Buchholz',
+        PN: 'Partidas con Negras',
+      }
+      results.push({ label: labels[method] ?? method, reason: 'puntaje igual.' })
+    }
+  }
+
+  return results
+}
 
 interface StandingsTableProps {
   group: Group
@@ -30,6 +72,15 @@ export function StandingsTable({
 
   // Build participant name lookup
   const nameMap = new Map(group.participants.map((p) => [p.id, p.name]))
+
+  // Detect unresolved ties: groups of 2+ players sharing the same rank
+  const rankGroups = new Map<number, StandingEntry[]>()
+  for (const entry of entries) {
+    const group_ = rankGroups.get(entry.rank) ?? []
+    group_.push(entry)
+    rankGroups.set(entry.rank, group_)
+  }
+  const unresolvedTies = [...rankGroups.values()].filter(g => g.length > 1)
 
   return (
     <div className="overflow-x-auto">
@@ -62,7 +113,9 @@ export function StandingsTable({
                     />
                   </td>
                 )}
-                <td className="py-2 font-medium text-chart-3 wrap-break-word">{name}</td>
+                <td className="py-2 wrap-break-word">
+                  <ParticipantName>{name}</ParticipantName>
+                </td>
                 <td className="py-2 text-center">
                   {entry.points % 1 === 0 ? entry.points : entry.points.toFixed(1)}
                 </td>
@@ -81,8 +134,8 @@ export function StandingsTable({
                   if (m === 'SB') {
                     return (
                       <td key={m} className="py-2 text-center">
-                        {score !== undefined && score > 0 ? (
-                          <Check className={`h-4 w-4 mx-auto${isDeciding ? ' text-primary' : ' text-muted-foreground'}`} />
+                        {isDeciding ? (
+                          <Check className="h-4 w-4 mx-auto text-primary" />
                         ) : null}
                       </td>
                     )
@@ -104,6 +157,21 @@ export function StandingsTable({
           })}
         </tbody>
       </table>
+      {unresolvedTies.map(tiedEntries => {
+        const tiedIds = tiedEntries.map(e => e.participantId)
+        const names = tiedIds.map(id => nameMap.get(id) ?? id).join(' y ')
+        const reasons = explainUnresolvedTie(tiedIds, group, settings)
+        return (
+          <div key={tiedIds.join(',')} className="mt-3 rounded-md bg-[--surface-sunken] py-2 text-xs text-muted-foreground leading-snug space-y-1">
+            <p className="font-medium text-foreground">Empate sin resolver entre {names}</p>
+            {reasons.map((r, i) => (
+              <p key={i}>
+                {r.label && <span className="text-chart-2 font-medium">{r.label}:</span>} {r.reason}
+              </p>
+            ))}
+          </div>
+        )
+      })}
     </div>
   )
 }

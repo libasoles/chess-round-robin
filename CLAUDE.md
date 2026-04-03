@@ -120,3 +120,9 @@ Tests live in `src/domain/__tests__/` and `src/lib/__tests__/`. Vitest is config
 - **Simplicity First**: Make every change as simple as possible and impact minimal code.
 - **No Laziness**: Find root causes; no temporary fixes; senior developer standards.
 - **Minimal Impact**: Touch only what is necessary and avoid introducing bugs.
+
+## Color System Rule
+
+- Before changing UI colors, read `COLOR_REFERENCE.md`.
+- Treat `COLOR_REFERENCE.md` as the color source of truth for token meaning per theme.
+- Do not infer hue names from token names alone (`accent` is golden in dark theme).
