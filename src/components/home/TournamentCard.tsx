@@ -66,6 +66,13 @@ function getWinners(tournament: Tournament): string[] {
   return winners
 }
 
+function formatNameList(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? ''
+  if (names.length === 2) return `${names[0]} y ${names[1]}`
+
+  return `${names.slice(0, -1).join(', ')} y ${names[names.length - 1]}`
+}
+
 export function TournamentCard({ tournament, onClick, canShare = false, onDelete }: TournamentCardProps) {
   const [copied, setCopied] = useState(false)
   const rounds = getRoundCount(tournament)
@@ -132,7 +139,7 @@ export function TournamentCard({ tournament, onClick, canShare = false, onDelete
         <p className="text-sm flex items-center gap-1.5">
           <Trophy className="h-4 w-4 text-primary shrink-0" />
           {winners.length === 1 ? 'Ganó' : 'Ganaron'}{' '}
-          <ParticipantName>{winners.join(' y ')}</ParticipantName>
+          <ParticipantName>{formatNameList(winners)}</ParticipantName>
         </p>
       )}
     </div>

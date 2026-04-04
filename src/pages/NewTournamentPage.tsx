@@ -50,7 +50,7 @@ export function NewTournamentPage() {
   const [arbitrator, setArbitrator] = useState(currentArbitratorName);
   const [organizer, setOrganizer] = useState(currentOrganizerName);
   const [participants, setParticipants] = useState<string[]>([""]);
-  const [useGroups, setUseGroups] = useState(lastTournamentSettings.useGroups);
+  const [useGroups, setUseGroups] = useState(false);
   const groupSize = lastTournamentSettings.groupSize ?? 4;
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [removeIdx, setRemoveIdx] = useState<number | null>(null);
@@ -76,6 +76,8 @@ export function NewTournamentPage() {
   const suggestions = participantsPool.filter(
     (n) => !enteredNames.has(n.toLowerCase()),
   );
+  const enrolledCount = participants.filter((p) => p.trim().length > 0).length;
+  const groupsDisabled = enrolledCount < groupSize + 2;
 
   function updateParticipant(index: number, value: string) {
     const next = [...participants];
@@ -190,7 +192,10 @@ export function NewTournamentPage() {
           <Card>
             <CardContent className="space-y-3">
               <div className="space-y-1.5">
-                <Label htmlFor="arbitrator">Árbitro (opcional)</Label>
+                <Label htmlFor="arbitrator">
+                  Árbitro{" "}
+                  <span className="text-muted-foreground/65">(opcional)</span>
+                </Label>
                 <Input
                   id="arbitrator"
                   value={arbitrator}
@@ -200,7 +205,10 @@ export function NewTournamentPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="organizer">Organizador (opcional)</Label>
+                <Label htmlFor="organizer">
+                  Organizador{" "}
+                  <span className="text-muted-foreground/65">(opcional)</span>
+                </Label>
                 <Input
                   id="organizer"
                   value={organizer}
@@ -214,7 +222,17 @@ export function NewTournamentPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Participantes</CardTitle>
+              <CardTitle>
+                Participantes
+                {enrolledCount > 0 && (
+                  <>
+                    {" "}
+                    <span className="font-normal text-muted-foreground/65">
+                      ({enrolledCount})
+                    </span>
+                  </>
+                )}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {participants.map((name, idx) => (
@@ -264,7 +282,9 @@ export function NewTournamentPage() {
       <BottomAction>
         <div className="mx-auto w-full max-w-lg space-y-3">
           <div
-            className="flex items-center gap-3"
+            className={`flex items-center gap-3 ${
+              groupsDisabled ? "opacity-65" : ""
+            }`}
             onClick={() => {
               const validCount = participants.filter((p) => p.trim()).length;
               const isDisabled = validCount < groupSize + 2;
@@ -277,18 +297,16 @@ export function NewTournamentPage() {
           >
             <Checkbox
               id="use-groups"
-              checked={
-                useGroups &&
-                participants.filter((p) => p.trim()).length >= groupSize + 2
-              }
-              disabled={
-                participants.filter((p) => p.trim()).length < groupSize + 2
-              }
+              checked={useGroups && !groupsDisabled}
+              disabled={groupsDisabled}
+              className="disabled:opacity-35"
               onCheckedChange={(checked) => setUseGroups(checked === true)}
             />
             <Label
               htmlFor="use-groups"
-              className={`cursor-pointer text-base ${participants.filter((p) => p.trim()).length < groupSize + 2 ? "text-muted-foreground" : ""}`}
+              className={`cursor-pointer text-base ${
+                groupsDisabled ? "text-muted-foreground/55" : "text-foreground"
+              }`}
             >
               Crear grupos de máximo {groupSize} jugadores
             </Label>
