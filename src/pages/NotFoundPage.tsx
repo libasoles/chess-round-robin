@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/layout/AppShell";
+import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +7,7 @@ export function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <AppShell>
+    <AppShell topBar={<TopBar />}>
       <div className="flex min-h-[70svh] flex-col items-center justify-center gap-3 text-center">
         <img
           src="/empty.png"
