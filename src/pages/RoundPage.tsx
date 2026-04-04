@@ -40,6 +40,10 @@ export function RoundPage() {
   const isLastRound = currentRound === totalRounds
 
   const roundMatches = getCurrentRoundMatches(activeTournament.phases, currentRound)
+  const title =
+    activeTournament.status === 'finished'
+      ? `Resultados Ronda ${currentRound}`
+      : `Ronda ${currentRound}`
 
   // Build participant lookup map across all phases
   const participants = new Map<string, Participant>()
@@ -88,6 +92,7 @@ export function RoundPage() {
         mainProps={bind()}
         topBar={
           <TopBar
+            title={title}
             right={<TopBarShareAction />}
           />
         }

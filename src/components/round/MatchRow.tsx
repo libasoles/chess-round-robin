@@ -31,12 +31,16 @@ export function MatchRow({
         <div className="min-w-0 mb-1.5 text-sm">
           <ParticipantName>{playerName}</ParticipantName>
         </div>
-        <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-          <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Trophy className="h-5 w-5" />
-          </span>
-          <span>punto de bye</span>
-        </div>
+        {readonly ? (
+          <p className="text-xs text-muted-foreground mt-1 text-center">Punto de bye</p>
+        ) : (
+          <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+            <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Trophy className="h-5 w-5" />
+            </span>
+            <span>punto de bye</span>
+          </div>
+        )}
       </div>
     );
   }
