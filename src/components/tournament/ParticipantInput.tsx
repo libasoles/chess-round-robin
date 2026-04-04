@@ -30,6 +30,27 @@ function getScrollableContainer(element: HTMLElement | null): HTMLElement | null
   return null
 }
 
+function scrollInputIntoView(input: HTMLElement): void {
+  const vv = window.visualViewport
+  const vpHeight = vv?.height ?? window.innerHeight
+  const vpOffsetTop = vv?.offsetTop ?? 0
+
+  const footer = document.querySelector<HTMLElement>('[data-bottom-action-root]')
+  const footerHeight = footer?.getBoundingClientRect().height ?? 0
+
+  const viewportBottom = vpOffsetTop + vpHeight - footerHeight - 8
+  const inputRect = input.getBoundingClientRect()
+  const overlap = inputRect.bottom - viewportBottom
+  if (overlap <= 0) return
+
+  const scrollContainer = getScrollableContainer(input)
+  if (scrollContainer) {
+    scrollContainer.scrollBy({ top: overlap + 12, behavior: 'smooth' })
+  } else {
+    window.scrollBy({ top: overlap + 12, behavior: 'smooth' })
+  }
+}
+
 export function ParticipantInput({
   value,
   onChange,
@@ -45,6 +66,7 @@ export function ParticipantInput({
 }: ParticipantInputProps) {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
+  const [dropdownDirection, setDropdownDirection] = useState<'down' | 'up'>('down')
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -53,26 +75,25 @@ export function ParticipantInput({
     inputEl?.focus()
     onAutoFocusHandled?.()
 
-    // Delay scroll to give the soft keyboard time to appear and resize the viewport.
-    const id = window.setTimeout(() => {
+    // Belt-and-suspenders: fire once after 100ms (covers devices where
+    // visualViewport doesn't fire resize), then again on the first resize
+    // event (covers iOS where keyboard animation finishes asynchronously).
+    let fired = false
+    const tryScroll = () => {
+      if (fired) return
+      fired = true
       const input = inputRef.current
-      if (!input) return
+      if (input) scrollInputIntoView(input)
+      window.visualViewport?.removeEventListener('resize', tryScroll)
+    }
 
-      const footer = document.querySelector<HTMLElement>('[data-bottom-action-root]')
-      const footerHeight = footer?.getBoundingClientRect().height ?? 0
-      const viewportBottom = window.innerHeight - footerHeight - 8
-      const inputRect = input.getBoundingClientRect()
-      const overlap = inputRect.bottom - viewportBottom
-      if (overlap <= 0) return
+    const id = window.setTimeout(tryScroll, 100)
+    window.visualViewport?.addEventListener('resize', tryScroll)
 
-      const scrollContainer = getScrollableContainer(input)
-      if (scrollContainer) {
-        scrollContainer.scrollBy({ top: overlap + 12, behavior: 'smooth' })
-      } else {
-        window.scrollBy({ top: overlap + 12, behavior: 'smooth' })
-      }
-    }, 300)
-    return () => window.clearTimeout(id)
+    return () => {
+      window.clearTimeout(id)
+      window.visualViewport?.removeEventListener('resize', tryScroll)
+    }
   }, [autoFocus, onAutoFocusHandled])
 
   const filtered = suggestions.filter(
@@ -90,6 +111,18 @@ export function ParticipantInput({
     setActiveSuggestionIndex((current) => (
       current >= 0 && current < filtered.length ? current : 0
     ))
+  }, [showSuggestions, filtered.length])
+
+  useEffect(() => {
+    if (!showSuggestions || filtered.length === 0) return
+    const input = inputRef.current
+    if (!input) return
+    const rect = input.getBoundingClientRect()
+    const vv = window.visualViewport
+    const vpBottom = (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight)
+    const spaceBelow = vpBottom - rect.bottom
+    const dropdownMaxH = 192 // max-h-48
+    setDropdownDirection(spaceBelow < dropdownMaxH + 8 ? 'up' : 'down')
   }, [showSuggestions, filtered.length])
 
   function selectSuggestion(name: string) {
@@ -116,7 +149,15 @@ export function ParticipantInput({
               setShowSuggestions(true)
               setActiveSuggestionIndex(0)
             }}
-            onFocus={() => setShowSuggestions(true)}
+            onFocus={() => {
+              setShowSuggestions(true)
+              if (submitMode) {
+                const input = inputRef.current
+                window.setTimeout(() => {
+                  if (input) scrollInputIntoView(input)
+                }, 100)
+              }
+            }}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             onKeyDown={(e) => {
               if (e.key === 'ArrowDown' && filtered.length > 0) {
@@ -165,7 +206,9 @@ export function ParticipantInput({
           {showSuggestions && filtered.length > 0 && (
             <ul
               role="listbox"
-              className="absolute z-20 left-0 right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md max-h-48 overflow-y-auto"
+              className={`absolute z-20 left-0 right-0 bg-popover border border-border rounded-md shadow-md max-h-48 overflow-y-auto ${
+                dropdownDirection === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
+              }`}
             >
               {filtered.map((s, idx) => (
                 <li key={s} role="option" aria-selected={idx === activeSuggestionIndex}>
@@ -198,7 +241,7 @@ export function ParticipantInput({
           <button
             type="button"
             onClick={onRemove}
-            className="p-2 text-muted-foreground hover:text-destructive transition-colors shrink-0"
+            className="p-2 text-foreground hover:text-foreground transition-colors shrink-0"
             aria-label="Eliminar participante"
           >
             <X className="h-5 w-5" />
