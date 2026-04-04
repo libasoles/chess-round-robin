@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, Check } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { normalizeName } from '@/domain/participants'
 
@@ -192,7 +192,7 @@ export function ParticipantInput({
             className="p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Agregar participante"
           >
-            <Check className="h-5 w-5" />
+            <Plus className="h-5 w-5" />
           </button>
         ) : canRemove && (
           <button

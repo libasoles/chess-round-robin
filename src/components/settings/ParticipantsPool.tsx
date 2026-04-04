@@ -1,4 +1,4 @@
-import { X, Check } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -40,7 +40,7 @@ export function ParticipantsPool({ pool, onAdd, onRemove }: ParticipantsPoolProp
           className="text-sm h-10 flex-1"
         />
         <Button type="button" variant="outline" size="icon" onClick={handleAdd} className="h-10 w-10 shrink-0">
-          <Check className="h-4 w-4" />
+          <Plus className="h-4 w-4" />
         </Button>
       </div>
 

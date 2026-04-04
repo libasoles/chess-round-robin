@@ -26,7 +26,7 @@ import {
 } from "@/hooks/useCurrentRound";
 import { useHistoryStore } from "@/store/historyStore";
 import { useSettingsStore } from "@/store/settingsStore";
-import { AlertTriangle, ArrowLeft, Check, Trash2, Trophy } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, Trash, Trophy } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -236,7 +236,7 @@ export function TournamentResultsPage() {
               className="text-destructive/70 hover:text-destructive gap-2"
               onClick={() => setShowDeleteDialog(true)}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash className="h-4 w-4" />
               Eliminar torneo
             </Button>
           </div>
