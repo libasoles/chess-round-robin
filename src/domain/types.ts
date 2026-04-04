@@ -55,6 +55,7 @@ export type Tournament = {
   settings: TournamentSettings
   phases: Phase[]
   status: 'active' | 'finished'
+  jazzId?: string  // CoID<JazzTournament> as string
 }
 
 export type StandingEntry = {

@@ -125,7 +125,7 @@ export function StandingsPage() {
               </button>
             }
             title={hasPendingMatches ? 'Resultados provisorios' : 'Resultados'}
-            right={<TopBarShareAction />}
+            right={<TopBarShareAction jazzId={activeTournament.jazzId} currentRound={getTotalRounds(activeTournament.phases)} />}
           />
         }
         hasBottomAction={isActive}

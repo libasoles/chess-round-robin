@@ -18,6 +18,18 @@ interface ParticipantInputProps {
   onAutoFocusHandled?: () => void
 }
 
+function getScrollableContainer(element: HTMLElement | null): HTMLElement | null {
+  let current = element?.parentElement ?? null
+  while (current) {
+    const style = window.getComputedStyle(current)
+    if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
+      return current
+    }
+    current = current.parentElement
+  }
+  return null
+}
+
 export function ParticipantInput({
   value,
   onChange,
@@ -37,11 +49,28 @@ export function ParticipantInput({
 
   useEffect(() => {
     if (!autoFocus) return
-    inputRef.current?.focus()
+    const inputEl = inputRef.current
+    inputEl?.focus()
     onAutoFocusHandled?.()
-    // Delay scroll to give the soft keyboard time to appear and resize the viewport
+
+    // Delay scroll to give the soft keyboard time to appear and resize the viewport.
     const id = window.setTimeout(() => {
-      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      const input = inputRef.current
+      if (!input) return
+
+      const footer = document.querySelector<HTMLElement>('[data-bottom-action-root]')
+      const footerHeight = footer?.getBoundingClientRect().height ?? 0
+      const viewportBottom = window.innerHeight - footerHeight - 8
+      const inputRect = input.getBoundingClientRect()
+      const overlap = inputRect.bottom - viewportBottom
+      if (overlap <= 0) return
+
+      const scrollContainer = getScrollableContainer(input)
+      if (scrollContainer) {
+        scrollContainer.scrollBy({ top: overlap + 12, behavior: 'smooth' })
+      } else {
+        window.scrollBy({ top: overlap + 12, behavior: 'smooth' })
+      }
     }, 300)
     return () => window.clearTimeout(id)
   }, [autoFocus, onAutoFocusHandled])
@@ -80,7 +109,7 @@ export function ParticipantInput({
             value={value}
             autoComplete="off"
             autoCorrect="off"
-            autoCapitalize="none"
+            autoCapitalize="words"
             spellCheck={false}
             onChange={(e) => {
               onChange(e.target.value)

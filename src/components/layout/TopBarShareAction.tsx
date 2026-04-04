@@ -1,29 +1,40 @@
-import { Share2 } from 'lucide-react'
+import { useState } from 'react'
+import { Share2, Check, Copy } from 'lucide-react'
 
 interface TopBarShareActionProps {
-  title?: string
-  url?: string
+  jazzId?: string
+  currentRound?: number
   className?: string
 }
 
-export function TopBarShareAction({
-  title = 'Torneo de ajedrez',
-  url = window.location.href,
-  className,
-}: TopBarShareActionProps) {
+export function TopBarShareAction({ jazzId, currentRound, className }: TopBarShareActionProps) {
+  const [copied, setCopied] = useState(false)
+
+  if (!jazzId) return null
+
+  const shareUrl = `${window.location.origin}/t/${jazzId}/round/${currentRound ?? 1}`
   const canShare = typeof navigator.share !== 'undefined'
 
-  if (!canShare) return null
+  function handleShare() {
+    if (canShare) {
+      navigator.share({ title: 'Torneo de ajedrez', url: shareUrl }).catch(() => {})
+    } else {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }).catch(() => {})
+    }
+  }
 
   return (
     <div className={`flex items-center gap-1 ${className ?? ''}`}>
       <button
         type="button"
-        onClick={() => navigator.share({ title, url })}
+        onClick={handleShare}
         className="p-2 -mr-1 text-blue-800/80 hover:text-blue-800 dark:text-blue-300/85 dark:hover:text-blue-300"
         aria-label="Compartir"
       >
-        <Share2 className="h-5 w-5" />
+        {copied ? <Check className="h-5 w-5" /> : canShare ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
       </button>
     </div>
   )

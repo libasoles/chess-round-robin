@@ -5,6 +5,7 @@ import { buildGroupSizes } from '@/domain/groupSizes'
 import { normalizeName, assignParticipantsToGroups, GROUP_NAMES, BYE_PARTICIPANT } from '@/domain/participants'
 import { generateRoundRobinPairings } from '@/domain/roundRobin'
 import { useSettingsStore } from '@/store/settingsStore'
+import { updateJazzMatch, finishJazzTournament, addJazzPhase } from '@/lib/jazzSync'
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
@@ -78,6 +79,7 @@ interface TournamentState {
   setCurrentRound: (round: number) => void
   createNewPhase: (selectedParticipantIds: string[]) => void
   finishTournament: (onFinish: (t: Tournament) => void) => void
+  setJazzId: (tournamentId: string, jazzId: string) => void
 
   setDraftParticipants: (names: string[]) => void
   updateDraftParticipant: (index: number, name: string) => void
@@ -124,13 +126,25 @@ export const useTournamentStore = create<TournamentState>()(
       recordResult: (matchId, result) =>
         set((s) => {
           if (!s.activeTournament) return s
-          return { activeTournament: updateMatchInTournament(s.activeTournament, matchId, result) }
+          const updated = updateMatchInTournament(s.activeTournament, matchId, result)
+          if (updated.jazzId) {
+            updateJazzMatch(updated.jazzId, matchId, result).catch((e) =>
+              console.warn('[jazz] updateJazzMatch failed', e),
+            )
+          }
+          return { activeTournament: updated }
         }),
 
       clearResult: (matchId) =>
         set((s) => {
           if (!s.activeTournament) return s
-          return { activeTournament: updateMatchInTournament(s.activeTournament, matchId, null) }
+          const updated = updateMatchInTournament(s.activeTournament, matchId, null)
+          if (updated.jazzId) {
+            updateJazzMatch(updated.jazzId, matchId, null).catch((e) =>
+              console.warn('[jazz] updateJazzMatch failed', e),
+            )
+          }
+          return { activeTournament: updated }
         }),
 
       setCurrentRound: (round) => set({ currentRound: round }),
@@ -211,6 +225,12 @@ export const useTournamentStore = create<TournamentState>()(
             currentRound: firstNewRound,
           }
         })
+
+        if (activeTournament.jazzId) {
+          addJazzPhase(activeTournament.jazzId, newPhase).catch((e) =>
+            console.warn('[jazz] addJazzPhase failed', e),
+          )
+        }
       },
 
       finishTournament: (onFinish) => {
@@ -222,9 +242,22 @@ export const useTournamentStore = create<TournamentState>()(
           status: 'finished',
           finishedAt: new Date().toISOString(),
         }
+
+        if (finished.jazzId) {
+          finishJazzTournament(finished.jazzId, finished.finishedAt!).catch((e) =>
+            console.warn('[jazz] finishJazzTournament failed', e),
+          )
+        }
+
         onFinish(finished)
         set({ activeTournament: null, currentRound: 1 })
       },
+
+      setJazzId: (tournamentId, jazzId) =>
+        set((s) => {
+          if (s.activeTournament?.id !== tournamentId) return s
+          return { activeTournament: { ...s.activeTournament, jazzId } }
+        }),
 
       setDraftParticipants: (names) => set({ draftParticipants: names }),
 

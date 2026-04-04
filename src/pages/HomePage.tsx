@@ -8,12 +8,14 @@ import { EmptyHistory } from '@/components/home/EmptyHistory'
 import { Button } from '@/components/ui/button'
 import { useHistoryStore } from '@/store/historyStore'
 import { useTournamentStore } from '@/store/tournamentStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import { getTotalRounds, isRoundComplete } from '@/hooks/useCurrentRound'
 
 export function HomePage() {
   const navigate = useNavigate()
   const { tournaments } = useHistoryStore()
   const { activeTournament, currentRound, setCurrentRound } = useTournamentStore()
+  const { ownedTournamentIds } = useSettingsStore()
 
   const totalRounds = activeTournament ? getTotalRounds(activeTournament.phases) : 0
   const displayRound = activeTournament
@@ -80,6 +82,7 @@ export function HomePage() {
                 <TournamentCard
                   key={t.id}
                   tournament={t}
+                  canShare={Boolean(t.jazzId) && (ownedTournamentIds.includes(t.id) || ownedTournamentIds.length === 0)}
                   onClick={() => navigate(`/tournament/history/${t.id}`)}
                 />
               ))}

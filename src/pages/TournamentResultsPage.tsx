@@ -2,6 +2,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, Check, Trophy } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
+import { TopBarShareAction } from '@/components/layout/TopBarShareAction'
 import { BottomAction } from '@/components/layout/BottomAction'
 import { GroupSection } from '@/components/round/GroupSection'
 import { StandingsTable } from '@/components/standings/StandingsTable'
@@ -13,6 +14,7 @@ import { getCurrentRoundMatches, getTotalRounds, isRoundComplete } from '@/hooks
 import { BYE_PARTICIPANT } from '@/domain/participants'
 import type { Participant } from '@/domain/types'
 import { useHistoryStore } from '@/store/historyStore'
+import { useSettingsStore } from '@/store/settingsStore'
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('es-AR', {
@@ -49,6 +51,7 @@ export function TournamentResultsPage() {
   const { id } = useParams<{ id: string }>()
   const [searchParams] = useSearchParams()
   const { tournaments } = useHistoryStore()
+  const { ownedTournamentIds } = useSettingsStore()
 
   const tournament = tournaments.find((t) => t.id === id)
 
@@ -69,6 +72,9 @@ export function TournamentResultsPage() {
   const currentTab = hasValidRoundQuery ? String(parsedRound) : 'stats'
   const currentRound = currentTab === 'stats' ? null : Number(currentTab)
   const roundMatches = currentRound === null ? [] : getCurrentRoundMatches(phases, currentRound)
+  const canShareTournament =
+    Boolean(tournament.jazzId) &&
+    (ownedTournamentIds.includes(tournament.id) || ownedTournamentIds.length === 0)
 
   const hasPending = phases.some((phase) =>
     phase.groups.some((group) =>
@@ -111,6 +117,11 @@ export function TournamentResultsPage() {
               </button>
             }
             title={currentRound === null ? 'Resultados' : `Resultados Ronda ${currentRound}`}
+            right={
+              canShareTournament ? (
+                <TopBarShareAction jazzId={tournament.jazzId} currentRound={currentRound ?? totalRounds} />
+              ) : null
+            }
           />
         }
       >

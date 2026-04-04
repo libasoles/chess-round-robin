@@ -6,6 +6,8 @@ import { NewTournamentPage } from '@/pages/NewTournamentPage'
 import { RoundPage } from '@/pages/RoundPage'
 import { StandingsPage } from '@/pages/StandingsPage'
 import { TournamentResultsPage } from '@/pages/TournamentResultsPage'
+import { SharedRoundPage } from '@/pages/SharedRoundPage'
+import { SharedStandingsPage } from '@/pages/SharedStandingsPage'
 
 export const router = createBrowserRouter([
   {
@@ -19,4 +21,6 @@ export const router = createBrowserRouter([
       { path: '/tournament/history/:id', element: <TournamentResultsPage /> },
     ],
   },
+  { path: '/t/:jazzId/round/:round', element: <SharedRoundPage /> },
+  { path: '/t/:jazzId/standings', element: <SharedStandingsPage /> },
 ])
