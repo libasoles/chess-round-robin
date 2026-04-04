@@ -25,6 +25,7 @@ const defaultSettings: TournamentSettings = {
   byePoints: 1,
   tiebreakOrder: ['DE', 'SB'],
   useGroups: true,
+  groupSize: 4,
 }
 
 const A = makeParticipant('A')

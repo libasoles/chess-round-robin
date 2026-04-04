@@ -181,7 +181,7 @@ export function StandingsPage() {
                 variant="outline"
                 className="w-full h-12 text-base"
                 onClick={handleNewPhase}
-                disabled={selectedIds.size < 3}
+                disabled={selectedIds.size < 2}
               >
                 Nueva Fase
               </Button>

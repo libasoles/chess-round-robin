@@ -27,6 +27,7 @@ const DEFAULT_TOURNAMENT_SETTINGS: TournamentSettings = {
   byePoints: 1,
   tiebreakOrder: ['DE', 'PN'],
   useGroups: true,
+  groupSize: 4,
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -85,7 +86,7 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'chess-settings',
-      version: 2,
+      version: 3,
       migrate: (persistedState: unknown) => {
         const state = (persistedState ?? {}) as Partial<SettingsState>
         return {

@@ -30,6 +30,7 @@ export function jazzTournamentToDomain(jt: any): Tournament | null {
           (t) => t as TiebreakMethod,
         ),
         useGroups: settings.useGroups as boolean,
+        groupSize: (settings.groupSize as number | undefined) ?? 4,
       },
       phases: [...phases].map((phase: any) => ({
         index: phase.index as number,

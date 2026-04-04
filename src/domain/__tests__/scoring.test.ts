@@ -8,6 +8,7 @@ const defaultSettings: TournamentSettings = {
   byePoints: 1,
   tiebreakOrder: ['DE', 'SB'],
   useGroups: true,
+  groupSize: 4,
 }
 
 function makeMatch(result: Match['result'], white = 'p1', black = 'p2'): Match {

@@ -7,6 +7,7 @@ import { TiebreakList } from '@/components/settings/TiebreakList'
 import { PointSelector } from '@/components/settings/PointSelector'
 import { ParticipantsPool } from '@/components/settings/ParticipantsPool'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
 import { useSettingsStore } from '@/store/settingsStore'
 import type { Theme } from '@/store/settingsStore'
 import type { TiebreakMethod } from '@/domain/types'
@@ -117,6 +118,27 @@ export function SettingsPage() {
               label="Por abandono"
               value={lastTournamentSettings.forfeitPoints}
               onChange={(v) => updateSettings('forfeitPoints', v)}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Grupos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm">Jugadores por grupo (máximo)</span>
+              <span className="text-sm font-medium">{lastTournamentSettings.groupSize ?? 4}</span>
+            </div>
+            <Slider
+              min={4}
+              max={10}
+              step={2}
+              value={lastTournamentSettings.groupSize ?? 4}
+              onValueChange={(v) => updateSettings('groupSize', v)}
             />
           </CardContent>
         </Card>

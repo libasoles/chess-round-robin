@@ -101,7 +101,7 @@ export const useTournamentStore = create<TournamentState>()(
           name,
           isBye: false,
         }))
-        const sizes = buildGroupSizes(cleanNames.length, settings.useGroups)
+        const sizes = buildGroupSizes(cleanNames.length, settings.useGroups, settings.groupSize)
         const rawGroups: Group[] = assignParticipantsToGroups(participants, sizes)
         const groups: Group[] = rawGroups.map((g): Group => ({
           ...g,
@@ -201,7 +201,7 @@ export const useTournamentStore = create<TournamentState>()(
         const firstUnusedIdx = GROUP_NAMES.findIndex((n) => !usedNames.includes(n))
         const availableNames = GROUP_NAMES.slice(firstUnusedIdx >= 0 ? firstUnusedIdx : 0)
 
-        const sizes = buildGroupSizes(interleaved.length, activeTournament.settings.useGroups)
+        const sizes = buildGroupSizes(interleaved.length, activeTournament.settings.useGroups, activeTournament.settings.groupSize, 2)
         const rawGroups = assignWithNames(interleaved, sizes, availableNames)
         const groups: Group[] = rawGroups.map((g): Group => {
           const matches = generateRoundRobinPairings(g)

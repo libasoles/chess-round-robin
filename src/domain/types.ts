@@ -15,6 +15,7 @@ export type TournamentSettings = {
   byePoints: 0 | 0.5 | 1
   tiebreakOrder: TiebreakMethod[]
   useGroups: boolean
+  groupSize: number
 }
 
 export type AppSettings = {

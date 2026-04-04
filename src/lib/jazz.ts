@@ -7,6 +7,7 @@ export const JazzTournamentSettings = co.map({
   byePoints: z.number(),
   tiebreakOrder: z.array(z.string()),
   useGroups: z.boolean(),
+  groupSize: z.optional(z.number()),
 })
 
 export const JazzParticipant = co.map({

@@ -59,6 +59,30 @@ describe('generateRoundRobinPairings', () => {
     })
   })
 
+  describe('group of 2 (new phase minimum)', () => {
+    const players = ['A', 'B'].map(makeParticipant)
+    const group = makeGroup(players)
+    const matches = generateRoundRobinPairings(group)
+
+    it('returns 1 match', () => {
+      expect(matches).toHaveLength(1)
+    })
+
+    it('match is in round 1', () => {
+      expect(matches[0].round).toBe(1)
+    })
+
+    it('result is null', () => {
+      expect(matches[0].result).toBeNull()
+    })
+
+    it('both players are in the match', () => {
+      const ids = new Set([matches[0].white, matches[0].black])
+      expect(ids).toContain('A')
+      expect(ids).toContain('B')
+    })
+  })
+
   describe('group of 3 (odd — Bye added automatically)', () => {
     const players = ['A', 'B', 'C'].map(makeParticipant)
     const group = makeGroup(players)

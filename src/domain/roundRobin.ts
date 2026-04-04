@@ -29,6 +29,17 @@ export function generateRoundRobinPairings(group: Group, seed?: number): Match[]
     participants = seededShuffle(participants, seed)
   }
 
+  // Special case: n=2 — single round, one match (bergerTable requires n>=4)
+  if (n === 2) {
+    return [{
+      id: crypto.randomUUID(),
+      white: participants[0].id,
+      black: participants[1].id,
+      round: 1,
+      result: null,
+    }]
+  }
+
   const table = bergerTable(n)
   const matches: Match[] = []
 

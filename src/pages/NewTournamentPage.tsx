@@ -51,7 +51,9 @@ export function NewTournamentPage() {
   const [organizer, setOrganizer] = useState(currentOrganizerName);
   const [participants, setParticipants] = useState<string[]>([""]);
   const [useGroups, setUseGroups] = useState(lastTournamentSettings.useGroups);
+  const groupSize = lastTournamentSettings.groupSize ?? 4;
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
   const [removeIdx, setRemoveIdx] = useState<number | null>(null);
   const [toasts, setToasts] = useState<ValidationToast[]>([]);
   const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(
@@ -144,11 +146,13 @@ export function NewTournamentPage() {
     const normalizedOrganizer = normalizeName(organizer);
     const effectiveOrganizer = normalizedOrganizer || currentOrganizerName;
 
+    const canUseGroups = cleanNames.length >= groupSize + 2;
     const settings = {
       ...lastTournamentSettings,
       arbitratorName: effectiveArbitrator,
       organizerName: effectiveOrganizer,
-      useGroups,
+      useGroups: useGroups && canUseGroups,
+      groupSize,
     };
 
     if (effectiveOrganizer) setOrganizerName(effectiveOrganizer);
@@ -250,14 +254,32 @@ export function NewTournamentPage() {
 
       <BottomAction>
         <div className="mx-auto w-full max-w-lg space-y-3">
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center gap-3"
+            onClick={() => {
+              const validCount = participants.filter((p) => p.trim()).length;
+              const isDisabled = validCount < groupSize + 2;
+              if (isDisabled) {
+                setShowInsufficientDialog(true);
+              }
+            }}
+          >
             <Checkbox
               id="use-groups"
-              checked={useGroups}
+              checked={
+                useGroups &&
+                participants.filter((p) => p.trim()).length >= groupSize + 2
+              }
+              disabled={
+                participants.filter((p) => p.trim()).length < groupSize + 2
+              }
               onCheckedChange={(checked) => setUseGroups(checked === true)}
             />
-            <Label htmlFor="use-groups" className="cursor-pointer text-base">
-              Por grupos
+            <Label
+              htmlFor="use-groups"
+              className={`cursor-pointer text-base ${participants.filter((p) => p.trim()).length < groupSize + 2 ? "text-muted-foreground" : ""}`}
+            >
+              Crear grupos de máximo {groupSize} jugadores
             </Label>
           </div>
           <Button className="w-full h-12 text-base" onClick={handleStart}>
@@ -317,6 +339,31 @@ export function NewTournamentPage() {
               onClick={() => removeIdx !== null && removeParticipant(removeIdx)}
             >
               Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Insufficient participants for groups */}
+      <Dialog
+        open={showInsufficientDialog}
+        onOpenChange={setShowInsufficientDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Participantes insuficientes</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Se necesitan al menos <strong>{groupSize + 2} participantes</strong>{" "}
+            para crear grupos. Esto es para prevenir grupos de 2 jugadores en la
+            primera fase.
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowInsufficientDialog(false)}
+            >
+              Entendido
             </Button>
           </DialogFooter>
         </DialogContent>
