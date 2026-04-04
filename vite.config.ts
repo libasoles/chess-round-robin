@@ -14,6 +14,18 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-jazz': ['jazz-tools', 'jazz-tools/react'],
+          'vendor-ui': ['lucide-react', '@base-ui/react', 'class-variance-authority', 'clsx'],
+          'vendor-icons': ['react-icons'],
+        },
+      },
+    },
+  },
   plugins: [
     tailwindcss(),
     react(),
