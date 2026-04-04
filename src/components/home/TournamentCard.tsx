@@ -3,7 +3,7 @@ import { computeRankedStandings } from '@/domain/tiebreaks'
 import { ParticipantName } from '@/components/participants/ParticipantName'
 import { useState } from 'react'
 import type { MouseEvent } from 'react'
-import { Trophy, Share2, Copy, Check, Trash } from 'lucide-react'
+import { Trophy, Share2, Copy, Check, X } from 'lucide-react'
 
 interface TournamentCardProps {
   tournament: Tournament
@@ -116,10 +116,10 @@ export function TournamentCard({ tournament, onClick, canShare = false, onDelete
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onDelete() }}
-              className="p-1.5 -mr-1.5 text-muted-foreground hover:text-destructive"
+              className="p-1.5 -mr-1.5 text-muted-foreground/45 hover:text-muted-foreground/70 dark:text-muted-foreground/45 dark:hover:text-muted-foreground/70"
               aria-label="Eliminar torneo"
             >
-              <Trash className="h-4 w-4" />
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>
