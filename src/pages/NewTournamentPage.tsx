@@ -53,7 +53,6 @@ export function NewTournamentPage() {
   const [useGroups, setUseGroups] = useState(lastTournamentSettings.useGroups);
   const groupSize = lastTournamentSettings.groupSize ?? 4;
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
   const [removeIdx, setRemoveIdx] = useState<number | null>(null);
   const [toasts, setToasts] = useState<ValidationToast[]>([]);
   const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(
@@ -130,6 +129,10 @@ export function NewTournamentPage() {
       }, 5000);
       toastTimeoutsRef.current.push(timeoutId);
     }
+  }
+
+  function dismissToast(id: number) {
+    setToasts((current) => current.filter((t) => t.id !== id));
   }
 
   function handleStart() {
@@ -239,17 +242,23 @@ export function NewTournamentPage() {
         </div>
       </AppShell>
 
-      <div className="fixed top-16 left-0 right-0 z-[70] px-4 pointer-events-none">
-        <div className="mx-auto max-w-lg space-y-2">
-          {toasts.map((toast) => (
-            <div
-              key={toast.id}
-              className="rounded-md border border-destructive/60 bg-card px-3 py-2 text-sm text-foreground shadow-lg"
+      <div className="fixed top-0 left-0 right-0 z-70 pointer-events-none">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className="flex items-center justify-between gap-3 bg-destructive px-4 py-3 text-sm font-medium text-destructive-foreground pointer-events-auto"
+          >
+            <span>{toast.message}</span>
+            <button
+              type="button"
+              onClick={() => dismissToast(toast.id)}
+              className="shrink-0 opacity-70 hover:opacity-100"
+              aria-label="Cerrar"
             >
-              {toast.message}
-            </div>
-          ))}
-        </div>
+              <X size={16} />
+            </button>
+          </div>
+        ))}
       </div>
 
       <BottomAction>
@@ -260,7 +269,9 @@ export function NewTournamentPage() {
               const validCount = participants.filter((p) => p.trim()).length;
               const isDisabled = validCount < groupSize + 2;
               if (isDisabled) {
-                setShowInsufficientDialog(true);
+                showValidationToasts([
+                  `Se necesitan al menos ${groupSize + 2} participantes para activar grupos.`,
+                ]);
               }
             }}
           >
@@ -344,30 +355,6 @@ export function NewTournamentPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Insufficient participants for groups */}
-      <Dialog
-        open={showInsufficientDialog}
-        onOpenChange={setShowInsufficientDialog}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Participantes insuficientes</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            Se necesitan al menos <strong>{groupSize + 2} participantes</strong>{" "}
-            para crear grupos. Esto es para prevenir grupos de 2 jugadores en la
-            primera fase.
-          </p>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowInsufficientDialog(false)}
-            >
-              Entendido
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

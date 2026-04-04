@@ -145,11 +145,18 @@ export function StandingsPage() {
                 </h2>
               )}
               <div className="space-y-4">
-                {phase.groups.map((group) => (
-                  <Card key={group.name}>
+                {phase.groups.map((group) => {
+                  const hasPendingInGroup = group.matches.some((match) => match.result === null)
+                  return (
+                    <Card key={group.name}>
                     {useGroups && (
                       <CardHeader>
-                        <CardTitle className="text-base text-primary">Grupo {group.name}</CardTitle>
+                        <CardTitle className="flex w-full items-center justify-between text-base text-primary">
+                          <span>Grupo {group.name}</span>
+                          {hasPendingInGroup && (
+                            <Hourglass className="h-4 w-4 shrink-0 text-primary" />
+                          )}
+                        </CardTitle>
                       </CardHeader>
                     )}
                     <CardContent>
@@ -161,8 +168,9 @@ export function StandingsPage() {
                         onToggleAdvance={toggleSelect}
                       />
                     </CardContent>
-                  </Card>
-                ))}
+                    </Card>
+                  )
+                })}
               </div>
             </div>
           ))}
