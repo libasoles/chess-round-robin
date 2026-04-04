@@ -7,7 +7,7 @@ export function EmptyHistory() {
         className="h-44 w-auto select-none md:h-52"
         loading="lazy"
       />
-      <p className="empty-history-text text-muted-foreground text-sm">
+      <p className="empty-history-text text-muted-foreground text-base md:text-lg">
         Aún no hay torneos.
       </p>
     </div>

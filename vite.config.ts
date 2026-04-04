@@ -21,8 +21,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Torneo Round Robin',
-        short_name: 'Torneo Round Robin',
+        name: 'Round Robin',
+        short_name: 'Round Robin',
         description: 'Gestión de torneos de ajedrez round robin',
         theme_color: '#000000',
         background_color: '#ffffff',

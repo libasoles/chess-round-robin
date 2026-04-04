@@ -37,7 +37,7 @@ export function HomePage() {
               <button
                 type="button"
                 onClick={() => navigate('/settings')}
-                className="p-2 text-muted-foreground hover:text-foreground"
+                className="md:hidden p-2 text-muted-foreground hover:text-foreground"
                 aria-label="Configuración"
               >
                 <Settings className="h-5 w-5" />
@@ -57,17 +57,16 @@ export function HomePage() {
                 <Play className="h-3.5 w-3.5 fill-current" />
                 Torneo en curso
               </p>
-              <div className="flex items-center justify-between gap-2">
+              <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
                   Ronda {displayRound} de {getTotalRounds(activeTournament.phases)}
                 </p>
                 <Button
-                  size="sm"
                   onClick={resumeTournament}
-                  className="gap-1.5 shrink-0 border border-primary/50 bg-primary/15 text-foreground hover:bg-primary/25"
+                  className="w-full h-12 text-base gap-1.5 border border-primary/50 bg-primary/15 text-foreground hover:bg-primary/25"
                 >
                   Continuar
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -90,9 +89,11 @@ export function HomePage() {
       </AppShell>
 
       <BottomAction>
-        <Button className="w-full h-12 text-base" onClick={() => navigate('/tournament/new')}>
-          Nuevo Torneo
-        </Button>
+        <div className="max-w-lg mx-auto">
+          <Button className="w-full h-12 text-base" onClick={() => navigate('/tournament/new')}>
+            Nuevo Torneo
+          </Button>
+        </div>
       </BottomAction>
     </>
   )

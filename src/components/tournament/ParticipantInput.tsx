@@ -78,6 +78,10 @@ export function ParticipantInput({
           <Input
             ref={inputRef}
             value={value}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
             onChange={(e) => {
               onChange(e.target.value)
               setShowSuggestions(true)

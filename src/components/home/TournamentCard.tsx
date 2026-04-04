@@ -70,7 +70,7 @@ export function TournamentCard({ tournament, onClick }: TournamentCardProps) {
 
   return (
     <div
-      className={`rounded-lg border border-border bg-card px-4 py-3 space-y-1${onClick ? ' cursor-pointer hover:bg-accent transition-colors' : ''}`}
+      className={`rounded-lg border border-border bg-card px-4 py-3 space-y-1${onClick ? ' cursor-pointer hover:bg-muted transition-colors' : ''}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
     >

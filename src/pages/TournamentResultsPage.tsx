@@ -16,6 +16,14 @@ function formatTime(iso: string): string {
   })
 }
 
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('es-AR', {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+  })
+}
+
 function formatDuration(startIso: string, endIso?: string): string {
   if (!endIso) return 'En curso'
   const start = new Date(startIso).getTime()
@@ -44,6 +52,7 @@ export function TournamentResultsPage() {
 
   const { settings, phases } = tournament
   const useGroups = settings.useGroups
+  const startDate = formatDate(tournament.createdAt)
   const startTime = formatTime(tournament.createdAt)
   const duration = formatDuration(tournament.createdAt, tournament.finishedAt)
 
@@ -79,11 +88,14 @@ export function TournamentResultsPage() {
           </div>
         )}
         <Card size="sm">
-          <CardContent className="flex items-center gap-2 flex-wrap">
+          <CardContent className="flex items-center justify-between gap-3">
             <Badge variant="secondary" className="h-7 px-3 text-sm font-semibold">
-              Inicio {startTime}
+              {startDate}
             </Badge>
-            <span className="text-sm text-muted-foreground">Duración {duration}</span>
+            <div className="flex flex-col items-end text-sm leading-tight">
+              <span className="font-medium text-foreground">Inicio {startTime}</span>
+              <span className="text-muted-foreground">Duración {duration}</span>
+            </div>
           </CardContent>
         </Card>
 
