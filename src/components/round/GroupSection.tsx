@@ -45,7 +45,7 @@ export function GroupSection({
         <div className="rounded-md bg-muted/50 px-2 py-1.5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-xs text-muted-foreground">
             <div className="min-w-0 flex items-center gap-1">
-              <ChessKnight className="h-5 w-5 shrink-0 text-white" />
+              <ChessKnight className="h-5 w-5 shrink-0 text-foreground" />
               <span>Blancas</span>
             </div>
             <span className="text-center"> </span>

@@ -140,6 +140,15 @@ export function StandingsTable({
                       </td>
                     )
                   }
+                  if (m === 'PN') {
+                    return (
+                      <td key={m} className="py-2 text-center">
+                        {isDeciding ? (
+                          <Check className="h-4 w-4 mx-auto text-primary" />
+                        ) : null}
+                      </td>
+                    )
+                  }
                   return (
                     <td key={m} className={`py-2 text-center${isDeciding ? ' font-semibold text-foreground' : ' text-muted-foreground'}`}>
                       {score !== undefined

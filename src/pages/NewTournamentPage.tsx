@@ -33,7 +33,6 @@ export function NewTournamentPage() {
     organizerName,
     lastTournamentSettings,
     participantsPool,
-    setArbitratorName,
     setOrganizerName,
   } = useSettingsStore();
   const { createTournament } = useTournamentStore();
@@ -152,7 +151,6 @@ export function NewTournamentPage() {
       useGroups,
     };
 
-    if (effectiveArbitrator) setArbitratorName(effectiveArbitrator);
     if (effectiveOrganizer) setOrganizerName(effectiveOrganizer);
     const id = createTournament(cleanNames, settings);
     navigate(`/tournament/${id}/round/1`);
@@ -275,8 +273,7 @@ export function NewTournamentPage() {
             <DialogTitle>¿Confirmas?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Se descartarán todos los datos ingresados. Esta acción no se puede
-            deshacer.
+            Se descartarán todos los datos ingresados.
           </p>
           <DialogFooter>
             <Button
@@ -285,7 +282,11 @@ export function NewTournamentPage() {
             >
               Continuar editando
             </Button>
-            <Button variant="destructive" className="bg-destructive text-white hover:bg-destructive/90" onClick={handleCancel}>
+            <Button
+              variant="destructive"
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={handleCancel}
+            >
               Cancelar torneo
             </Button>
           </DialogFooter>

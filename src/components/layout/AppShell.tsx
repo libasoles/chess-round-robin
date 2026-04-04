@@ -1,4 +1,5 @@
-import type { ReactNode, HTMLAttributes } from 'react'
+import { useRef, useEffect, type ReactNode, type HTMLAttributes } from 'react'
+import { useLocation } from 'react-router-dom'
 
 interface AppShellProps {
   topBar: ReactNode
@@ -10,10 +11,18 @@ interface AppShellProps {
 }
 
 export function AppShell({ topBar, children, hasBottomAction, mainProps }: AppShellProps) {
+  const mainRef = useRef<HTMLElement>(null)
+  const location = useLocation()
+
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [location.pathname])
+
   return (
     <div className="flex-1 flex flex-col bg-background text-foreground max-w-lg mx-auto w-full">
       {topBar}
       <main
+        ref={mainRef}
         {...mainProps}
         className={`flex-1 overflow-y-auto px-4 py-4 ${hasBottomAction ? 'pb-36' : ''}`}
         style={{ touchAction: 'pan-y', ...mainProps?.style }}

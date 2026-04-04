@@ -1,33 +1,47 @@
-import { useNavigate } from 'react-router-dom'
-import { Settings, ArrowRight, Play } from 'lucide-react'
-import { AppShell } from '@/components/layout/AppShell'
-import { TopBar } from '@/components/layout/TopBar'
-import { BottomAction } from '@/components/layout/BottomAction'
-import { TournamentCard } from '@/components/home/TournamentCard'
-import { EmptyHistory } from '@/components/home/EmptyHistory'
-import { Button } from '@/components/ui/button'
-import { useHistoryStore } from '@/store/historyStore'
-import { useTournamentStore } from '@/store/tournamentStore'
-import { useSettingsStore } from '@/store/settingsStore'
-import { getTotalRounds, isRoundComplete } from '@/hooks/useCurrentRound'
+import { EmptyHistory } from "@/components/home/EmptyHistory";
+import { TournamentCard } from "@/components/home/TournamentCard";
+import { AppShell } from "@/components/layout/AppShell";
+import { BottomAction } from "@/components/layout/BottomAction";
+import { TopBar } from "@/components/layout/TopBar";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { getTotalRounds, isRoundComplete } from "@/hooks/useCurrentRound";
+import { useHistoryStore } from "@/store/historyStore";
+import { useSettingsStore } from "@/store/settingsStore";
+import { useTournamentStore } from "@/store/tournamentStore";
+import { ArrowRight, Play, Settings } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
-  const navigate = useNavigate()
-  const { tournaments } = useHistoryStore()
-  const { activeTournament, currentRound, setCurrentRound } = useTournamentStore()
-  const { ownedTournamentIds } = useSettingsStore()
+  const navigate = useNavigate();
+  const { tournaments } = useHistoryStore();
+  const { removeTournament } = useHistoryStore();
+  const { activeTournament, currentRound, setCurrentRound } =
+    useTournamentStore();
+  const { ownedTournamentIds } = useSettingsStore();
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  const totalRounds = activeTournament ? getTotalRounds(activeTournament.phases) : 0
+  const totalRounds = activeTournament
+    ? getTotalRounds(activeTournament.phases)
+    : 0;
   const displayRound = activeTournament
     ? (Array.from({ length: totalRounds }, (_, i) => i + 1).find(
         (r) => !isRoundComplete(activeTournament.phases, r),
       ) ?? totalRounds)
-    : currentRound
+    : currentRound;
 
   function resumeTournament() {
-    if (!activeTournament) return
-    setCurrentRound(displayRound)
-    navigate(`/tournament/${activeTournament.id}/round/${displayRound}`)
+    if (!activeTournament) return;
+    setCurrentRound(displayRound);
+    navigate(`/tournament/${activeTournament.id}/round/${displayRound}`);
   }
 
   return (
@@ -38,7 +52,7 @@ export function HomePage() {
             right={
               <button
                 type="button"
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate("/settings")}
                 className="md:hidden p-2 text-muted-foreground hover:text-foreground"
                 aria-label="Configuración"
               >
@@ -61,7 +75,8 @@ export function HomePage() {
               </p>
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  Ronda {displayRound} de {getTotalRounds(activeTournament.phases)}
+                  Ronda {displayRound} de{" "}
+                  {getTotalRounds(activeTournament.phases)}
                 </p>
                 <Button
                   onClick={resumeTournament}
@@ -82,8 +97,13 @@ export function HomePage() {
                 <TournamentCard
                   key={t.id}
                   tournament={t}
-                  canShare={Boolean(t.jazzId) && (ownedTournamentIds.includes(t.id) || ownedTournamentIds.length === 0)}
+                  canShare={
+                    Boolean(t.jazzId) &&
+                    (ownedTournamentIds.includes(t.id) ||
+                      ownedTournamentIds.length === 0)
+                  }
                   onClick={() => navigate(`/tournament/history/${t.id}`)}
+                  onDelete={() => setPendingDeleteId(t.id)}
                 />
               ))}
             </div>
@@ -91,13 +111,46 @@ export function HomePage() {
         </div>
       </AppShell>
 
+      <Dialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null);
+        }}
+      >
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>¿Eliminar torneo?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            No lo podrás recuperar.
+          </p>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>
+              Cancelar
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (pendingDeleteId) removeTournament(pendingDeleteId);
+                setPendingDeleteId(null);
+              }}
+            >
+              Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <BottomAction>
         <div className="max-w-lg mx-auto">
-          <Button className="w-full h-12 text-base" onClick={() => navigate('/tournament/new')}>
+          <Button
+            className="w-full h-12 text-base"
+            onClick={() => navigate("/tournament/new")}
+          >
             Nuevo Torneo
           </Button>
         </div>
       </BottomAction>
     </>
-  )
+  );
 }
