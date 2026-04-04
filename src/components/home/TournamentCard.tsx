@@ -1,6 +1,7 @@
 import type { Tournament } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
 import { ParticipantName } from '@/components/participants/ParticipantName'
+import { formatNameList } from '@/lib/formatNameList'
 import { useState } from 'react'
 import type { MouseEvent } from 'react'
 import { Trophy, Share2, Copy, Check, X } from 'lucide-react'
@@ -64,13 +65,6 @@ function getWinners(tournament: Tournament): string[] {
     }
   }
   return winners
-}
-
-function formatNameList(names: string[]): string {
-  if (names.length <= 1) return names[0] ?? ''
-  if (names.length === 2) return `${names[0]} y ${names[1]}`
-
-  return `${names.slice(0, -1).join(', ')} y ${names[names.length - 1]}`
 }
 
 export function TournamentCard({ tournament, onClick, canShare = false, onDelete }: TournamentCardProps) {

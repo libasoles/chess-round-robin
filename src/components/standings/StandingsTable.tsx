@@ -3,6 +3,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { ParticipantName } from '@/components/participants/ParticipantName'
 import type { Group, StandingEntry, TiebreakMethod, TournamentSettings } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
+import { formatNameList } from '@/lib/formatNameList'
 
 type TiebreakReason = { label: string; reason: string }
 
@@ -168,7 +169,7 @@ export function StandingsTable({
       </table>
       {unresolvedTies.map(tiedEntries => {
         const tiedIds = tiedEntries.map(e => e.participantId)
-        const names = tiedIds.map(id => nameMap.get(id) ?? id).join(' y ')
+        const names = formatNameList(tiedIds.map(id => nameMap.get(id) ?? id))
         const reasons = explainUnresolvedTie(tiedIds, group, settings)
         return (
           <div key={tiedIds.join(',')} className="mt-3 rounded-md bg-[--surface-sunken] py-2 text-xs text-muted-foreground leading-snug space-y-1">

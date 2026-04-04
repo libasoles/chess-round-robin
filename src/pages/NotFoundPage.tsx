@@ -1,6 +1,5 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 export function NotFoundPage() {
@@ -20,9 +19,6 @@ export function NotFoundPage() {
           <br />
           Quizás fue borrado.
         </p>
-        <Button className="mt-2 h-11 px-6" onClick={() => navigate("/")}>
-          Volver al inicio
-        </Button>
       </div>
     </AppShell>
   );
