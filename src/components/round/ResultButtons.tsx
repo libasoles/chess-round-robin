@@ -41,7 +41,7 @@ export function ResultButtons({ current, onChange }: ResultButtonsProps) {
         onClick={() => handleClick(result)}
         aria-label={label}
         aria-pressed={isActive}
-        className={`p-3 rounded-lg transition-colors ${
+        className={`cursor-pointer p-3 rounded-lg transition-colors ${
           isActive
             ? 'bg-primary text-primary-foreground'
             : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'

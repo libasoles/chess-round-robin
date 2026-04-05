@@ -8,6 +8,7 @@ const ALL_METHODS: Array<{ method: TiebreakMethod; label: string }> = [
   { method: 'DE', label: 'Encuentro Directo (ED)' },
   { method: 'SB', label: 'Sonneborn-Berger (SB)' },
   { method: 'Buchholz', label: 'Buchholz' },
+  { method: 'Koya', label: 'Koya' },
   { method: 'PN', label: 'Partidas Ganadas con Negras (PN)' },
 ]
 
