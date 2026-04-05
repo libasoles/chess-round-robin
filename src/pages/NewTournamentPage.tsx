@@ -51,7 +51,7 @@ export function NewTournamentPage() {
   const [organizer, setOrganizer] = useState(currentOrganizerName);
   const [participants, setParticipants] = useState<string[]>([""]);
   const [useGroups, setUseGroups] = useState(false);
-  const groupSize = lastTournamentSettings.groupSize ?? 4;
+  const groupSize = 4;
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [removeIdx, setRemoveIdx] = useState<number | null>(null);
   const [toasts, setToasts] = useState<ValidationToast[]>([]);
@@ -77,7 +77,7 @@ export function NewTournamentPage() {
     (n) => !enteredNames.has(n.toLowerCase()),
   );
   const enrolledCount = participants.filter((p) => p.trim().length > 0).length;
-  const groupsDisabled = enrolledCount < groupSize + 2;
+  const groupsDisabled = enrolledCount < 6;
 
   function updateParticipant(index: number, value: string) {
     const next = [...participants];
@@ -257,6 +257,28 @@ export function NewTournamentPage() {
               ))}
             </CardContent>
           </Card>
+
+          <Card>
+            <CardContent className="pt-4 space-y-4">
+              <div
+                className={`flex items-center gap-3 ${groupsDisabled ? "opacity-65" : ""}`}
+              >
+                <Checkbox
+                  id="use-groups"
+                  checked={useGroups}
+                  disabled={groupsDisabled}
+                  className="disabled:opacity-35"
+                  onCheckedChange={(checked) => setUseGroups(checked === true)}
+                />
+                <Label
+                  htmlFor="use-groups"
+                  className={`cursor-pointer text-base ${groupsDisabled ? "text-muted-foreground/55" : "text-foreground"}`}
+                >
+                  Separar participantes en grupos de 4
+                </Label>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </AppShell>
 
@@ -280,37 +302,7 @@ export function NewTournamentPage() {
       </div>
 
       <BottomAction>
-        <div className="mx-auto w-full max-w-lg space-y-3">
-          <div
-            className={`flex items-center gap-3 ${
-              groupsDisabled ? "opacity-65" : ""
-            }`}
-            onClick={() => {
-              const validCount = participants.filter((p) => p.trim()).length;
-              const isDisabled = validCount < groupSize + 2;
-              if (isDisabled) {
-                showValidationToasts([
-                  `Se necesitan al menos ${groupSize + 2} participantes para activar grupos.`,
-                ]);
-              }
-            }}
-          >
-            <Checkbox
-              id="use-groups"
-              checked={useGroups && !groupsDisabled}
-              disabled={groupsDisabled}
-              className="disabled:opacity-35"
-              onCheckedChange={(checked) => setUseGroups(checked === true)}
-            />
-            <Label
-              htmlFor="use-groups"
-              className={`cursor-pointer text-base ${
-                groupsDisabled ? "text-muted-foreground/55" : "text-foreground"
-              }`}
-            >
-              Crear grupos de máximo {groupSize} jugadores
-            </Label>
-          </div>
+        <div className="mx-auto w-full max-w-lg">
           <Button className="w-full h-12 text-base" onClick={handleStart}>
             Comenzar
           </Button>
@@ -372,7 +364,6 @@ export function NewTournamentPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
     </>
   );
 }

@@ -8,39 +8,43 @@
  *   <img src={brand.logoPath} alt={brand.logoAlt} />
  */
 
-const BRAND = import.meta.env.VITE_BRAND ?? 'default'
-const PREFIX = BRAND === 'default' ? '' : `/brand/${BRAND}`
+const BRAND = import.meta.env.VITE_BRAND ?? "default";
+const PREFIX = BRAND === "default" ? "" : `/brand/${BRAND}`;
 
 const brandNames = {
-  default: 'Round Robin',
-  tucuchess: 'Tucu Chess',
-} as const
+  default: "Round Robin",
+  tucuchess: "Round Robin",
+} as const;
 
 const brandTopLabels = {
-  default: 'Torneo',
-  tucuchess: 'TucuChess',
-} as const
+  default: "Torneo",
+  tucuchess: "TucuChess",
+} as const;
 
 const brandAltText = {
-  default: 'Chess Round Robin',
-  tucuchess: 'Tucu Chess',
-} as const
+  default: "Round Robin",
+  tucuchess: "TucuChess",
+} as const;
 
 export const brand = {
   /** Brand identifier (e.g., 'tucuchess', 'default') */
-  name: (brandNames[BRAND as keyof typeof brandNames] ?? 'Round Robin') as string,
+  name: (brandNames[BRAND as keyof typeof brandNames] ??
+    "Round Robin") as string,
 
   /** Top label for header (first line) */
-  topLabel: (brandTopLabels[BRAND as keyof typeof brandTopLabels] ?? 'Torneo') as string,
+  topLabel: (brandTopLabels[BRAND as keyof typeof brandTopLabels] ??
+    "Torneo") as string,
 
   /** Short name for PWA manifest */
-  shortName: (brandNames[BRAND as keyof typeof brandNames] ?? 'Round Robin') as string,
+  shortName: (brandNames[BRAND as keyof typeof brandNames] ??
+    "Round Robin") as string,
 
   /** Logo path for header (logo.png) */
   logoPath: `${PREFIX}/logo.png`,
 
   /** Alt text for logo image */
-  logoAlt: (brandAltText[BRAND as keyof typeof brandAltText] ?? 'Chess Round Robin') as string,
+  logoAlt: (brandAltText[BRAND as keyof typeof brandAltText] ??
+    "Round Robin") as string,
 
   /** PWA 192×192 icon */
   pwa192: `${PREFIX}/pwa-192x192.png`,
@@ -53,4 +57,4 @@ export const brand = {
 
   /** Favicon path */
   faviconPath: `${PREFIX}/favicon.png`,
-}
+};
