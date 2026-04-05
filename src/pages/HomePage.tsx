@@ -51,12 +51,12 @@ export function HomePage() {
         topBar={
           <TopBar
             right={
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 -mr-1">
                 <InfoButton />
                 <button
                   type="button"
                   onClick={() => navigate("/settings")}
-                  className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+                  className="md:hidden p-1 text-muted-foreground hover:text-foreground"
                   aria-label="Configuración"
                 >
                   <Settings className="h-5 w-5" />

@@ -48,7 +48,7 @@ export function InfoButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+        className="md:hidden p-1 text-muted-foreground hover:text-foreground"
         aria-label="¿Cómo funciona?"
       >
         <Info className="h-5 w-5" />
@@ -89,22 +89,28 @@ export function InfoButton() {
                 los
                 <B> grupos</B> queden equilibrados.
               </p>
-              <p>Ejemplos con una configuración de grupos de máximo 4:</p>
+              <p>Por ejemplo, con una configuración de grupos de máximo 4:</p>
               <ul className="mt-2 space-y-1 list-none text-sm">
                 <li>
-                  <span className="text-foreground">7 participantes:</span> se
-                  crean 2 grupos (uno de 4, otro de 3)
+                  <span className="text-foreground">
+                    7 <B>participantes</B>:
+                  </span>{" "}
+                  se crean 2 grupos (uno de 4, otro de 3)
                 </li>
                 <li>
-                  <span className="text-foreground">10 participantes:</span> se
-                  crean 3 grupos (uno de 4, dos de 3)
+                  <span className="text-foreground">
+                    10 <B>participantes</B>:
+                  </span>{" "}
+                  se crean 3 grupos (uno de 4, dos de 3)
                 </li>
               </ul>
               <p>Excepción:</p>
               <ul className="mt-2 space-y-1 list-none text-sm">
                 <li>
-                  <span className="text-foreground">5 participantes:</span> 1
-                  grupo (porque no se aceptan grupos de 2)
+                  <span className="text-foreground">
+                    5 <B>participantes</B>:
+                  </span>{" "}
+                  1 grupo (porque no se aceptan grupos de 2)
                 </li>
               </ul>
               <p className="pt-2">
