@@ -87,8 +87,11 @@ async function generate() {
     // Read source image
     const sourceBuffer = await sharp(source).toBuffer()
 
-    // Generate header logo (512×512, fit: contain to preserve aspect)
-    const logoBuffer = await sharp(sourceBuffer)
+    // Remove background first (before resizing)
+    const noBackgroundBuffer = await removeWhiteBackground(sourceBuffer)
+
+    // Generate header logo (512×512, transparent background, fit: contain to preserve aspect)
+    const logoBuffer = await sharp(noBackgroundBuffer)
       .resize(512, 512, {
         fit: 'contain',
         background: { r: 255, g: 255, b: 255, alpha: 0 },
@@ -96,8 +99,14 @@ async function generate() {
       .png()
       .toBuffer()
 
-    // Remove background for square versions (replaced near-white with transparent)
-    const noBackgroundBuffer = await removeWhiteBackground(sourceBuffer)
+    // Generate empty state image (627×913 to match default empty.png aspect ratio)
+    const emptyBuffer = await sharp(noBackgroundBuffer)
+      .resize(400, 400, {
+        fit: 'contain',
+        background: { r: 255, g: 255, b: 255, alpha: 0 },
+      })
+      .png()
+      .toBuffer()
 
     // Generate PWA 512×512 (white background, no transparency)
     const pwa512Buffer = await sharp(noBackgroundBuffer)
@@ -130,6 +139,8 @@ async function generate() {
     await Promise.all([
       sharp(logoBuffer)
         .toFile(path.join(outputDir, 'logo.png')),
+      sharp(emptyBuffer)
+        .toFile(path.join(outputDir, 'empty.png')),
       sharp(pwa512Buffer)
         .toFile(path.join(outputDir, 'pwa-512x512.png')),
       sharp(pwa192Buffer)
@@ -145,6 +156,7 @@ async function generate() {
 
     console.log('✓ Assets generated successfully:')
     console.log(`  - ${path.join(outputDir, 'logo.png')} (header logo, transparent bg)`)
+    console.log(`  - ${path.join(outputDir, 'empty.png')} (empty state, transparent bg)`)
     console.log(`  - ${path.join(outputDir, 'pwa-512x512.png')}`)
     console.log(`  - ${path.join(outputDir, 'pwa-192x192.png')}`)
     console.log(`  - ${path.join(outputDir, 'favicon.png')}`)

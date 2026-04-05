@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
+import { brand } from "@/lib/brand";
 
 export function NotFoundPage() {
 
@@ -7,7 +8,7 @@ export function NotFoundPage() {
     <AppShell topBar={<TopBar />}>
       <div className="flex min-h-[70svh] flex-col items-center justify-center gap-3 text-center">
         <img
-          src="/empty.png"
+          src={brand.emptyPath}
           alt="Página no encontrada"
           className="h-44 w-auto select-none md:h-52"
           loading="lazy"
