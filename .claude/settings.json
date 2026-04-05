@@ -18,7 +18,13 @@
       "Bash(node -e ':*)",
       "Bash(grep -r \"useCoState\" /Users/guillermoperez/Projects/playground/chess-round-robin/node_modules/jazz-tools/dist/react-core/*.d.ts)",
       "Bash(npx tsx:*)",
-      "Bash(node)"
+      "Bash(node)",
+      "Bash(sips -g pixelWidth -g pixelHeight *)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git restore:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git commit -m 'fix: generate favicon.ico from brand logo instead of copying default:*)"
     ],
     "additionalDirectories": [
       "/tmp"

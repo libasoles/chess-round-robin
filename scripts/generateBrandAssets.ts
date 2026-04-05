@@ -1,6 +1,8 @@
 import sharp from 'sharp'
+// @ts-ignore - no types available for to-ico
+import toIco from 'to-ico'
 import path from 'path'
-import { mkdirSync, copyFileSync } from 'fs'
+import { mkdirSync, writeFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -149,10 +151,9 @@ async function generate() {
         .toFile(path.join(outputDir, 'favicon.png')),
     ])
 
-    // Copy favicon.ico from default
-    const srcIco = path.join(projectRoot, 'public', 'favicon.ico')
-    const dstIco = path.join(outputDir, 'favicon.ico')
-    copyFileSync(srcIco, dstIco)
+    // Generate favicon.ico from favicon.png
+    const icoBuffer = await toIco([faviconBuffer])
+    writeFileSync(path.join(outputDir, 'favicon.ico'), icoBuffer)
 
     console.log('✓ Assets generated successfully:')
     console.log(`  - ${path.join(outputDir, 'logo.png')} (header logo, transparent bg)`)
