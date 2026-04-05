@@ -1,9 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
-import { useNavigate } from "react-router-dom";
 
 export function NotFoundPage() {
-  const navigate = useNavigate();
 
   return (
     <AppShell topBar={<TopBar />}>
