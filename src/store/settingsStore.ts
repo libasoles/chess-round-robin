@@ -25,7 +25,7 @@ const DEFAULT_TOURNAMENT_SETTINGS: TournamentSettings = {
   organizerName: '',
   forfeitPoints: 1,
   byePoints: 1,
-  tiebreakOrder: ['DE', 'PN'],
+  tiebreakOrder: ['DE', 'SB', 'PN'],
   useGroups: true,
   groupSize: 4,
 }

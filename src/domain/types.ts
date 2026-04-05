@@ -6,7 +6,7 @@ export type MatchResult =
   | 'forfeit_black'
   | 'auto_bye'
 
-export type TiebreakMethod = 'DE' | 'SB' | 'Buchholz' | 'PN'
+export type TiebreakMethod = 'DE' | 'SB' | 'Buchholz' | 'PN' | 'Koya'
 
 export type TournamentSettings = {
   arbitratorName: string

@@ -20,26 +20,49 @@ function explainUnresolvedTie(
 
   for (const method of settings.tiebreakOrder) {
     if (method === 'DE') {
-      if (tiedIds.length > 2) {
-        results.push({ label: 'Encuentro Directo', reason: 'solo aplica a empates de 2 jugadores.' })
-      } else {
+      if (tiedIds.length === 2) {
         const [a, b] = tiedIds
         const match = group.matches.find(
           m => (m.white === a && m.black === b) || (m.white === b && m.black === a),
         )
         if (!match || match.result === null) {
-          results.push({ label: 'Encuentro Directo', reason: 'la partida no fue jugada.' })
+          results.push({ label: 'Encuentro Directo', reason: 'la partida entre estos jugadores aún no se jugó.' })
+        } else if (match.result === 'draw') {
+          results.push({ label: 'Encuentro Directo', reason: 'su partida enfrentada terminó en tablas.' })
         } else {
-          results.push({ label: 'Encuentro Directo', reason: 'la partida terminó en tablas.' })
+          // This shouldn't happen in an unresolved tie, but be safe
+          results.push({ label: 'Encuentro Directo', reason: 'su partida enfrentada tiene resultado decisivo.' })
         }
+      } else {
+        // 3+ players: explain multi-way DE logic
+        results.push({
+          label: 'Encuentro Directo',
+          reason: `los ${tiedIds.length} jugadores quedan igualados al considerar sus partidas mutuas.`,
+        })
       }
+    } else if (method === 'SB') {
+      results.push({
+        label: 'Sonneborn-Berger',
+        reason: 'tienen la misma puntuación considerando calidad de rivales vencidos.',
+      })
+    } else if (method === 'Buchholz') {
+      results.push({
+        label: 'Buchholz',
+        reason: 'tienen la misma puntuación acumulada de rivales enfrentados.',
+      })
+    } else if (method === 'PN') {
+      results.push({
+        label: 'Partidas con Negras',
+        reason: 'todos tienen el mismo número de victorias jugando con negras.',
+      })
+    } else if (method === 'Koya') {
+      results.push({
+        label: 'Sistema Koya',
+        reason: 'tienen la misma puntuación contra rivales clasificados (≥50% puntos).',
+      })
     } else {
-      const labels: Record<string, string> = {
-        SB: 'Sonneborn-Berger',
-        Buchholz: 'Buchholz',
-        PN: 'Partidas con Negras',
-      }
-      results.push({ label: labels[method] ?? method, reason: 'puntaje igual.' })
+      // Unknown method
+      results.push({ label: method, reason: 'puntaje igual.' })
     }
   }
 

@@ -130,9 +130,13 @@ describe('applyDirectEncounter', () => {
     expect(applyDirectEncounter(['A', 'B'], group)).toBeNull()
   })
 
-  it('3-way tie → null (DE not applicable)', () => {
+  it('3-way tie with no matches among tied players → null', () => {
+    // A, B, C with no matches between them → no DE mini-tournament to compute
     const group = makeGroup([A, B, C, D], [
-      makeMatch('m1', 'A', 'B', 'white_win'),
+      makeMatch('m1', 'A', 'D', 'white_win'),
+      makeMatch('m2', 'B', 'D', 'white_win'),
+      makeMatch('m3', 'C', 'D', 'white_win'),
+      // A vs B, A vs C, B vs C: no matches
     ])
     expect(applyDirectEncounter(['A', 'B', 'C'], group)).toBeNull()
   })
@@ -154,6 +158,49 @@ describe('applyDirectEncounter', () => {
       makeMatch('m1', 'A', 'B', 'forfeit_white'),
     ])
     expect(applyDirectEncounter(['A', 'B'], group)).toEqual([['B'], ['A']])
+  })
+
+  it('3-way: A beats B and C, B beats C → fully separates [[A],[B],[C]]', () => {
+    const group = makeGroup([A, B, C, D], [
+      makeMatch('m1', 'A', 'B', 'white_win'),
+      makeMatch('m2', 'A', 'C', 'white_win'),
+      makeMatch('m3', 'B', 'C', 'white_win'),
+    ])
+    // Mini-tournament: A=2, B=1, C=0
+    expect(applyDirectEncounter(['A', 'B', 'C'], group)).toEqual([['A'], ['B'], ['C']])
+  })
+
+  it('3-way circular (A>B, B>C, C>A) → null (all equal at 1pt)', () => {
+    const group = makeGroup([A, B, C, D], [
+      makeMatch('m1', 'A', 'B', 'white_win'),
+      makeMatch('m2', 'B', 'C', 'white_win'),
+      makeMatch('m3', 'C', 'A', 'white_win'),
+    ])
+    // Mini-tournament: A=1 (beat B), B=1 (beat C), C=1 (beat A)
+    expect(applyDirectEncounter(['A', 'B', 'C'], group)).toBeNull()
+  })
+
+  it('3-way with unplayed match: A beats B, A vs C unplayed → resolves with available results', () => {
+    const group = makeGroup([A, B, C, D], [
+      makeMatch('m1', 'A', 'B', 'white_win'),
+      makeMatch('m2', 'A', 'C', null),  // not yet played
+      // B vs C: no match at all
+    ])
+    // Mini-tournament (unplayed matches omitted): A=1, B=0, C=0
+    expect(applyDirectEncounter(['A', 'B', 'C'], group)).toEqual([['A'], ['B', 'C']])
+  })
+
+  it('4-way: clear ordering via mini-tournament → [[A],[B],[C],[D]]', () => {
+    const group = makeGroup([A, B, C, D], [
+      makeMatch('m1', 'A', 'B', 'white_win'),
+      makeMatch('m2', 'A', 'C', 'white_win'),
+      makeMatch('m3', 'A', 'D', 'white_win'),
+      makeMatch('m4', 'B', 'C', 'white_win'),
+      makeMatch('m5', 'B', 'D', 'white_win'),
+      makeMatch('m6', 'C', 'D', 'white_win'),
+    ])
+    // Mini-tournament: A=3, B=2, C=1, D=0
+    expect(applyDirectEncounter(['A', 'B', 'C', 'D'], group)).toEqual([['A'], ['B'], ['C'], ['D']])
   })
 })
 
@@ -201,19 +248,15 @@ describe('rankWithTiebreaks', () => {
     expect(ranked[1]).toEqual(['B'])
   })
 
-  it('3-way tie skips DE, uses SB', () => {
-    // A, B, C all at 1 point
-    // With tiebreakOrder=['DE','SB'], DE is skipped for 3-way
+  it('3-way circular tie: DE unresolvable (all equal at 1pt), falls through to SB', () => {
+    // A, B, C all at 1 point with circular wins: A>B, B>C, C>A
     const group = makeGroup([A, B, C], [
       makeMatch('m1', 'A', 'B', 'white_win'),  // A=1
       makeMatch('m2', 'B', 'C', 'white_win'),  // B=1
       makeMatch('m3', 'C', 'A', 'white_win'),  // C=1
     ])
-    // All at 1; SB:
-    // A: beat B(1) → 1.0; lost to C(1) → 0 = 1.0
-    // B: lost to A(1) → 0; beat C(1) → 1.0 = 1.0
-    // C: lost to B(1) → 0; beat A(1) → 1.0 = 1.0
-    // All SB = 1.0, so all still tied
+    // DE: mini-tournament A=1, B=1, C=1 → all equal → null
+    // SB: All SB = 1.0, so all still tied
     const ranked = rankWithTiebreaks(group, defaultSettings)
     // All tied after all methods → 1 group of 3
     expect(ranked).toHaveLength(1)

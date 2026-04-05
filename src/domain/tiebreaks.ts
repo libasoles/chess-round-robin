@@ -1,5 +1,6 @@
 import type { Group, StandingEntry, TiebreakMethod, TournamentSettings } from './types'
 import { computeStandings } from './standings'
+import { resolveMatchPoints } from './scoring'
 
 /**
  * Computes the Sonneborn-Berger score for a participant.
@@ -116,34 +117,98 @@ export function computePartidasGanadasConNegras(
 }
 
 /**
- * Applies Direct Encounter tiebreak to exactly 2 tied participants.
+ * Computes Koya score — points scored against opponents who finished with >= 50%
+ * of the maximum possible points (i.e., opponents who scored well).
  *
- * Returns [[winner], [loser]] if resolved, or null if:
- * - tied.length !== 2
- * - the match between them was a draw
- * - the match has not been played (result is null)
+ * Bye matches are excluded.
+ */
+export function computeKoya(
+  participantId: string,
+  group: Group,
+  settings: TournamentSettings,
+): number {
+  const finalStandings = computeStandings(group, settings)
+  const finalPoints = new Map(finalStandings.map(e => [e.participantId, e.points]))
+  const participantMap = new Map(group.participants.map(p => [p.id, p]))
+
+  // Max possible = number of real (non-bye) participants - 1
+  const realCount = group.participants.filter(p => !p.isBye).length
+  const threshold = (realCount - 1) / 2
+
+  let koya = 0
+
+  for (const match of group.matches) {
+    if (match.result === null) continue
+
+    const isWhite = match.white === participantId
+    const isBlack = match.black === participantId
+    if (!isWhite && !isBlack) continue
+
+    const opponentId = isWhite ? match.black : match.white
+    if (participantMap.get(opponentId)?.isBye) continue
+
+    // Only count against opponents above threshold
+    if ((finalPoints.get(opponentId) ?? 0) < threshold) continue
+
+    // Use tournament scoring (respects forfeitPoints setting)
+    const { whitePoints, blackPoints } = resolveMatchPoints(match, settings, participantMap)
+    koya += isWhite ? whitePoints : blackPoints
+  }
+
+  return koya
+}
+
+/**
+ * Applies Direct Encounter tiebreak to N >= 2 tied participants.
+ *
+ * Computes a mini-tournament score for each tied player based only on matches
+ * between tied players. Matches are scored naturally (win=1, draw=0.5, loss=0).
+ * Unplayed matches are omitted (neither player gets points).
+ *
+ * Returns sorted groups [[...], [...]] if mini-tournament resolves the tie,
+ * or null if:
+ * - tied.length < 2
+ * - no matches have been played between tied players
+ * - all tied players have equal mini-tournament scores
  */
 export function applyDirectEncounter(
   tied: string[],
   group: Group,
 ): string[][] | null {
-  if (tied.length !== 2) return null
+  if (tied.length < 2) return null
 
-  const [a, b] = tied
+  const tiedSet = new Set(tied)
+  const miniScores = new Map<string, number>(tied.map(id => [id, 0]))
+  let hasAnyPlayedMatch = false
 
-  const match = group.matches.find(
-    m =>
-      (m.white === a && m.black === b) ||
-      (m.white === b && m.black === a),
-  )
+  // Compute mini-tournament scores: only matches between tied players
+  for (const match of group.matches) {
+    if (!tiedSet.has(match.white) || !tiedSet.has(match.black)) continue
+    if (match.result === null) continue // unplayed match → omitted
 
-  if (!match || match.result === null || match.result === 'draw') return null
+    hasAnyPlayedMatch = true
 
-  const aWon =
-    (match.white === a && (match.result === 'white_win' || match.result === 'forfeit_black')) ||
-    (match.black === a && (match.result === 'black_win' || match.result === 'forfeit_white'))
+    // Natural scoring: win=1, draw=0.5, loss=0 (NOT configurable forfeitPoints)
+    if (match.result === 'white_win' || match.result === 'forfeit_black') {
+      miniScores.set(match.white, miniScores.get(match.white)! + 1)
+    } else if (match.result === 'black_win' || match.result === 'forfeit_white') {
+      miniScores.set(match.black, miniScores.get(match.black)! + 1)
+    } else if (match.result === 'draw') {
+      miniScores.set(match.white, miniScores.get(match.white)! + 0.5)
+      miniScores.set(match.black, miniScores.get(match.black)! + 0.5)
+    }
+    // 'auto_bye' cannot occur between two real players; ignored
+  }
 
-  return aWon ? [[a], [b]] : [[b], [a]]
+  if (!hasAnyPlayedMatch) return null
+
+  // Sort by mini-tournament score and group
+  const scored = tied.map(id => ({ id, score: miniScores.get(id)! }))
+  scored.sort((a, b) => b.score - a.score)
+  const groups = groupByScore(scored)
+
+  if (groups.length === 1) return null // all equal in mini-tournament
+  return groups
 }
 
 /**
@@ -209,15 +274,12 @@ function resolveTiedGroup(
   const [method, ...rest] = remainingMethods
 
   if (method === 'DE') {
-    // DE only applies to exactly 2-way ties
-    if (tied.length === 2) {
-      const result = applyDirectEncounter(tied, group)
-      if (result !== null) {
-        // Resolved — apply remaining methods recursively to each sub-group
-        return result.flatMap(subGroup =>
-          resolveTiedGroup(subGroup, group, settings, rest),
-        )
-      }
+    const result = applyDirectEncounter(tied, group)
+    if (result !== null) {
+      // Resolved — apply remaining methods recursively to each sub-group
+      return result.flatMap(subGroup =>
+        resolveTiedGroup(subGroup, group, settings, rest),
+      )
     }
     // Not applicable or unresolved → try next method
     return resolveTiedGroup(tied, group, settings, rest)
@@ -280,6 +342,20 @@ function resolveTiedGroup(
     )
   }
 
+  if (method === 'Koya') {
+    const scores = tied.map(id => ({
+      id,
+      score: computeKoya(id, group, settings),
+    }))
+    scores.sort((a, b) => b.score - a.score)
+
+    const koyaGroups = groupByScore(scores)
+
+    return koyaGroups.flatMap(subGroup =>
+      resolveTiedGroup(subGroup, group, settings, rest),
+    )
+  }
+
   // Unknown method — skip
   return resolveTiedGroup(tied, group, settings, rest)
 }
@@ -315,6 +391,7 @@ function computeScoreForMethod(
     case 'SB': return computeSonnebornBerger(participantId, group, settings)
     case 'Buchholz': return computeBuchholz(participantId, group, settings)
     case 'PN': return computePartidasGanadasConNegras(participantId, group)
+    case 'Koya': return computeKoya(participantId, group, settings)
   }
 }
 
@@ -327,10 +404,7 @@ function findFirstResolvingMethod(
 ): TiebreakMethod | null {
   for (const method of settings.tiebreakOrder) {
     if (method === 'DE') {
-      // DE only applies to exactly 2-way ties
-      if (coTied.length === 1) {
-        if (applyDirectEncounter([participantId, coTied[0]], group) !== null) return 'DE'
-      }
+      if (applyDirectEncounter([participantId, ...coTied], group) !== null) return 'DE'
       continue
     }
     const myScore = computeScoreForMethod(method, participantId, group, settings)
