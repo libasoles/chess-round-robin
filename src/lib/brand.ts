@@ -27,6 +27,9 @@ const brandAltText = {
 } as const;
 
 export const brand = {
+  /** Raw brand identifier from VITE_BRAND (e.g., 'tucuchess', 'default') */
+  id: BRAND,
+
   /** Brand identifier (e.g., 'tucuchess', 'default') */
   name: (brandNames[BRAND as keyof typeof brandNames] ??
     "Round Robin") as string,

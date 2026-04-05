@@ -1,5 +1,6 @@
 import { ParticipantName } from "@/components/participants/ParticipantName";
 import type { Match, MatchResult, Participant } from "@/domain/types";
+import { brand } from "@/lib/brand";
 import { Trophy } from "lucide-react";
 import { ResultButtons } from "./ResultButtons";
 
@@ -28,18 +29,44 @@ export function MatchRow({
 
     return (
       <div className="rounded-md bg-muted/40 px-2 py-2">
-        <div className="min-w-0 mb-1.5 text-sm">
-          <ParticipantName>{playerName}</ParticipantName>
-        </div>
-        {readonly ? (
-          <p className="text-xs text-muted-foreground mt-1 text-center">Punto de bye</p>
-        ) : (
-          <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-            <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <Trophy className="h-5 w-5" />
-            </span>
-            <span>punto de bye</span>
+        {brand.id === "tucuchess" && !readonly ? (
+          <div>
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
+              <div className="min-w-0">
+                <ParticipantName>{playerName}</ParticipantName>
+              </div>
+              <span className="text-muted-foreground text-xs text-center">
+                vs
+              </span>
+              <div className="min-w-0 text-right">
+                <ParticipantName className="text-right">Libre</ParticipantName>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+              <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <Trophy className="h-5 w-5" />
+              </span>
+              <span>Punto de bye por número impar</span>
+            </div>
           </div>
+        ) : (
+          <>
+            <div className="min-w-0 mb-1.5 text-sm">
+              <ParticipantName>{playerName}</ParticipantName>
+            </div>
+            {readonly ? (
+              <p className="text-xs text-muted-foreground mt-1 text-center">
+                Punto de bye por número impar
+              </p>
+            ) : (
+              <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                  <Trophy className="h-5 w-5" />
+                </span>
+                <span>Punto de bye por número impar</span>
+              </div>
+            )}
+          </>
         )}
       </div>
     );
