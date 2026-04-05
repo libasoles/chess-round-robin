@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import { loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -8,6 +9,30 @@ import path from 'path'
 const packageJson = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
 ) as { version: string }
+
+// Load environment variables (including .env.local)
+const env = loadEnv('', process.cwd(), '')
+
+// Brand configuration
+const BRAND = env.VITE_BRAND ?? 'default'
+const ASSET_PREFIX = BRAND === 'default' ? '' : `brand/${BRAND}/`
+const BRAND_NAMES = {
+  default: 'Round Robin',
+  tucuchess: 'Tucu Chess',
+} as const
+const brandName = (BRAND_NAMES[BRAND as keyof typeof BRAND_NAMES] ?? 'Round Robin') as string
+
+// Plugin that rewrites favicon/touch-icon hrefs in index.html to use the brand path
+const brandFaviconPlugin = {
+  name: 'brand-favicon-transform',
+  transformIndexHtml(html: string) {
+    if (BRAND === 'default') return html
+    return html
+      .replace(/href="\/favicon\.ico"/g, `href="/${ASSET_PREFIX}favicon.ico"`)
+      .replace(/href="\/favicon\.png"/g, `href="/${ASSET_PREFIX}favicon.png"`)
+      .replace(/href="\/pwa-192x192\.png"/g, `href="/${ASSET_PREFIX}pwa-192x192.png"`)
+  },
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -29,20 +54,21 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
+    brandFaviconPlugin,
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      includeAssets: [`${ASSET_PREFIX}favicon.ico`, `${ASSET_PREFIX}apple-touch-icon.png`],
       manifest: {
         name: 'Round Robin',
-        short_name: 'Round Robin',
+        short_name: brandName,
         description: 'Gestión de torneos de ajedrez round robin',
         theme_color: '#000000',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: `${ASSET_PREFIX}pwa-192x192.png`, sizes: '192x192', type: 'image/png' },
+          { src: `${ASSET_PREFIX}pwa-512x512.png`, sizes: '512x512', type: 'image/png' },
+          { src: `${ASSET_PREFIX}pwa-512x512.png`, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
       },
       workbox: {
