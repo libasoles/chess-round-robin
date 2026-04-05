@@ -25,34 +25,53 @@ async function removeWhiteBackground(inputBuffer: Buffer): Promise<Buffer> {
   const width = info.width
   const height = info.height
 
-  // Find background color by sampling corners (usually background)
-  // Sample a small border region to find the dominant color
-  const cornerSamples: [number, number, number][] = []
-  const sampleSize = Math.min(10, Math.floor(Math.max(width, height) * 0.1))
+  // Find background color by analyzing border pixels
+  // Sample from all edges to find the most common color
+  const borderSamples: [number, number, number][] = []
 
-  for (let y = 0; y < sampleSize; y++) {
-    for (let x = 0; x < sampleSize; x++) {
-      const idx = (y * width + x) * channels
-      cornerSamples.push([data[idx], data[idx + 1], data[idx + 2]])
+  // Sample top and bottom edges
+  for (let x = 0; x < width; x++) {
+    // Top edge
+    let idx = x * channels
+    borderSamples.push([data[idx], data[idx + 1], data[idx + 2]])
+    // Bottom edge
+    idx = ((height - 1) * width + x) * channels
+    borderSamples.push([data[idx], data[idx + 1], data[idx + 2]])
+  }
+
+  // Sample left and right edges
+  for (let y = 0; y < height; y++) {
+    // Left edge
+    let idx = y * width * channels
+    borderSamples.push([data[idx], data[idx + 1], data[idx + 2]])
+    // Right edge
+    idx = (y * width + (width - 1)) * channels
+    borderSamples.push([data[idx], data[idx + 1], data[idx + 2]])
+  }
+
+  // Find the most common color among border samples
+  // Group by color and find the most frequent one
+  const colorFreq = new Map<string, number>()
+  for (const [r, g, b] of borderSamples) {
+    const key = `${r},${g},${b}`
+    colorFreq.set(key, (colorFreq.get(key) ?? 0) + 1)
+  }
+
+  let bgColor = [128, 128, 128] // Default fallback
+  let maxFreq = 0
+  for (const [key, freq] of colorFreq) {
+    if (freq > maxFreq) {
+      maxFreq = freq
+      const [r, g, b] = key.split(',').map(Number)
+      bgColor = [r, g, b]
     }
   }
 
-  // Find average color of corner samples (likely the background)
-  let avgR = 0,
-    avgG = 0,
-    avgB = 0
-  for (const [r, g, b] of cornerSamples) {
-    avgR += r
-    avgG += g
-    avgB += b
-  }
-  avgR /= cornerSamples.length
-  avgG /= cornerSamples.length
-  avgB /= cornerSamples.length
+  const [bgR, bgG, bgB] = bgColor
 
-  // Remove background color with tolerance
-  // Make similar colors progressively more transparent
-  const tolerance = 50 // Color distance threshold
+  // Remove background color with aggressive tolerance
+  // Use lower threshold to catch more colors similar to background
+  const tolerance = 25 // Lower threshold for more aggressive removal
   for (let i = 0; i < data.length; i += channels) {
     const r = data[i]
     const g = data[i + 1]
@@ -60,13 +79,13 @@ async function removeWhiteBackground(inputBuffer: Buffer): Promise<Buffer> {
 
     // Calculate color distance from background color
     const dist = Math.sqrt(
-      (r - avgR) ** 2 + (g - avgG) ** 2 + (b - avgB) ** 2
+      (r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2
     )
 
-    // If close to background color, make transparent
+    // If similar to background color, make transparent
     if (dist < tolerance) {
       if (channels === 4) {
-        // Fade alpha based on distance: exact match = fully transparent
+        // Fade alpha based on distance
         const alpha = Math.floor((dist / tolerance) * 255)
         data[i + 3] = alpha
       }
