@@ -5,6 +5,7 @@ import { JazzReactProvider, useJazzContextValue } from 'jazz-tools/react'
 import type { Account } from 'jazz-tools'
 import { router } from './router'
 import { useSettingsStore } from './store/settingsStore'
+import { useHistoryStore } from './store/historyStore'
 import { setJazzMe } from './lib/jazzAgent'
 import { createJazzTournament } from './lib/jazzSync'
 import { useTournamentStore } from './store/tournamentStore'
@@ -31,6 +32,20 @@ export function JazzInit() {
         setJazzId(activeTournament.id, jazzId)
       } catch (e) {
         console.warn('[jazz] createJazzTournament failed', e)
+      }
+    }
+
+    // Backfill jazzId for owned history tournaments that were finished before Jazz initialised
+    const { tournaments, updateTournamentJazzId } = useHistoryStore.getState()
+    const { ownedTournamentIds } = useSettingsStore.getState()
+    for (const t of tournaments) {
+      if (t.jazzId) continue
+      if (ownedTournamentIds.length > 0 && !ownedTournamentIds.includes(t.id)) continue
+      try {
+        const jazzId = createJazzTournament(t)
+        updateTournamentJazzId(t.id, jazzId)
+      } catch (e) {
+        console.warn('[jazz] createJazzTournament for history tournament failed', t.id, e)
       }
     }
   // Only re-run when account or active tournament changes
