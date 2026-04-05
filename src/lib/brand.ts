@@ -16,6 +16,11 @@ const brandNames = {
   tucuchess: 'Tucu Chess',
 } as const
 
+const brandTopLabels = {
+  default: 'Torneo',
+  tucuchess: 'TucuChess',
+} as const
+
 const brandAltText = {
   default: 'Chess Round Robin',
   tucuchess: 'Tucu Chess',
@@ -24,6 +29,9 @@ const brandAltText = {
 export const brand = {
   /** Brand identifier (e.g., 'tucuchess', 'default') */
   name: (brandNames[BRAND as keyof typeof brandNames] ?? 'Round Robin') as string,
+
+  /** Top label for header (first line) */
+  topLabel: (brandTopLabels[BRAND as keyof typeof brandTopLabels] ?? 'Torneo') as string,
 
   /** Short name for PWA manifest */
   shortName: (brandNames[BRAND as keyof typeof brandNames] ?? 'Round Robin') as string,

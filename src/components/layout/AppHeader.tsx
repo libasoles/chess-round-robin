@@ -8,8 +8,8 @@ export function AppHeader() {
       <Link to="/" aria-label="Inicio" className="flex items-center gap-2">
         <img src={brand.logoPath} alt={brand.logoAlt} className="h-10 w-10" />
         <span className="mt-2 font-serif leading-none flex flex-col">
-          <span className="text-xs">Torneo</span>
-          <span className="-mt-1 text-lg">{brand.name} Round Robin</span>
+          <span className="text-xs">{brand.topLabel}</span>
+          <span className="-mt-1 text-lg">Round Robin</span>
         </span>
       </Link>
       <Link
