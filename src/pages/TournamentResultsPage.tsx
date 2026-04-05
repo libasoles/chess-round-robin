@@ -155,7 +155,7 @@ export function TournamentResultsPage() {
             <div className="flex items-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-3 text-foreground">
               <AlertTriangle className="h-4 w-4 shrink-0 text-primary" />
               <p className="text-sm font-medium">
-                Hay partidas con resultado pendiente
+                Quedaron partidas sin resultados cargados
               </p>
             </div>
           )}

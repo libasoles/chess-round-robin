@@ -7,6 +7,7 @@ interface HistoryState {
   addToHistory: (tournament: Tournament) => void
   removeTournament: (id: string) => void
   clearHistory: () => void
+  updateTournamentJazzId: (id: string, jazzId: string) => void
 }
 
 export const useHistoryStore = create<HistoryState>()(
@@ -21,6 +22,11 @@ export const useHistoryStore = create<HistoryState>()(
         set((s) => ({ tournaments: s.tournaments.filter((t) => t.id !== id) })),
 
       clearHistory: () => set({ tournaments: [] }),
+
+      updateTournamentJazzId: (id, jazzId) =>
+        set((s) => ({
+          tournaments: s.tournaments.map((t) => (t.id === id ? { ...t, jazzId } : t)),
+        })),
     }),
     {
       name: 'chess-history',
