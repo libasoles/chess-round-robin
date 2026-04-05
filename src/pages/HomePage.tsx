@@ -1,4 +1,5 @@
 import { EmptyHistory } from "@/components/home/EmptyHistory";
+import { InfoButton } from "@/components/home/InfoButton";
 import { TournamentCard } from "@/components/home/TournamentCard";
 import { AppShell } from "@/components/layout/AppShell";
 import { BottomAction } from "@/components/layout/BottomAction";
@@ -50,14 +51,17 @@ export function HomePage() {
         topBar={
           <TopBar
             right={
-              <button
-                type="button"
-                onClick={() => navigate("/settings")}
-                className="md:hidden p-2 text-muted-foreground hover:text-foreground"
-                aria-label="Configuración"
-              >
-                <Settings className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <InfoButton />
+                <button
+                  type="button"
+                  onClick={() => navigate("/settings")}
+                  className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Configuración"
+                >
+                  <Settings className="h-5 w-5" />
+                </button>
+              </div>
             }
           />
         }
