@@ -4,6 +4,7 @@
   "version": "0.1.4",
   "type": "module",
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
