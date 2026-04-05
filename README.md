@@ -55,6 +55,40 @@ npm run dev
 
 The app will be available at `http://localhost:5173`.
 
+## White-Label Branding (Marca Blanca)
+
+This project supports multiple brands using `VITE_BRAND`.
+
+### Default brand on `main`
+
+`main` must run with default assets from `public/`:
+
+- `logo.png`
+- `favicon.png` / `favicon.ico`
+- `pwa-192x192.png` / `pwa-512x512.png`
+- `empty.png`
+
+Current default config:
+
+```env
+VITE_BRAND=default
+```
+
+When `VITE_BRAND` is `default` (or unset), the app uses root assets (`/public/*`).
+
+### Add a new brand
+
+1. Create `public/brand/<brand>/` with:
+   `logo.png`, `favicon.png`, `favicon.ico`, `pwa-192x192.png`, `pwa-512x512.png`, `empty.png`.
+2. Add brand labels in [`src/lib/brand.ts`](/Users/guillermoperez/Projects/playground/chess-round-robin/src/lib/brand.ts) (`brandNames`, `brandTopLabels`, `brandAltText`).
+3. Set environment variables for that deployment:
+   `VITE_BRAND`, `VITE_BRAND_NAME`, `VITE_BRAND_URL`, `VITE_BRAND_OG_IMAGE`, `VITE_BRAND_DESCRIPTION`.
+
+Notes:
+
+- `vite.config.ts` rewrites favicon/touch icon paths automatically for non-default brands.
+- `index.html` uses `%VITE_*%` placeholders for metadata.
+
 ## Available commands
 
 ```bash

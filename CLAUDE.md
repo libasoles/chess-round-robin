@@ -143,22 +143,36 @@ All brand images live in `public/`. The current brand is the default chess knigh
 
 ### White-label / multi-brand strategy
 
-To run the app under a different brand (e.g. a `tucuchess` subdomain):
+`main` should always use the default brand unless explicitly requested otherwise.
 
-1. Create `public/brand/<brand-name>/` and place the following files inside:
-   - `logo.png` — header logo (source art at any resolution; displayed 40×40 px)
-   - `favicon.ico` — 32×32 ICO
-   - `favicon.png` — 32×32 PNG
-   - `pwa-192x192.png` — 192×192 PNG
-   - `pwa-512x512.png` — 512×512 PNG (also used as OG image and maskable PWA icon)
-   - `empty.png` — empty-state illustration (optional; can reuse default)
+Default runtime setting:
 
-2. Set a build-time env variable `VITE_BRAND` (e.g. `tucuchess`). When unset, the app uses the root `public/` files (default brand).
+```env
+VITE_BRAND=default
+```
 
-3. In `vite.config.ts`: adjust `includeAssets`, manifest `icons`, and OG meta URLs to point to the brand subfolder when `VITE_BRAND` is set.
+Behavior:
 
-4. In `index.html`: replace hardcoded absolute URLs with the brand-specific domain and image paths.
+- `VITE_BRAND=default` (or unset) => assets from `public/` (default logo set).
+- `VITE_BRAND=<brand>` => assets from `public/brand/<brand>/`.
 
-5. In `AppHeader.tsx`: update `src="/logo.png"` to read from the brand path if using dynamic asset paths.
+To add/update a brand (e.g. `tucuchess`):
 
-> **Note:** `icons.svg` is a UI sprite (navigation/social icons), not part of the brand identity — keep it shared across all brands.
+1. Add files in `public/brand/<brand>/`:
+   - `logo.png`
+   - `favicon.ico`
+   - `favicon.png`
+   - `pwa-192x192.png`
+   - `pwa-512x512.png`
+   - `empty.png`
+2. Update brand labels in `src/lib/brand.ts` (`brandNames`, `brandTopLabels`, `brandAltText`).
+3. Set deployment env vars: `VITE_BRAND`, `VITE_BRAND_NAME`, `VITE_BRAND_URL`, `VITE_BRAND_OG_IMAGE`, `VITE_BRAND_DESCRIPTION`.
+4. If generating assets programmatically, use `scripts/generateBrandAssets.ts`.
+
+Implementation notes:
+
+- `vite.config.ts` already rewrites favicon/touch-icon paths and PWA manifest icon paths for non-default brands.
+- `index.html` already reads `%VITE_*%` placeholders for title/description/OG/Twitter metadata.
+- `src/components/layout/AppHeader.tsx` already reads from `src/lib/brand.ts` (`brand.logoPath`).
+
+> `icons.svg` is shared UI iconography, not a brand asset.
