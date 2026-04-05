@@ -1,23 +1,24 @@
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Sun, Moon } from 'lucide-react'
-import { AppShell } from '@/components/layout/AppShell'
-import { TopBar } from '@/components/layout/TopBar'
-import { ArbitratorField } from '@/components/settings/ArbitratorField'
-import { TiebreakList } from '@/components/settings/TiebreakList'
-import { PointSelector } from '@/components/settings/PointSelector'
-import { ParticipantsPool } from '@/components/settings/ParticipantsPool'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useSettingsStore } from '@/store/settingsStore'
-import type { Theme } from '@/store/settingsStore'
-import type { TiebreakMethod } from '@/domain/types'
+import { AppShell } from "@/components/layout/AppShell";
+import { TopBar } from "@/components/layout/TopBar";
+import { ArbitratorField } from "@/components/settings/ArbitratorField";
+import { ParticipantsPool } from "@/components/settings/ParticipantsPool";
+import { PointSelector } from "@/components/settings/PointSelector";
+import { TiebreakList } from "@/components/settings/TiebreakList";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { TiebreakMethod } from "@/domain/types";
+import type { Theme } from "@/store/settingsStore";
+import { useSettingsStore } from "@/store/settingsStore";
+import { ArrowLeft, Moon, Sun } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const THEME_OPTIONS: Array<{ value: Theme; icon: typeof Sun; label: string }> = [
-  { value: 'light', icon: Sun, label: 'Claro' },
-  { value: 'dark', icon: Moon, label: 'Oscuro' },
-]
+const THEME_OPTIONS: Array<{ value: Theme; icon: typeof Sun; label: string }> =
+  [
+    { value: "light", icon: Sun, label: "Claro" },
+    { value: "dark", icon: Moon, label: "Oscuro" },
+  ];
 
 export function SettingsPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const {
     arbitratorName,
     lastTournamentSettings,
@@ -28,16 +29,19 @@ export function SettingsPage() {
     setTheme,
     addToParticipantsPool,
     removeFromParticipantsPool,
-  } = useSettingsStore()
-  const selectedTheme = theme === 'system'
-    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    : theme
+  } = useSettingsStore();
+  const selectedTheme =
+    theme === "system"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : theme;
 
   function updateSettings<K extends keyof typeof lastTournamentSettings>(
     key: K,
     value: (typeof lastTournamentSettings)[K],
   ) {
-    setLastTournamentSettings({ ...lastTournamentSettings, [key]: value })
+    setLastTournamentSettings({ ...lastTournamentSettings, [key]: value });
   }
 
   return (
@@ -65,8 +69,8 @@ export function SettingsPage() {
                   aria-label={label}
                   className={`p-2 transition-colors ${
                     selectedTheme === value
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-background text-muted-foreground hover:text-foreground'
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-background text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -81,7 +85,7 @@ export function SettingsPage() {
         <Card>
           <CardContent>
             <ArbitratorField
-              value={arbitratorName ?? ''}
+              value={arbitratorName ?? ""}
               onChange={setArbitratorName}
             />
           </CardContent>
@@ -96,7 +100,9 @@ export function SettingsPage() {
           <CardContent>
             <TiebreakList
               order={lastTournamentSettings.tiebreakOrder}
-              onChange={(order: TiebreakMethod[]) => updateSettings('tiebreakOrder', order)}
+              onChange={(order: TiebreakMethod[]) =>
+                updateSettings("tiebreakOrder", order)
+              }
             />
           </CardContent>
         </Card>
@@ -109,14 +115,9 @@ export function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <PointSelector
-              label="Por bye"
+              label="Por bye de número impar"
               value={lastTournamentSettings.byePoints}
-              onChange={(v) => updateSettings('byePoints', v)}
-            />
-            <PointSelector
-              label="Por abandono"
-              value={lastTournamentSettings.forfeitPoints}
-              onChange={(v) => updateSettings('forfeitPoints', v)}
+              onChange={(v) => updateSettings("byePoints", v)}
             />
           </CardContent>
         </Card>
@@ -141,5 +142,5 @@ export function SettingsPage() {
         </p>
       </div>
     </AppShell>
-  )
+  );
 }
