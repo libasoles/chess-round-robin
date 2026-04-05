@@ -126,3 +126,39 @@ Tests live in `src/domain/__tests__/` and `src/lib/__tests__/`. Vitest is config
 - Before changing UI colors, read `COLOR_REFERENCE.md`.
 - Treat `COLOR_REFERENCE.md` as the color source of truth for token meaning per theme.
 - Do not infer hue names from token names alone (`accent` is golden in dark theme).
+
+## Public Assets — Image Map
+
+All brand images live in `public/`. The current brand is the default chess knight ("Troia" knight illustration, blue + gold).
+
+| File | Size | Used in | Purpose |
+|---|---|---|---|
+| `logo.png` | 431×488 · 163 KB | `AppHeader.tsx` (`h-10 w-10`) | Brand logo displayed in the top navigation bar |
+| `favicon.ico` | 32×32 · 2.8 KB | `index.html` `<link rel="icon">` | Browser tab icon (ICO format, legacy/universal) |
+| `favicon.png` | 32×32 · 2.8 KB | `index.html` `<link rel="icon" type="image/png">` | Browser tab icon (PNG format, modern browsers) |
+| `pwa-192x192.png` | 192×192 · 30 KB | `index.html` `apple-touch-icon`, `vite.config.ts` PWA manifest | PWA home-screen icon (small) + iOS bookmark icon |
+| `pwa-512x512.png` | 512×512 · 151 KB | `index.html` OG/Twitter meta, `vite.config.ts` PWA manifest (also maskable) | PWA home-screen icon (large) + social share preview image |
+| `empty.png` | 627×913 · 489 KB | `EmptyHistory.tsx`, `NotFoundPage.tsx` | Empty-state illustration (knight on cart) |
+| `icons.svg` | — · 4.9 KB | `App.tsx` (sprite `#documentation-icon`, `#social-icon`, `#github-icon`, `#discord-icon`) | UI icon sprite sheet — **not a brand asset** |
+
+### White-label / multi-brand strategy
+
+To run the app under a different brand (e.g. a `tucuchess` subdomain):
+
+1. Create `public/brand/<brand-name>/` and place the following files inside:
+   - `logo.png` — header logo (source art at any resolution; displayed 40×40 px)
+   - `favicon.ico` — 32×32 ICO
+   - `favicon.png` — 32×32 PNG
+   - `pwa-192x192.png` — 192×192 PNG
+   - `pwa-512x512.png` — 512×512 PNG (also used as OG image and maskable PWA icon)
+   - `empty.png` — empty-state illustration (optional; can reuse default)
+
+2. Set a build-time env variable `VITE_BRAND` (e.g. `tucuchess`). When unset, the app uses the root `public/` files (default brand).
+
+3. In `vite.config.ts`: adjust `includeAssets`, manifest `icons`, and OG meta URLs to point to the brand subfolder when `VITE_BRAND` is set.
+
+4. In `index.html`: replace hardcoded absolute URLs with the brand-specific domain and image paths.
+
+5. In `AppHeader.tsx`: update `src="/logo.png"` to read from the brand path if using dynamic asset paths.
+
+> **Note:** `icons.svg` is a UI sprite (navigation/social icons), not part of the brand identity — keep it shared across all brands.
