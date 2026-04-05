@@ -14,6 +14,33 @@ import {
 } from './jazz'
 import { getJazzMe } from './jazzAgent'
 
+interface JazzMatchLike {
+  matchId?: string
+  result?: string
+}
+
+interface JazzGroupLike {
+  matches?: Iterable<JazzMatchLike | null | undefined>
+}
+
+interface JazzPhaseLike {
+  groups?: Iterable<JazzGroupLike | null | undefined>
+}
+
+interface JazzPhasesCollectionLike extends Iterable<JazzPhaseLike | null | undefined> {
+  $jazz: {
+    push: (phase: unknown) => void
+  }
+}
+
+interface JazzTournamentLike {
+  id?: unknown
+  owner?: unknown
+  phases?: JazzPhasesCollectionLike
+  finishedAt?: string
+  status?: string
+}
+
 function buildJazzPhase(phase: Phase, owner: Group) {
   const jazzGroups = phase.groups.map((group) => {
     const jazzParticipants = group.participants.map((p) =>
@@ -78,8 +105,11 @@ export function createJazzTournament(tournament: Tournament): string {
     { owner: group },
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (jazzTournament as any).id as string
+  const jazzId = (jazzTournament as JazzTournamentLike).id
+  if (typeof jazzId !== 'string') {
+    throw new Error('Jazz tournament id is missing')
+  }
+  return jazzId
 }
 
 export async function updateJazzMatch(
@@ -90,9 +120,10 @@ export async function updateJazzMatch(
   const me = getJazzMe()
   if (!me) return
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tournament = await JazzTournament.load(jazzId, { resolve: { phases: { $each: { groups: { $each: { matches: { $each: true } } } } } } as any, loadAs: me }) as any
+  const tournament = await JazzTournament.load(jazzId, {
+    resolve: { phases: { $each: { groups: { $each: { matches: { $each: true } } } } } },
+    loadAs: me,
+  }) as JazzTournamentLike | null
   if (!tournament) return
 
   const phases = tournament.phases
@@ -114,8 +145,7 @@ export async function finishJazzTournament(jazzId: string, finishedAt: string): 
   const me = getJazzMe()
   if (!me) return
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tournament = await JazzTournament.load(jazzId, { loadAs: me }) as any
+  const tournament = await JazzTournament.load(jazzId, { loadAs: me }) as JazzTournamentLike | null
   if (!tournament) return
 
   tournament.finishedAt = finishedAt
@@ -126,11 +156,13 @@ export async function addJazzPhase(jazzId: string, newPhase: Phase): Promise<voi
   const me = getJazzMe()
   if (!me) return
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tournament = await JazzTournament.load(jazzId, { resolve: { phases: true } as any, loadAs: me }) as any
+  const tournament = await JazzTournament.load(jazzId, {
+    resolve: { phases: true },
+    loadAs: me,
+  }) as JazzTournamentLike | null
   if (!tournament) return
 
   const group = tournament.owner as Group
   const jazzPhase = buildJazzPhase(newPhase, group)
-  tournament.phases.$jazz.push(jazzPhase)
+  tournament.phases?.$jazz.push(jazzPhase)
 }

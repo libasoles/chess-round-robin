@@ -1,7 +1,7 @@
 import { buildGroupSizes } from '../src/domain/groupSizes'
 import { generateRoundRobinPairings } from '../src/domain/roundRobin'
 import { computeRankedStandings } from '../src/domain/tiebreaks'
-import type { Group, Participant, Tournament, TournamentSettings, Match } from '../src/domain/types'
+import type { Group, Participant, TournamentSettings, Match } from '../src/domain/types'
 
 // Seed for reproducible random results
 function seededRandom(seed: number): () => number {

@@ -46,10 +46,9 @@ export function StandingsPage() {
     }
   }, [hydrated, activeTournament, navigate])
 
-  if (!hydrated || !activeTournament) return null
-
-  const { settings, phases } = activeTournament
-  const useGroups = settings.useGroups
+  const settings = activeTournament?.settings
+  const phases = activeTournament?.phases ?? []
+  const useGroups = settings?.useGroups ?? false
   const hasPendingMatches = phases.some((phase) =>
     phase.groups.some((group) => group.matches.some((match) => match.result === null)),
   )
@@ -64,23 +63,44 @@ export function StandingsPage() {
     }
   }
 
-  // Default: all real participants selected
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(
-    () => new Set(allParticipants.keys()),
-  )
+  const currentTournamentId = activeTournament?.id ?? null
+  const [selectionState, setSelectionState] = useState<{
+    tournamentId: string | null
+    hasCustomSelection: boolean
+    ids: Set<string>
+  }>({
+    tournamentId: currentTournamentId,
+    hasCustomSelection: false,
+    ids: new Set(),
+  })
+  const selectedIds = (
+    selectionState.tournamentId === currentTournamentId &&
+    selectionState.hasCustomSelection
+  ) ? selectionState.ids : new Set(allParticipants.keys())
 
   function toggleSelect(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
+    setSelectionState((prev) => {
+      const isCurrentTournament = prev.tournamentId === currentTournamentId
+      const base = (
+        isCurrentTournament &&
+        prev.hasCustomSelection
+      ) ? prev.ids : new Set(allParticipants.keys())
+
+      const next = new Set(base)
       if (next.has(id)) next.delete(id)
       else next.add(id)
-      return next
+      return {
+        tournamentId: currentTournamentId,
+        hasCustomSelection: true,
+        ids: next,
+      }
     })
   }
 
   function handleNewPhase() {
+    if (!activeTournament) return
     createNewPhase([...selectedIds])
-    const totalRounds = getTotalRounds(activeTournament!.phases)
+    const totalRounds = getTotalRounds(activeTournament.phases)
     setCurrentRound(totalRounds + 1)
     navigate(`/tournament/${id}/round/${totalRounds + 1}`)
   }
@@ -106,6 +126,8 @@ export function StandingsPage() {
       if (swipeX === 1) goBack()
     },
   })
+
+  if (!hydrated || !activeTournament || !settings) return null
 
   const isActive = activeTournament.status === 'active'
   return (

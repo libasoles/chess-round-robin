@@ -1,26 +1,39 @@
 import type { Match, MatchResult, Tournament, TiebreakMethod } from '@/domain/types'
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (typeof value !== 'object' || value === null) return null
+  return value as Record<string, unknown>
+}
+
+function asIterable(value: unknown): Iterable<unknown> {
+  if (!value) return []
+  const maybeIterable = value as { [Symbol.iterator]?: unknown }
+  return typeof maybeIterable[Symbol.iterator] === 'function'
+    ? (value as Iterable<unknown>)
+    : []
+}
+
 /**
  * Converts a deeply loaded JazzTournament CoMap instance to a domain Tournament.
  * Returns null if the value is not yet loaded.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function jazzTournamentToDomain(jt: any): Tournament | null {
-  if (!jt) return null
+export function jazzTournamentToDomain(jt: unknown): Tournament | null {
+  const root = asRecord(jt)
+  if (!root) return null
 
   try {
-    const settings = jt.settings
+    const settings = asRecord(root.settings)
     if (!settings) return null
 
-    const phases = jt.phases
-    if (!phases) return null
+    if (!root.phases) return null
+    const phases = asIterable(root.phases)
 
     return {
-      id: jt.domainId as string,
-      createdAt: jt.createdAt as string,
-      finishedAt: jt.finishedAt as string | undefined,
-      status: (jt.status as string) === 'finished' ? 'finished' : 'active',
-      jazzId: jt.id as string,
+      id: root.domainId as string,
+      createdAt: root.createdAt as string,
+      finishedAt: root.finishedAt as string | undefined,
+      status: (root.status as string) === 'finished' ? 'finished' : 'active',
+      jazzId: root.id as string,
       settings: {
         arbitratorName: settings.arbitratorName as string,
         organizerName: settings.organizerName as string | undefined,
@@ -32,22 +45,22 @@ export function jazzTournamentToDomain(jt: any): Tournament | null {
         useGroups: settings.useGroups as boolean,
         groupSize: (settings.groupSize as number | undefined) ?? 4,
       },
-      phases: [...phases].map((phase: any) => ({
-        index: phase.index as number,
-        groups: [...(phase.groups ?? [])].map((group: any) => ({
-          name: group.name as string,
-          participants: [...(group.participants ?? [])].map((p: any) => ({
-            id: p.participantId as string,
-            name: p.name as string,
-            isBye: p.isBye as boolean,
+      phases: [...phases].map((phase) => ({
+        index: (asRecord(phase)?.index ?? 0) as number,
+        groups: [...asIterable(asRecord(phase)?.groups)].map((group) => ({
+          name: asRecord(group)?.name as string,
+          participants: [...asIterable(asRecord(group)?.participants)].map((p) => ({
+            id: asRecord(p)?.participantId as string,
+            name: asRecord(p)?.name as string,
+            isBye: asRecord(p)?.isBye as boolean,
           })),
-          matches: [...(group.matches ?? [])].map(
-            (m: any): Match => ({
-              id: m.matchId as string,
-              white: m.white as string,
-              black: m.black as string,
-              round: m.round as number,
-              result: (m.result as MatchResult) ?? null,
+          matches: [...asIterable(asRecord(group)?.matches)].map(
+            (m): Match => ({
+              id: asRecord(m)?.matchId as string,
+              white: asRecord(m)?.white as string,
+              black: asRecord(m)?.black as string,
+              round: asRecord(m)?.round as number,
+              result: (asRecord(m)?.result as MatchResult) ?? null,
             }),
           ),
         })),

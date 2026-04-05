@@ -1,8 +1,7 @@
 import { buildGroupSizes } from '../src/domain/groupSizes'
 import { generateRoundRobinPairings } from '../src/domain/roundRobin'
 import { computeRankedStandings, applyDirectEncounter, computeSonnebornBerger, computePartidasGanadasConNegras, computeBuchholz } from '../src/domain/tiebreaks'
-import { computeStandings } from '../src/domain/standings'
-import type { Group, Participant, Tournament, TournamentSettings, Match } from '../src/domain/types'
+import type { Group, Participant, TournamentSettings, Match } from '../src/domain/types'
 
 // Seed for reproducible random results
 function seededRandom(seed: number): () => number {
@@ -148,7 +147,6 @@ function generateDetailedReport(): DetailedReport[] {
           }))
 
         const standings = computeRankedStandings(group, settings)
-        const baseStandings = computeStandings(group, settings)
 
         // Detect unresolved ties
         const rankGroups = new Map<number, typeof standings>()

@@ -16,7 +16,7 @@ const JAZZ_PEER = `wss://cloud.jazz.tools/?key=${import.meta.env.VITE_JAZZ_API_K
  * Bootstraps the Jazz account into the singleton and, once ready,
  * creates the Jazz tournament for any active tournament missing a jazzId.
  */
-function JazzInit() {
+export function JazzInit() {
   const ctx = useJazzContextValue<Account>()
   const { activeTournament, setJazzId } = useTournamentStore()
 
@@ -40,7 +40,7 @@ function JazzInit() {
   return null
 }
 
-function Root() {
+export function Root() {
   const theme = useSettingsStore((s) => s.theme)
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   const isDark = theme === 'dark' || (theme === 'system' && prefersDark)

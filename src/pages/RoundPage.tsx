@@ -41,29 +41,28 @@ export function RoundPage() {
     }
   }, [hydrated, activeTournament, navigate]);
 
-  if (!hydrated || !activeTournament) return null;
-
   const currentRound = Number(roundParam) || 1;
-  const totalRounds = getTotalRounds(activeTournament.phases);
+  const totalRounds = activeTournament ? getTotalRounds(activeTournament.phases) : 1;
   const isFirstRound = currentRound === 1;
   const isLastRound = currentRound === totalRounds;
 
-  const roundMatches = getCurrentRoundMatches(
-    activeTournament.phases,
-    currentRound,
-  );
+  const roundMatches = activeTournament
+    ? getCurrentRoundMatches(activeTournament.phases, currentRound)
+    : [];
   const title =
-    activeTournament.status === "finished"
+    activeTournament?.status === "finished"
       ? `Resultados Ronda ${currentRound}`
       : `Ronda ${currentRound}`;
 
   // Build participant lookup map across all phases
   const participants = new Map<string, Participant>();
   participants.set(BYE_PARTICIPANT.id, BYE_PARTICIPANT);
-  for (const phase of activeTournament.phases) {
-    for (const group of phase.groups) {
-      for (const p of group.participants) {
-        participants.set(p.id, p);
+  if (activeTournament) {
+    for (const phase of activeTournament.phases) {
+      for (const group of phase.groups) {
+        for (const p of group.participants) {
+          participants.set(p.id, p);
+        }
       }
     }
   }
@@ -74,11 +73,13 @@ export function RoundPage() {
   }
 
   function goNext() {
+    if (!activeTournament) return;
     if (!isLastRound) goToRound(currentRound + 1);
     else navigate(`/tournament/${id}/standings`);
   }
 
   function goPrev() {
+    if (!activeTournament) return;
     if (!isFirstRound) goToRound(currentRound - 1);
   }
 
@@ -97,6 +98,8 @@ export function RoundPage() {
       else if (swipeX === 1) goPrev();
     },
   });
+
+  if (!hydrated || !activeTournament) return null;
 
   return (
     <div>

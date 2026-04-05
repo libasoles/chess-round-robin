@@ -69,6 +69,22 @@ export function ParticipantInput({
   const [dropdownDirection, setDropdownDirection] = useState<'down' | 'up'>('down')
   const inputRef = useRef<HTMLInputElement>(null)
 
+  function openSuggestions() {
+    setShowSuggestions(true)
+    const input = inputRef.current
+    if (!input) {
+      setDropdownDirection('down')
+      return
+    }
+
+    const rect = input.getBoundingClientRect()
+    const vv = window.visualViewport
+    const vpBottom = (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight)
+    const spaceBelow = vpBottom - rect.bottom
+    const dropdownMaxH = 192 // max-h-48
+    setDropdownDirection(spaceBelow < dropdownMaxH + 8 ? 'up' : 'down')
+  }
+
   useEffect(() => {
     if (!autoFocus) return
     const inputEl = inputRef.current
@@ -102,28 +118,12 @@ export function ParticipantInput({
       s.toLowerCase().startsWith(value.trim().toLowerCase()) &&
       s.toLowerCase() !== value.trim().toLowerCase(),
   )
-
-  useEffect(() => {
-    if (!showSuggestions || filtered.length === 0) {
-      setActiveSuggestionIndex(-1)
-      return
-    }
-    setActiveSuggestionIndex((current) => (
-      current >= 0 && current < filtered.length ? current : 0
-    ))
-  }, [showSuggestions, filtered.length])
-
-  useEffect(() => {
-    if (!showSuggestions || filtered.length === 0) return
-    const input = inputRef.current
-    if (!input) return
-    const rect = input.getBoundingClientRect()
-    const vv = window.visualViewport
-    const vpBottom = (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight)
-    const spaceBelow = vpBottom - rect.bottom
-    const dropdownMaxH = 192 // max-h-48
-    setDropdownDirection(spaceBelow < dropdownMaxH + 8 ? 'up' : 'down')
-  }, [showSuggestions, filtered.length])
+  const normalizedSuggestionIndex = (
+    showSuggestions &&
+    filtered.length > 0 &&
+    activeSuggestionIndex >= 0 &&
+    activeSuggestionIndex < filtered.length
+  ) ? activeSuggestionIndex : 0
 
   function selectSuggestion(name: string) {
     onChange(name)
@@ -146,11 +146,11 @@ export function ParticipantInput({
             spellCheck={false}
             onChange={(e) => {
               onChange(e.target.value)
-              setShowSuggestions(true)
+              openSuggestions()
               setActiveSuggestionIndex(0)
             }}
             onFocus={() => {
-              setShowSuggestions(true)
+              openSuggestions()
               if (submitMode) {
                 const input = inputRef.current
                 window.setTimeout(() => {
@@ -162,7 +162,7 @@ export function ParticipantInput({
             onKeyDown={(e) => {
               if (e.key === 'ArrowDown' && filtered.length > 0) {
                 e.preventDefault()
-                setShowSuggestions(true)
+                openSuggestions()
                 setActiveSuggestionIndex((current) => (
                   current < filtered.length - 1 ? current + 1 : 0
                 ))
@@ -171,7 +171,7 @@ export function ParticipantInput({
 
               if (e.key === 'ArrowUp' && filtered.length > 0) {
                 e.preventDefault()
-                setShowSuggestions(true)
+                openSuggestions()
                 setActiveSuggestionIndex((current) => (
                   current > 0 ? current - 1 : filtered.length - 1
                 ))
@@ -185,8 +185,7 @@ export function ParticipantInput({
 
               if (e.key === 'Enter' && showSuggestions && filtered.length > 0) {
                 e.preventDefault()
-                const selectedIndex = activeSuggestionIndex >= 0 ? activeSuggestionIndex : 0
-                const selectedName = filtered[selectedIndex]
+                const selectedName = filtered[normalizedSuggestionIndex]
                 if (selectedName) {
                   selectSuggestion(normalizeName(selectedName))
                 }
@@ -211,11 +210,11 @@ export function ParticipantInput({
               }`}
             >
               {filtered.map((s, idx) => (
-                <li key={s} role="option" aria-selected={idx === activeSuggestionIndex}>
+                <li key={s} role="option" aria-selected={idx === normalizedSuggestionIndex}>
                   <button
                     type="button"
                     className={`w-full text-left px-3 py-2 text-sm hover:bg-primary/20 hover:text-foreground ${
-                      idx === activeSuggestionIndex ? 'bg-primary/30 text-foreground font-medium' : ''
+                      idx === normalizedSuggestionIndex ? 'bg-primary/30 text-foreground font-medium' : ''
                     }`}
                     onMouseEnter={() => setActiveSuggestionIndex(idx)}
                     onMouseDown={() => selectSuggestion(normalizeName(s))}
