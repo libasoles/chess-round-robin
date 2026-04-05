@@ -1,4 +1,4 @@
-import { brand } from '@/lib/brand'
+import { brand } from "@/lib/brand";
 
 export function EmptyHistory() {
   return (
@@ -10,8 +10,8 @@ export function EmptyHistory() {
         loading="lazy"
       />
       <p className="empty-history-text text-muted-foreground text-base md:text-lg">
-        Aún no hay torneos.
+        Aún no hay torneos
       </p>
     </div>
-  )
+  );
 }

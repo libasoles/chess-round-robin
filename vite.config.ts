@@ -22,6 +22,18 @@ const BRAND_NAMES = {
 } as const
 const brandName = (BRAND_NAMES[BRAND as keyof typeof BRAND_NAMES] ?? 'Round Robin') as string
 
+// Plugin that rewrites favicon/touch-icon hrefs in index.html to use the brand path
+const brandFaviconPlugin = {
+  name: 'brand-favicon-transform',
+  transformIndexHtml(html: string) {
+    if (BRAND === 'default') return html
+    return html
+      .replace(/href="\/favicon\.ico"/g, `href="/${ASSET_PREFIX}favicon.ico"`)
+      .replace(/href="\/favicon\.png"/g, `href="/${ASSET_PREFIX}favicon.png"`)
+      .replace(/href="\/pwa-192x192\.png"/g, `href="/${ASSET_PREFIX}pwa-192x192.png"`)
+  },
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
@@ -42,6 +54,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
+    brandFaviconPlugin,
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: [`${ASSET_PREFIX}favicon.ico`, `${ASSET_PREFIX}apple-touch-icon.png`],
