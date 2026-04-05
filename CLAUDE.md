@@ -139,7 +139,6 @@ All brand images live in `public/`. The current brand is the default chess knigh
 | `pwa-192x192.png` | 192×192 · 30 KB | `index.html` `apple-touch-icon`, `vite.config.ts` PWA manifest | PWA home-screen icon (small) + iOS bookmark icon |
 | `pwa-512x512.png` | 512×512 · 151 KB | `index.html` OG/Twitter meta, `vite.config.ts` PWA manifest (also maskable) | PWA home-screen icon (large) + social share preview image |
 | `empty.png` | 627×913 · 489 KB | `EmptyHistory.tsx`, `NotFoundPage.tsx` | Empty-state illustration (knight on cart) |
-| `icons.svg` | — · 4.9 KB | `App.tsx` (sprite `#documentation-icon`, `#social-icon`, `#github-icon`, `#discord-icon`) | UI icon sprite sheet — **not a brand asset** |
 
 ### White-label / multi-brand strategy
 
@@ -174,5 +173,3 @@ Implementation notes:
 - `vite.config.ts` already rewrites favicon/touch-icon paths and PWA manifest icon paths for non-default brands.
 - `index.html` already reads `%VITE_*%` placeholders for title/description/OG/Twitter metadata.
 - `src/components/layout/AppHeader.tsx` already reads from `src/lib/brand.ts` (`brand.logoPath`).
-
-> `icons.svg` is shared UI iconography, not a brand asset.
