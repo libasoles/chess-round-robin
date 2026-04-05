@@ -16,7 +16,12 @@
       "WebFetch(domain:jazz.tools)",
       "Bash(ls -la /Users/guillermoperez/Projects/playground/chess-round-robin/.env*)",
       "Bash(node -e ':*)",
-      "Bash(grep -r \"useCoState\" /Users/guillermoperez/Projects/playground/chess-round-robin/node_modules/jazz-tools/dist/react-core/*.d.ts)"
+      "Bash(grep -r \"useCoState\" /Users/guillermoperez/Projects/playground/chess-round-robin/node_modules/jazz-tools/dist/react-core/*.d.ts)",
+      "Bash(npx tsx:*)",
+      "Bash(node)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   }
 }
