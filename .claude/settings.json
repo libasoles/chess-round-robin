@@ -24,7 +24,8 @@
       "Bash(git add:*)",
       "Bash(git restore:*)",
       "Bash(git commit -m ':*)",
-      "Bash(git commit -m 'fix: generate favicon.ico from brand logo instead of copying default:*)"
+      "Bash(git commit -m 'fix: generate favicon.ico from brand logo instead of copying default:*)",
+      "Bash(git commit -m 'feat: update header title to show brand name + Round Robin:*)"
     ],
     "additionalDirectories": [
       "/tmp"
