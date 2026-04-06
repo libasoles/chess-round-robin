@@ -26,7 +26,7 @@ function explainUnresolvedTie(
           m => (m.white === a && m.black === b) || (m.white === b && m.black === a),
         )
         if (!match || match.result === null) {
-          results.push({ label: 'Encuentro Directo', reason: 'la partida entre estos jugadores aún no se jugó.' })
+          results.push({ label: 'Encuentro Directo', reason: 'La partida no tiene un resultado registrado.' })
         } else if (match.result === 'draw') {
           results.push({ label: 'Encuentro Directo', reason: 'su partida enfrentada terminó en tablas.' })
         } else {
