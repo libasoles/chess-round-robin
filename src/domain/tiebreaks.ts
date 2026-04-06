@@ -212,6 +212,56 @@ export function applyDirectEncounter(
 }
 
 /**
+ * Applies Tablas con Negras (TN) tiebreak to N >= 2 tied participants.
+ *
+ * Like Direct Encounter, but with modified scoring for draws:
+ * - win/forfeit: same as DE (winner +1)
+ * - draw: black +1, white +0 (special rule)
+ *
+ * Returns sorted groups [[...], [...]] if the mini-tournament resolves the tie,
+ * or null if:
+ * - tied.length < 2
+ * - no matches have been played between tied players
+ * - all tied players have equal mini-tournament scores
+ */
+export function applyTablaConNegras(
+  tied: string[],
+  group: Group,
+): string[][] | null {
+  if (tied.length < 2) return null
+
+  const tiedSet = new Set(tied)
+  const miniScores = new Map<string, number>(tied.map(id => [id, 0]))
+  let hasAnyPlayedMatch = false
+
+  for (const match of group.matches) {
+    if (!tiedSet.has(match.white) || !tiedSet.has(match.black)) continue
+    if (match.result === null) continue
+
+    hasAnyPlayedMatch = true
+
+    if (match.result === 'white_win' || match.result === 'forfeit_black') {
+      miniScores.set(match.white, miniScores.get(match.white)! + 1)
+    } else if (match.result === 'black_win' || match.result === 'forfeit_white') {
+      miniScores.set(match.black, miniScores.get(match.black)! + 1)
+    } else if (match.result === 'draw') {
+      // Special rule: draw with black pieces counts as 1 pt; white gets 0
+      miniScores.set(match.black, miniScores.get(match.black)! + 1)
+    }
+    // 'auto_bye' cannot occur between two real players; ignored
+  }
+
+  if (!hasAnyPlayedMatch) return null
+
+  const scored = tied.map(id => ({ id, score: miniScores.get(id)! }))
+  scored.sort((a, b) => b.score - a.score)
+  const groups = groupByScore(scored)
+
+  if (groups.length === 1) return null // all equal in mini-tournament
+  return groups
+}
+
+/**
  * Ranks all real participants in a group, applying tiebreak methods in order.
  *
  * Returns an array of ranked groups: each inner array contains participant IDs
@@ -282,6 +332,16 @@ function resolveTiedGroup(
       )
     }
     // Not applicable or unresolved → try next method
+    return resolveTiedGroup(tied, group, settings, rest)
+  }
+
+  if (method === 'TN') {
+    const result = applyTablaConNegras(tied, group)
+    if (result !== null) {
+      return result.flatMap(subGroup =>
+        resolveTiedGroup(subGroup, group, settings, rest),
+      )
+    }
     return resolveTiedGroup(tied, group, settings, rest)
   }
 
@@ -380,9 +440,9 @@ function groupByScore(scored: Array<{ id: string; score: number }>): string[][] 
   return groups
 }
 
-// Helper: compute numeric score for a non-DE method
+// Helper: compute numeric score for a non-DE, non-TN method
 function computeScoreForMethod(
-  method: Exclude<TiebreakMethod, 'DE'>,
+  method: Exclude<TiebreakMethod, 'DE' | 'TN'>,
   participantId: string,
   group: Group,
   settings: TournamentSettings,
@@ -405,6 +465,10 @@ function findFirstResolvingMethod(
   for (const method of settings.tiebreakOrder) {
     if (method === 'DE') {
       if (applyDirectEncounter([participantId, ...coTied], group) !== null) return 'DE'
+      continue
+    }
+    if (method === 'TN') {
+      if (applyTablaConNegras([participantId, ...coTied], group) !== null) return 'TN'
       continue
     }
     const myScore = computeScoreForMethod(method, participantId, group, settings)
@@ -464,7 +528,7 @@ export function computeRankedStandings(
       // Compute numeric tiebreak scores for all enabled non-DE methods
       const tiebreakScores: Partial<Record<TiebreakMethod, number>> = {}
       for (const method of settings.tiebreakOrder) {
-        if (method !== 'DE') {
+        if (method !== 'DE' && method !== 'TN') {
           tiebreakScores[method] = computeScoreForMethod(method, id, group, settings)
         }
       }

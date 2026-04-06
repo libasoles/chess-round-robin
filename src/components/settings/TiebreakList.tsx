@@ -25,6 +25,7 @@ import { useState } from "react";
 
 const ALL_METHODS: Array<{ method: TiebreakMethod; label: string }> = [
   { method: "DE", label: "Encuentro Directo (ED)" },
+  { method: "TN", label: "Tablas con Negras (TN)" },
   { method: "SB", label: "Sonneborn-Berger (SB)" },
   { method: "Buchholz", label: "Buchholz" },
   { method: "Koya", label: "Koya" },
