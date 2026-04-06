@@ -15,7 +15,23 @@ Key features:
 - **Live standings** with configurable tiebreak rules — defaults to Direct Encounter and Win with Black pieces
 - **Offline-ready PWA** — installable on mobile, works without internet
 - **Configurable scoring** — set custom points for forfeits and byes
-- **Tournament history** — completed tournaments are persisted locally
+- **Tournament history** — completed tournaments are persisted locally, so you can use the app offline
+- **White-label support** — easily customize branding for different clubs using environment variables
+- **PWA features** — installable as an app on mobile devices
+
+## Demo screenshots
+
+### Round view
+
+![Round view](public/demo/round.png)
+
+### Results view
+
+![Results view](public/demo/results.png)
+
+### Settings view
+
+![Settings view](public/demo/settings.png)
 
 ## Tech stack
 
@@ -41,13 +57,13 @@ git clone https://github.com/libasoles/chess-round-robin.git
 cd chess-round-robin
 ```
 
-2. Install dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Start the development server:
+1. Start the development server:
 
 ```bash
 npm run dev
@@ -122,9 +138,9 @@ If you are developing a production application, we recommend updating the config
 
 ```js
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
 
@@ -139,40 +155,40 @@ export default defineConfig([
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
 // eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+import reactX from "eslint-plugin-react-x";
+import reactDom from "eslint-plugin-react-dom";
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
       // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
+      reactX.configs["recommended-typescript"],
       // Enable lint rules for React DOM
       reactDom.configs.recommended,
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
