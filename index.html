@@ -27,7 +27,16 @@
     <meta name="twitter:title" content="%VITE_BRAND_NAME%" />
     <meta name="twitter:description" content="%VITE_BRAND_DESCRIPTION%" />
     <meta name="twitter:image" content="%VITE_BRAND_OG_IMAGE%" />
+    <script>
+      (function () {
+        var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if (isStandalone) document.documentElement.setAttribute('data-standalone', 'true');
+      })();
+    </script>
     <style>
+      html[data-standalone="true"] #pwa-splash {
+        display: none;
+      }
       #pwa-splash {
         position: fixed;
         inset: 0;
