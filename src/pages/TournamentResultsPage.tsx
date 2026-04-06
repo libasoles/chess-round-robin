@@ -26,6 +26,7 @@ import {
 } from "@/hooks/useCurrentRound";
 import { useHistoryStore } from "@/store/historyStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useGesture } from "@use-gesture/react";
 import { AlertTriangle, ArrowLeft, Check, Trash, Trophy } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -118,10 +119,29 @@ export function TournamentResultsPage() {
     navigate(`/tournament/history/${id}?round=${value}`);
   }
 
+  function goNext() {
+    if (currentRound === null) return;
+    if (currentRound < totalRounds) goToTab(String(currentRound + 1));
+    else goToTab("stats");
+  }
+
+  function goPrev() {
+    if (currentRound === null) goToTab(String(totalRounds));
+    else if (currentRound > 1) goToTab(String(currentRound - 1));
+  }
+
+  const bind = useGesture({
+    onDrag: ({ swipe: [swipeX] }) => {
+      if (swipeX === -1) goNext();
+      else if (swipeX === 1) goPrev();
+    },
+  });
+
   return (
     <div>
       <AppShell
         hasBottomAction
+        mainProps={bind()}
         topBar={
           <TopBar
             left={
