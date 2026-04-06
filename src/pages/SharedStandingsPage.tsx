@@ -7,6 +7,7 @@ import type { Tournament } from "@/domain/types";
 import { getTotalRounds } from "@/hooks/useCurrentRound";
 import { JazzTournament } from "@/lib/jazz";
 import { jazzTournamentToDomain } from "@/lib/jazzConvert";
+import { useGesture } from "@use-gesture/react";
 import { useCoState } from "jazz-tools/react";
 import { ArrowLeft, Hourglass } from "lucide-react";
 import { useRef } from "react";
@@ -38,6 +39,14 @@ export function SharedStandingsPage() {
   const rawTournament = jazzTournamentToDomain(jazzTournament);
   if (rawTournament !== null) lastValidRef.current = rawTournament;
   const tournament = lastValidRef.current;
+
+  const bind = useGesture({
+    onDrag: ({ swipe: [swipeX] }) => {
+      const t = lastValidRef.current;
+      if (!t || swipeX !== 1) return;
+      navigate(`/t/${jazzId}/round/${getTotalRounds(t.phases)}`);
+    },
+  });
 
   if (!tournament && !jazzTournament) {
     return (
@@ -73,6 +82,7 @@ export function SharedStandingsPage() {
 
   return (
     <AppShell
+      mainProps={bind()}
       topBar={
         <TopBar
           left={

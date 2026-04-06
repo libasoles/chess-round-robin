@@ -12,6 +12,7 @@ import {
 } from "@/hooks/useCurrentRound";
 import { JazzTournament } from "@/lib/jazz";
 import { jazzTournamentToDomain } from "@/lib/jazzConvert";
+import { useGesture } from "@use-gesture/react";
 import { useCoState } from "jazz-tools/react";
 import { Check } from "lucide-react";
 import { useRef } from "react";
@@ -48,6 +49,20 @@ export function SharedRoundPage() {
   if (rawTournament !== null) lastValidRef.current = rawTournament;
   const tournament = lastValidRef.current;
 
+  const bind = useGesture({
+    onDrag: ({ swipe: [swipeX] }) => {
+      const t = lastValidRef.current;
+      if (!t) return;
+      const total = getTotalRounds(t.phases);
+      if (swipeX === -1) {
+        if (currentRound < total) navigate(`/t/${jazzId}/round/${currentRound + 1}`, { replace: true });
+        else navigate(`/t/${jazzId}/standings`);
+      } else if (swipeX === 1) {
+        if (currentRound > 1) navigate(`/t/${jazzId}/round/${currentRound - 1}`, { replace: true });
+      }
+    },
+  });
+
   if (!tournament && !jazzTournament) {
     return (
       <AppShell topBar={<TopBar title="Cargando…" />}>
@@ -81,15 +96,16 @@ export function SharedRoundPage() {
     }
   }
 
+  const title = `Ronda ${currentRound}`;
+
   function goToRound(round: number) {
     navigate(`/t/${jazzId}/round/${round}`, { replace: true });
   }
 
-  const title = `Ronda ${currentRound}`;
-
   return (
     <div>
       <AppShell
+        mainProps={bind()}
         topBar={
           <TopBar
             title={title}
