@@ -1,139 +1,152 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useGesture } from '@use-gesture/react'
-import { ArrowLeft, Hourglass } from 'lucide-react'
-import { AppShell } from '@/components/layout/AppShell'
-import { TopBar } from '@/components/layout/TopBar'
-import { TopBarShareAction } from '@/components/layout/TopBarShareAction'
-import { BottomAction } from '@/components/layout/BottomAction'
-import { StandingsTable } from '@/components/standings/StandingsTable'
-import { ResultsOfficials } from '@/components/standings/ResultsOfficials'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { AppShell } from "@/components/layout/AppShell";
+import { BottomAction } from "@/components/layout/BottomAction";
+import { TopBar } from "@/components/layout/TopBar";
+import { TopBarShareAction } from "@/components/layout/TopBarShareAction";
+import { ResultsOfficials } from "@/components/standings/ResultsOfficials";
+import { StandingsTable } from "@/components/standings/StandingsTable";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog'
-import { useTournamentStore } from '@/store/tournamentStore'
-import { useHistoryStore } from '@/store/historyStore'
-import { useSettingsStore } from '@/store/settingsStore'
-import { getTotalRounds } from '@/hooks/useCurrentRound'
-import { Helmet } from 'react-helmet-async'
+} from "@/components/ui/dialog";
+import { getTotalRounds } from "@/hooks/useCurrentRound";
+import { useHistoryStore } from "@/store/historyStore";
+import { useSettingsStore } from "@/store/settingsStore";
+import { useTournamentStore } from "@/store/tournamentStore";
+import { useGesture } from "@use-gesture/react";
+import { ArrowLeft, Hourglass } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { useNavigate, useParams } from "react-router-dom";
 
 export function StandingsPage() {
-  const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
-  const [hydrated, setHydrated] = useState(() => useTournamentStore.persist.hasHydrated())
-  const { activeTournament, setCurrentRound, createNewPhase, finishTournament } =
-    useTournamentStore()
-  const { addToHistory } = useHistoryStore()
-  const { addToParticipantsPool } = useSettingsStore()
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [hydrated, setHydrated] = useState(() =>
+    useTournamentStore.persist.hasHydrated(),
+  );
+  const {
+    activeTournament,
+    setCurrentRound,
+    createNewPhase,
+    finishTournament,
+  } = useTournamentStore();
+  const { addToHistory } = useHistoryStore();
+  const { addToParticipantsPool } = useSettingsStore();
 
-  const [showFinishDialog, setShowFinishDialog] = useState(false)
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
 
   useEffect(() => {
-    const unsub = useTournamentStore.persist.onFinishHydration(() => setHydrated(true))
+    const unsub = useTournamentStore.persist.onFinishHydration(() =>
+      setHydrated(true),
+    );
     // Check again after subscribing to catch hydration that completed between render and effect
-    if (useTournamentStore.persist.hasHydrated()) setHydrated(true)
-    return unsub
-  }, [])
+    if (useTournamentStore.persist.hasHydrated()) setHydrated(true);
+    return unsub;
+  }, []);
 
   useEffect(() => {
     if (hydrated && !activeTournament) {
-      navigate('/', { replace: true })
+      navigate("/", { replace: true });
     }
-  }, [hydrated, activeTournament, navigate])
+  }, [hydrated, activeTournament, navigate]);
 
-  const settings = activeTournament?.settings
-  const phases = activeTournament?.phases ?? []
-  const useGroups = settings?.useGroups ?? false
+  const settings = activeTournament?.settings;
+  const phases = activeTournament?.phases ?? [];
+  const useGroups = settings?.useGroups ?? false;
   const hasPendingMatches = phases.some((phase) =>
-    phase.groups.some((group) => group.matches.some((match) => match.result === null)),
-  )
+    phase.groups.some((group) =>
+      group.matches.some((match) => match.result === null),
+    ),
+  );
 
   // Collect all participants across all phases for the advance selector
-  const allParticipants = new Map<string, string>()
+  const allParticipants = new Map<string, string>();
   for (const phase of phases) {
     for (const group of phase.groups) {
       for (const p of group.participants) {
-        if (!p.isBye) allParticipants.set(p.id, p.name)
+        if (!p.isBye) allParticipants.set(p.id, p.name);
       }
     }
   }
 
-  const currentTournamentId = activeTournament?.id ?? null
+  const currentTournamentId = activeTournament?.id ?? null;
   const [selectionState, setSelectionState] = useState<{
-    tournamentId: string | null
-    hasCustomSelection: boolean
-    ids: Set<string>
+    tournamentId: string | null;
+    hasCustomSelection: boolean;
+    ids: Set<string>;
   }>({
     tournamentId: currentTournamentId,
     hasCustomSelection: false,
     ids: new Set(),
-  })
-  const selectedIds = (
+  });
+  const selectedIds =
     selectionState.tournamentId === currentTournamentId &&
     selectionState.hasCustomSelection
-  ) ? selectionState.ids : new Set(allParticipants.keys())
+      ? selectionState.ids
+      : new Set(allParticipants.keys());
 
   function toggleSelect(id: string) {
     setSelectionState((prev) => {
-      const isCurrentTournament = prev.tournamentId === currentTournamentId
-      const base = (
-        isCurrentTournament &&
-        prev.hasCustomSelection
-      ) ? prev.ids : new Set(allParticipants.keys())
+      const isCurrentTournament = prev.tournamentId === currentTournamentId;
+      const base =
+        isCurrentTournament && prev.hasCustomSelection
+          ? prev.ids
+          : new Set(allParticipants.keys());
 
-      const next = new Set(base)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
+      const next = new Set(base);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return {
         tournamentId: currentTournamentId,
         hasCustomSelection: true,
         ids: next,
-      }
-    })
+      };
+    });
   }
 
   function handleNewPhase() {
-    if (!activeTournament) return
-    createNewPhase([...selectedIds])
-    const totalRounds = getTotalRounds(activeTournament.phases)
-    setCurrentRound(totalRounds + 1)
-    navigate(`/tournament/${id}/round/${totalRounds + 1}`)
+    if (!activeTournament) return;
+    createNewPhase([...selectedIds]);
+    const totalRounds = getTotalRounds(activeTournament.phases);
+    setCurrentRound(totalRounds + 1);
+    navigate(`/tournament/${id}/round/${totalRounds + 1}`);
   }
 
   function handleFinish() {
     finishTournament((finished) => {
-      addToHistory(finished)
+      addToHistory(finished);
       // Add all participant names to the pool
-      const names = [...allParticipants.values()]
-      addToParticipantsPool(names)
-    })
-    navigate('/')
+      const names = [...allParticipants.values()];
+      addToParticipantsPool(names);
+    });
+    navigate("/");
   }
 
   function goBack() {
-    const total = getTotalRounds(phases)
-    setCurrentRound(total)
-    navigate(`/tournament/${id}/round/${total}`)
+    const total = getTotalRounds(phases);
+    setCurrentRound(total);
+    navigate(`/tournament/${id}/round/${total}`);
   }
 
   const bind = useGesture({
     onDrag: ({ swipe: [swipeX] }) => {
-      if (swipeX === 1) goBack()
+      if (swipeX === 1) goBack();
     },
-  })
+  });
 
-  if (!hydrated || !activeTournament || !settings) return null
+  if (!hydrated || !activeTournament || !settings) return null;
 
-  const isActive = activeTournament.status === 'active'
+  const isActive = activeTournament.status === "active";
   return (
     <div>
-      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <AppShell
         mainProps={bind()}
         topBar={
@@ -148,8 +161,13 @@ export function StandingsPage() {
                 <ArrowLeft className="h-5 w-5" />
               </button>
             }
-            title={hasPendingMatches ? 'Resultados provisorios' : 'Resultados'}
-            right={<TopBarShareAction jazzId={activeTournament.jazzId} currentRound={getTotalRounds(activeTournament.phases)} />}
+            title={hasPendingMatches ? "Resultados provisorios" : "Resultados"}
+            right={
+              <TopBarShareAction
+                jazzId={activeTournament.jazzId}
+                currentRound={getTotalRounds(activeTournament.phases)}
+              />
+            }
           />
         }
         hasBottomAction={isActive}
@@ -158,7 +176,9 @@ export function StandingsPage() {
           {hasPendingMatches && (
             <div className="flex items-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-3 text-foreground">
               <Hourglass className="h-4 w-4 shrink-0 text-primary motion-safe:animate-[hourglass-flip_3.2s_ease-in-out_infinite]" />
-              <p className="text-sm font-medium">Hay partidas con resultado pendiente</p>
+              <p className="text-sm font-medium">
+                Hay partidas con resultado pendiente
+              </p>
             </div>
           )}
           {phases.map((phase, phaseIdx) => (
@@ -170,30 +190,34 @@ export function StandingsPage() {
               )}
               <div className="space-y-4">
                 {phase.groups.map((group) => {
-                  const hasPendingInGroup = group.matches.some((match) => match.result === null)
+                  const hasPendingInGroup = group.matches.some(
+                    (match) => match.result === null,
+                  );
                   return (
                     <Card key={group.name}>
-                    {useGroups && (
-                      <CardHeader>
-                        <CardTitle className="flex w-full items-center justify-between text-base text-primary">
-                          <span>Grupo {group.name}</span>
-                          {hasPendingInGroup && (
-                            <Hourglass className="h-4 w-4 shrink-0 text-primary" />
-                          )}
-                        </CardTitle>
-                      </CardHeader>
-                    )}
-                    <CardContent>
-                      <StandingsTable
-                        group={group}
-                        settings={settings}
-                        showAdvanceSelector={useGroups && isActive && !hasPendingMatches}
-                        selectedIds={selectedIds}
-                        onToggleAdvance={toggleSelect}
-                      />
-                    </CardContent>
+                      {useGroups && (
+                        <CardHeader>
+                          <CardTitle className="flex w-full items-center justify-between text-base text-primary">
+                            <span>Grupo {group.name}</span>
+                            {hasPendingInGroup && (
+                              <Hourglass className="h-4 w-4 shrink-0 text-primary" />
+                            )}
+                          </CardTitle>
+                        </CardHeader>
+                      )}
+                      <CardContent>
+                        <StandingsTable
+                          group={group}
+                          settings={settings}
+                          showAdvanceSelector={
+                            useGroups && isActive && !hasPendingMatches
+                          }
+                          selectedIds={selectedIds}
+                          onToggleAdvance={toggleSelect}
+                        />
+                      </CardContent>
                     </Card>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -219,12 +243,13 @@ export function StandingsPage() {
               </Button>
             )}
             <Button
+              data-analytics="finish_tournament"
               className="w-full h-12 text-base"
               onClick={() => {
                 if (hasPendingMatches) {
-                  setShowFinishDialog(true)
+                  setShowFinishDialog(true);
                 } else {
-                  handleFinish()
+                  handleFinish();
                 }
               }}
             >
@@ -234,7 +259,10 @@ export function StandingsPage() {
         </BottomAction>
       )}
 
-      <Dialog open={hasPendingMatches && showFinishDialog} onOpenChange={setShowFinishDialog}>
+      <Dialog
+        open={hasPendingMatches && showFinishDialog}
+        onOpenChange={setShowFinishDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>¿Terminar el torneo?</DialogTitle>
@@ -243,7 +271,10 @@ export function StandingsPage() {
             Se guardarán los resultados provisorios y ya no podrán editarse.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowFinishDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowFinishDialog(false)}
+            >
               Cancelar
             </Button>
             <Button onClick={handleFinish}>Terminar</Button>
@@ -251,5 +282,5 @@ export function StandingsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
