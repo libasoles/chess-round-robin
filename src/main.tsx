@@ -13,6 +13,14 @@ import './index.css'
 
 const JAZZ_PEER = `wss://cloud.jazz.tools/?key=${import.meta.env.VITE_JAZZ_API_KEY}` as const
 
+function hideStartupSplash() {
+  const splash = document.getElementById('pwa-splash')
+  if (!splash) return
+
+  splash.setAttribute('data-state', 'hidden')
+  window.setTimeout(() => splash.remove(), 260)
+}
+
 /**
  * Bootstraps the Jazz account into the singleton and, once ready,
  * creates the Jazz tournament for any active tournament missing a jazzId.
@@ -59,6 +67,10 @@ export function Root() {
   const theme = useSettingsStore((s) => s.theme)
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   const isDark = theme === 'dark' || (theme === 'system' && prefersDark)
+
+  useEffect(() => {
+    hideStartupSplash()
+  }, [])
 
   if (isDark) {
     document.documentElement.classList.add('dark')
