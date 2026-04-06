@@ -3,6 +3,16 @@ import { BottomAction } from "@/components/layout/BottomAction";
 import { TopBar } from "@/components/layout/TopBar";
 import { TopBarShareAction } from "@/components/layout/TopBarShareAction";
 import { GroupSection } from "@/components/round/GroupSection";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BYE_PARTICIPANT } from "@/domain/participants";
 import type { MatchResult, Participant } from "@/domain/types";
@@ -13,18 +23,24 @@ import {
 } from "@/hooks/useCurrentRound";
 import { useTournamentStore } from "@/store/tournamentStore";
 import { useGesture } from "@use-gesture/react";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export function RoundPage() {
   const navigate = useNavigate();
   const { id, round: roundParam } = useParams<{ id: string; round: string }>();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [hydrated, setHydrated] = useState(() =>
     useTournamentStore.persist.hasHydrated(),
   );
-  const { activeTournament, setCurrentRound, recordResult, clearResult } =
-    useTournamentStore();
+  const {
+    activeTournament,
+    setCurrentRound,
+    deleteRound,
+    recordResult,
+    clearResult,
+  } = useTournamentStore();
 
   useEffect(() => {
     const unsub = useTournamentStore.persist.onFinishHydration(() =>
@@ -45,6 +61,7 @@ export function RoundPage() {
   const totalRounds = activeTournament ? getTotalRounds(activeTournament.phases) : 1;
   const isFirstRound = currentRound === 1;
   const isLastRound = currentRound === totalRounds;
+  const canDeleteRound = totalRounds > 1;
 
   const roundMatches = activeTournament
     ? getCurrentRoundMatches(activeTournament.phases, currentRound)
@@ -91,6 +108,16 @@ export function RoundPage() {
     }
   }
 
+  function handleConfirmDeleteRound() {
+    if (!id || !canDeleteRound) return;
+
+    const nextRound = currentRound === totalRounds ? totalRounds - 1 : currentRound;
+    deleteRound(currentRound);
+    setCurrentRound(nextRound);
+    navigate(`/tournament/${id}/round/${nextRound}`, { replace: true });
+    setIsDeleteDialogOpen(false);
+  }
+
   // Swipe gesture
   const bind = useGesture({
     onDrag: ({ swipe: [swipeX] }) => {
@@ -109,10 +136,23 @@ export function RoundPage() {
           <TopBar
             title={title}
             right={
-              <TopBarShareAction
-                jazzId={activeTournament.jazzId}
-                currentRound={currentRound}
-              />
+              <div className="flex items-center gap-1">
+                <TopBarShareAction
+                  jazzId={activeTournament.jazzId}
+                  currentRound={currentRound}
+                />
+                {canDeleteRound && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-muted-foreground hover:text-destructive"
+                    aria-label="Eliminar ronda"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             }
           />
         }
@@ -176,6 +216,23 @@ export function RoundPage() {
           </TabsList>
         </Tabs>
       </BottomAction>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Eliminar ronda {currentRound}</DialogTitle>
+            <DialogDescription>
+              Esta acción elimina la ronda actual y no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
+            <Button variant="destructive" onClick={handleConfirmDeleteRound}>
+              Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

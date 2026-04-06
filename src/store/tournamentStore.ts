@@ -77,6 +77,7 @@ interface TournamentState {
   recordResult: (matchId: string, result: MatchResult) => void
   clearResult: (matchId: string) => void
   setCurrentRound: (round: number) => void
+  deleteRound: (round: number) => void
   createNewPhase: (selectedParticipantIds: string[]) => void
   finishTournament: (onFinish: (t: Tournament) => void) => void
   setJazzId: (tournamentId: string, jazzId: string) => void
@@ -148,6 +149,40 @@ export const useTournamentStore = create<TournamentState>()(
         }),
 
       setCurrentRound: (round) => set({ currentRound: round }),
+
+      deleteRound: (round) =>
+        set((s) => {
+          const tournament = s.activeTournament
+          if (!tournament) return s
+
+          const totalRounds = maxRoundAcrossPhases(tournament)
+          if (totalRounds <= 1 || round < 1 || round > totalRounds) return s
+
+          const nextPhases = tournament.phases.map((phase): Phase => ({
+            ...phase,
+            groups: phase.groups.map((group): Group => ({
+              ...group,
+              matches: group.matches
+                .filter((m) => m.round !== round)
+                .map((m): Match => (m.round > round ? { ...m, round: m.round - 1 } : m)),
+            })),
+          }))
+
+          const nextCurrentRound =
+            s.currentRound > round
+              ? s.currentRound - 1
+              : s.currentRound === round
+                ? Math.max(1, s.currentRound - 1)
+                : s.currentRound
+
+          return {
+            activeTournament: {
+              ...tournament,
+              phases: nextPhases,
+            },
+            currentRound: nextCurrentRound,
+          }
+        }),
 
       createNewPhase: (selectedParticipantIds) => {
         const { activeTournament } = get()

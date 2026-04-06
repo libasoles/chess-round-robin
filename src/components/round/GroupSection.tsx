@@ -10,6 +10,7 @@ interface GroupSectionProps {
   participants: Map<string, Participant>
   onResult: (matchId: string, result: MatchResult | null) => void
   readonly?: boolean
+  showMissingResultMessage?: boolean
 }
 
 export function GroupSection({
@@ -19,6 +20,7 @@ export function GroupSection({
   participants,
   onResult,
   readonly = false,
+  showMissingResultMessage = false,
 }: GroupSectionProps) {
   const sortedMatches = [...matches].sort((a, b) => {
     const aWhite = participants.get(a.white)
@@ -62,6 +64,7 @@ export function GroupSection({
             participants={participants}
             onResult={onResult}
             readonly={readonly}
+            showMissingResultMessage={showMissingResultMessage}
           />
         ))}
       </CardContent>
