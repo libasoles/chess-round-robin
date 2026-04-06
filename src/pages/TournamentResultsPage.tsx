@@ -194,6 +194,7 @@ export function TournamentResultsPage() {
                     participants={participants}
                     onResult={() => {}}
                     readonly
+                    showMissingResultMessage
                   />
                 ))
               )}
@@ -230,16 +231,18 @@ export function TournamentResultsPage() {
             arbitratorName={settings.arbitratorName}
             organizerName={settings.organizerName}
           />
-          <div className="flex justify-center pt-2 pb-2">
-            <Button
-              variant="ghost"
-              className="text-destructive/70 hover:text-destructive gap-2"
-              onClick={() => setShowDeleteDialog(true)}
-            >
-              <Trash className="h-4 w-4" />
-              Eliminar torneo
-            </Button>
-          </div>
+          {currentRound === null && (
+            <div className="flex justify-center pt-2 pb-2">
+              <Button
+                variant="ghost"
+                className="text-destructive/70 hover:text-destructive gap-2"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash className="h-4 w-4" />
+                Eliminar torneo
+              </Button>
+            </div>
+          )}
         </div>
       </AppShell>
 

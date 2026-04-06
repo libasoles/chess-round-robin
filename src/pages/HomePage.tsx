@@ -5,30 +5,19 @@ import { AppShell } from "@/components/layout/AppShell";
 import { BottomAction } from "@/components/layout/BottomAction";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { getTotalRounds, isRoundComplete } from "@/hooks/useCurrentRound";
 import { useHistoryStore } from "@/store/historyStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTournamentStore } from "@/store/tournamentStore";
 import { ArrowRight, Play, Settings } from "lucide-react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
   const navigate = useNavigate();
   const { tournaments } = useHistoryStore();
-  const { removeTournament } = useHistoryStore();
   const { activeTournament, currentRound, setCurrentRound } =
     useTournamentStore();
   const { ownedTournamentIds } = useSettingsStore();
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const totalRounds = activeTournament
     ? getTotalRounds(activeTournament.phases)
@@ -107,43 +96,12 @@ export function HomePage() {
                       ownedTournamentIds.length === 0)
                   }
                   onClick={() => navigate(`/tournament/history/${t.id}`)}
-                  onDelete={() => setPendingDeleteId(t.id)}
                 />
               ))}
             </div>
           )}
         </div>
       </AppShell>
-
-      <Dialog
-        open={pendingDeleteId !== null}
-        onOpenChange={(open) => {
-          if (!open) setPendingDeleteId(null);
-        }}
-      >
-        <DialogContent showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle>¿Eliminar torneo?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            No lo podrás recuperar.
-          </p>
-          <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>
-              Cancelar
-            </DialogClose>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                if (pendingDeleteId) removeTournament(pendingDeleteId);
-                setPendingDeleteId(null);
-              }}
-            >
-              Eliminar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <BottomAction>
         <div className="max-w-lg mx-auto">
