@@ -144,6 +144,13 @@ export function InfoButton() {
                   empatados, se pasa al siguiente criterio.
                 </li>
                 <li>
+                  <B>TN</B>: igual que DE, pero si los participantes empataron
+                  su partida, quien haya jugado con{" "}
+                  <B>piezas negras</B> gana el desempate. Para más de dos
+                  empatados, se juega un mini-torneo donde las{" "}
+                  <B>tablas con negras</B> valen 1 punto (en lugar de ½).
+                </li>
+                <li>
                   <TiebreakLink hash="#Sonneborn_Berger">SB</TiebreakLink>:
                   puntos de rivales vencidos + medio de los empatados
                 </li>

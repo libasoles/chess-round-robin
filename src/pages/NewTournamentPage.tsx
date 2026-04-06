@@ -14,6 +14,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { buildGroupSizes } from "@/domain/groupSizes";
+import {
+  GROUP_NAMES,
+  normalizeName,
+  validateParticipants,
+} from "@/domain/participants";
+import { useSettingsStore } from "@/store/settingsStore";
+import { useTournamentStore } from "@/store/tournamentStore";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import {
   closestCenter,
@@ -33,10 +41,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { buildGroupSizes } from "@/domain/groupSizes";
-import { GROUP_NAMES, normalizeName, validateParticipants } from "@/domain/participants";
-import { useSettingsStore } from "@/store/settingsStore";
-import { useTournamentStore } from "@/store/tournamentStore";
 import { GripVertical, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -84,17 +88,23 @@ function SortableParticipantRow({
   // For submit row with disabled handle: still allow dropping (disabled: false)
   // but visually disable the handle button
   const sortable = useSortable({ id: participant.id, disabled: !!isStatic });
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    isStatic
-      ? {
-          attributes: {},
-          listeners: {},
-          setNodeRef: undefined as unknown as (node: HTMLElement | null) => void,
-          transform: null,
-          transition: undefined,
-          isDragging: false,
-        }
-      : sortable;
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = isStatic
+    ? {
+        attributes: {},
+        listeners: {},
+        setNodeRef: undefined as unknown as (node: HTMLElement | null) => void,
+        transform: null,
+        transition: undefined,
+        isDragging: false,
+      }
+    : sortable;
 
   const style = {
     transform: CSS.Transform.toString(transform ?? null),
@@ -110,7 +120,9 @@ function SortableParticipantRow({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          {...(isStatic || handleDisabled ? {} : { ...attributes, ...listeners })}
+          {...(isStatic || handleDisabled
+            ? {}
+            : { ...attributes, ...listeners })}
           aria-label={`Reordenar ${participant.name || "participante"}`}
           className={`shrink-0 touch-none select-none p-1 rounded ${
             handleDisabled || isStatic
@@ -202,7 +214,9 @@ export function NewTournamentPage() {
   const suggestions = participantsPool.filter(
     (n) => !enteredNames.has(n.toLowerCase()),
   );
-  const enrolledCount = participants.filter((p) => p.name.trim().length > 0).length;
+  const enrolledCount = participants.filter(
+    (p) => p.name.trim().length > 0,
+  ).length;
   const groupsDisabled = enrolledCount < 6;
 
   // Drag-and-drop and group preview setup
@@ -238,7 +252,7 @@ export function NewTournamentPage() {
   }
 
   const activeParticipant = activeParticipantId
-    ? participants.find((p) => p.id === activeParticipantId) ?? null
+    ? (participants.find((p) => p.id === activeParticipantId) ?? null)
     : null;
 
   function updateParticipant(index: number, value: string) {
@@ -387,7 +401,7 @@ export function NewTournamentPage() {
                   id="arbitrator"
                   value={arbitrator}
                   onChange={(e) => setArbitrator(e.target.value)}
-                  placeholder="José Raúl"
+                  placeholder="José Raúl Capablanca"
                   className="text-base h-12"
                 />
               </div>
@@ -475,9 +489,7 @@ export function NewTournamentPage() {
                         autoFocus={false}
                         onAutoFocusHandled={() => {}}
                         static
-                        submitMode={
-                          activeParticipant.id === submitRow?.id
-                        }
+                        submitMode={activeParticipant.id === submitRow?.id}
                         submitDisabled={!activeParticipant.name.trim()}
                         handleDisabled={false}
                       />

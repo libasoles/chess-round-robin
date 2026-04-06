@@ -1,8 +1,8 @@
-import { Input } from '@/components/ui/input'
+import { Input } from "@/components/ui/input";
 
 interface ArbitratorFieldProps {
-  value: string
-  onChange: (v: string) => void
+  value: string;
+  onChange: (v: string) => void;
 }
 
 export function ArbitratorField({ value, onChange }: ArbitratorFieldProps) {
@@ -18,7 +18,7 @@ export function ArbitratorField({ value, onChange }: ArbitratorFieldProps) {
         id="arbitrator-name"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="José Raúl"
+        placeholder="José Raúl Capablanca"
         className="text-base h-12"
       />
       {!value.trim() && (
@@ -27,5 +27,5 @@ export function ArbitratorField({ value, onChange }: ArbitratorFieldProps) {
         </p>
       )}
     </div>
-  )
+  );
 }
