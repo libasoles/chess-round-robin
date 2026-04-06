@@ -14,10 +14,30 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { normalizeName, validateParticipants } from "@/domain/participants";
+import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { buildGroupSizes } from "@/domain/groupSizes";
+import { GROUP_NAMES, normalizeName, validateParticipants } from "@/domain/participants";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTournamentStore } from "@/store/tournamentStore";
-import { X } from "lucide-react";
+import { GripVertical, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -25,6 +45,83 @@ type ValidationToast = {
   id: number;
   message: string;
 };
+
+type ParticipantRow = { id: string; name: string };
+
+function genId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+interface SortableParticipantRowProps {
+  participant: ParticipantRow;
+  onChange: (v: string) => void;
+  onRemove: () => void;
+  suggestions: string[];
+  canRemove: boolean;
+  autoFocus: boolean;
+  onAutoFocusHandled: () => void;
+  static?: boolean;
+}
+
+function SortableParticipantRow({
+  participant,
+  onChange,
+  onRemove,
+  suggestions,
+  canRemove,
+  autoFocus,
+  onAutoFocusHandled,
+  static: isStatic,
+}: SortableParticipantRowProps) {
+  const sortable = useSortable({ id: participant.id, disabled: !!isStatic });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    isStatic
+      ? {
+          attributes: {},
+          listeners: {},
+          setNodeRef: undefined as unknown as (node: HTMLElement | null) => void,
+          transform: null,
+          transition: undefined,
+          isDragging: false,
+        }
+      : sortable;
+
+  const style = {
+    transform: CSS.Transform.toString(transform ?? null),
+    transition,
+  };
+
+  return (
+    <div
+      ref={isStatic ? undefined : setNodeRef}
+      style={style}
+      className={isDragging ? "opacity-0" : ""}
+    >
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          {...(isStatic ? {} : { ...attributes, ...listeners })}
+          aria-label={`Reordenar ${participant.name || "participante"}`}
+          className="shrink-0 touch-none select-none cursor-grab text-muted-foreground active:cursor-grabbing p-1 rounded"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <div className="flex-1">
+          <ParticipantInput
+            value={participant.name}
+            onChange={onChange}
+            onRemove={onRemove}
+            suggestions={suggestions}
+            canRemove={canRemove}
+            submitMode={false}
+            autoFocus={autoFocus}
+            onAutoFocusHandled={onAutoFocusHandled}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function NewTournamentPage() {
   const navigate = useNavigate();
@@ -49,16 +146,29 @@ export function NewTournamentPage() {
 
   const [arbitrator, setArbitrator] = useState(currentArbitratorName);
   const [organizer, setOrganizer] = useState(currentOrganizerName);
-  const [participants, setParticipants] = useState<string[]>([""]);
+  const [participants, setParticipants] = useState<ParticipantRow[]>([
+    { id: genId(), name: "" },
+  ]);
   const [useGroups, setUseGroups] = useState(false);
   const groupSize = 4;
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [removeIdx, setRemoveIdx] = useState<number | null>(null);
   const [toasts, setToasts] = useState<ValidationToast[]>([]);
-  const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(
+  const [pendingFocusId, setPendingFocusId] = useState<string | null>(null);
+  const [activeParticipantId, setActiveParticipantId] = useState<string | null>(
     null,
   );
   const toastTimeoutsRef = useRef<number[]>([]);
+
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   useEffect(() => {
     return () => {
@@ -71,31 +181,73 @@ export function NewTournamentPage() {
 
   // Suggestions = pool minus already-entered names
   const enteredNames = new Set(
-    participants.map((p) => p.trim().toLowerCase()).filter(Boolean),
+    participants.map((p) => p.name.trim().toLowerCase()).filter(Boolean),
   );
   const suggestions = participantsPool.filter(
     (n) => !enteredNames.has(n.toLowerCase()),
   );
-  const enrolledCount = participants.filter((p) => p.trim().length > 0).length;
+  const enrolledCount = participants.filter((p) => p.name.trim().length > 0).length;
   const groupsDisabled = enrolledCount < 6;
 
+  // Drag-and-drop and group preview setup
+  const submitRow = participants[participants.length - 1];
+  const nonSubmitParticipants = participants.slice(0, participants.length - 1);
+
+  // Compute group preview
+  const groupStartIds = new Map<string, number>();
+  if (useGroups && !groupsDisabled) {
+    const groupSizes = buildGroupSizes(enrolledCount, true, groupSize);
+    const groupStartPositions: number[] = [];
+    let cumulative = 0;
+    for (const size of groupSizes) {
+      groupStartPositions.push(cumulative);
+      cumulative += size;
+    }
+    let enrolledIdx = 0;
+    let nextGroupCheck = 0;
+    for (const p of nonSubmitParticipants) {
+      if (!p.name.trim()) continue;
+      if (
+        nextGroupCheck < groupStartPositions.length &&
+        enrolledIdx === groupStartPositions[nextGroupCheck]
+      ) {
+        groupStartIds.set(p.id, nextGroupCheck);
+        nextGroupCheck++;
+      }
+      enrolledIdx++;
+    }
+  }
+
+  const activeParticipant = activeParticipantId
+    ? participants.find((p) => p.id === activeParticipantId) ?? null
+    : null;
+
   function updateParticipant(index: number, value: string) {
-    const next = [...participants];
-    next[index] = value;
-    setParticipants(next);
+    setParticipants((prev) => {
+      const next = [...prev];
+      const row = next[index];
+      if (!row) return prev;
+      next[index] = { ...row, name: value };
+      return next;
+    });
   }
 
   function addParticipantRow(nextValue?: string) {
-    const lastIdx = participants.length - 1;
-    if (lastIdx < 0) return;
-    const normalized = normalizeName(nextValue ?? participants[lastIdx] ?? "");
+    const lastRow = participants[participants.length - 1];
+    if (!lastRow) return;
+    const normalized = normalizeName(nextValue ?? lastRow.name ?? "");
     if (!normalized) return;
 
-    const next = [...participants];
-    next[lastIdx] = normalized;
-    next.push("");
-    setParticipants(next);
-    setPendingFocusIndex(next.length - 1);
+    const newId = genId();
+    setParticipants((prev) => {
+      const next = [...prev];
+      const last = next[next.length - 1];
+      if (!last) return prev;
+      next[next.length - 1] = { ...last, name: normalized };
+      next.push({ id: newId, name: "" });
+      return next;
+    });
+    setPendingFocusId(newId);
   }
 
   function localizeValidationErrors(validationErrors: string[]) {
@@ -137,9 +289,25 @@ export function NewTournamentPage() {
     setToasts((current) => current.filter((t) => t.id !== id));
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveParticipantId(event.active.id as string);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveParticipantId(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const submitRow = participants[participants.length - 1];
+    if (active.id === submitRow?.id || over.id === submitRow?.id) return;
+    const oldIdx = participants.findIndex((p) => p.id === active.id);
+    const newIdx = participants.findIndex((p) => p.id === over.id);
+    if (oldIdx === -1 || newIdx === -1) return;
+    setParticipants((prev) => arrayMove(prev, oldIdx, newIdx));
+  }
+
   function handleStart() {
     const cleanNames = participants
-      .map(normalizeName)
+      .map((p) => normalizeName(p.name))
       .filter((n) => n.length > 0);
     const validation = validateParticipants(cleanNames);
     if (!validation.valid) {
@@ -235,26 +403,76 @@ export function NewTournamentPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {participants.map((name, idx) => (
-                <div key={idx}>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={nonSubmitParticipants.map((p) => p.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {nonSubmitParticipants.map((p, idx) => {
+                    const groupIdx = groupStartIds.get(p.id);
+                    return (
+                      <div key={p.id}>
+                        {groupIdx !== undefined && (
+                          <div className="text-xs font-semibold text-muted-foreground pt-2 pb-1 px-1 uppercase tracking-wide">
+                            Grupo {GROUP_NAMES[groupIdx]}
+                          </div>
+                        )}
+                        <SortableParticipantRow
+                          participant={p}
+                          onChange={(v) => updateParticipant(idx, v)}
+                          onRemove={() => {
+                            if (participants.length > 1) setRemoveIdx(idx);
+                          }}
+                          suggestions={suggestions}
+                          canRemove={participants.length > 1}
+                          autoFocus={p.id === pendingFocusId}
+                          onAutoFocusHandled={() => setPendingFocusId(null)}
+                        />
+                      </div>
+                    );
+                  })}
+                </SortableContext>
+
+                {/* Submit row — always last, never draggable */}
+                {submitRow && (
                   <ParticipantInput
-                    value={name}
-                    onChange={(v) => updateParticipant(idx, v)}
-                    onRemove={() => {
-                      if (participants.length > 1) setRemoveIdx(idx);
-                    }}
-                    suggestions={suggestions}
-                    canRemove={
-                      participants.length > 1 && idx !== participants.length - 1
+                    value={submitRow.name}
+                    onChange={(v) =>
+                      updateParticipant(participants.length - 1, v)
                     }
-                    submitMode={idx === participants.length - 1}
+                    onRemove={() => {}}
+                    suggestions={suggestions}
+                    canRemove={false}
+                    submitMode={true}
                     onSubmit={addParticipantRow}
-                    submitDisabled={!name.trim()}
-                    autoFocus={idx === pendingFocusIndex}
-                    onAutoFocusHandled={() => setPendingFocusIndex(null)}
+                    submitDisabled={!submitRow.name.trim()}
+                    autoFocus={submitRow.id === pendingFocusId}
+                    onAutoFocusHandled={() => setPendingFocusId(null)}
                   />
-                </div>
-              ))}
+                )}
+
+                <DragOverlay dropAnimation={null}>
+                  {activeParticipant ? (
+                    <div className="rounded-md border border-primary/40 bg-card shadow-xl ring-2 ring-primary/30 scale-[1.02]">
+                      <SortableParticipantRow
+                        participant={activeParticipant}
+                        onChange={() => {}}
+                        onRemove={() => {}}
+                        suggestions={[]}
+                        canRemove={false}
+                        autoFocus={false}
+                        onAutoFocusHandled={() => {}}
+                        static
+                      />
+                    </div>
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
             </CardContent>
           </Card>
 
@@ -346,7 +564,7 @@ export function NewTournamentPage() {
             Se eliminará{" "}
             <strong>
               {removeIdx !== null
-                ? participants[removeIdx] || "este participante"
+                ? participants[removeIdx]?.name || "este participante"
                 : ""}
             </strong>{" "}
             de la lista.
