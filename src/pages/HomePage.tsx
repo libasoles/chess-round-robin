@@ -7,17 +7,15 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { getTotalRounds, isRoundComplete } from "@/hooks/useCurrentRound";
 import { useHistoryStore } from "@/store/historyStore";
-import { useSettingsStore } from "@/store/settingsStore";
 import { useTournamentStore } from "@/store/tournamentStore";
 import { ArrowRight, Play, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
   const navigate = useNavigate();
-  const { tournaments } = useHistoryStore();
+  const { tournaments, removeTournament } = useHistoryStore();
   const { activeTournament, currentRound, setCurrentRound } =
     useTournamentStore();
-  const { ownedTournamentIds } = useSettingsStore();
 
   const totalRounds = activeTournament
     ? getTotalRounds(activeTournament.phases)
@@ -90,11 +88,7 @@ export function HomePage() {
                 <TournamentCard
                   key={t.id}
                   tournament={t}
-                  canShare={
-                    Boolean(t.jazzId) &&
-                    (ownedTournamentIds.includes(t.id) ||
-                      ownedTournamentIds.length === 0)
-                  }
+                  onDelete={removeTournament}
                   onClick={() => navigate(`/tournament/history/${t.id}`)}
                 />
               ))}

@@ -27,6 +27,58 @@
     <meta name="twitter:title" content="%VITE_BRAND_NAME%" />
     <meta name="twitter:description" content="%VITE_BRAND_DESCRIPTION%" />
     <meta name="twitter:image" content="%VITE_BRAND_OG_IMAGE%" />
+    <style>
+      #pwa-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-items: center;
+        background: #f7f7fb;
+        color: #111;
+        transition: opacity 220ms ease;
+      }
+      #pwa-splash[data-state="hidden"] {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #pwa-splash-title {
+        margin: 0;
+        padding: 0 1.25rem;
+        text-align: center;
+        font-family: "Gabriela", Georgia, serif;
+        line-height: 1.05;
+        letter-spacing: 0.01em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #pwa-splash-title-top {
+        font-size: clamp(0.95rem, 3.4vw, 1.2rem);
+        width: 100%;
+        text-align: left;
+      }
+      #pwa-splash-title-main {
+        margin-top: -0.2rem;
+        font-size: clamp(1.75rem, 6.8vw, 2.8rem);
+      }
+      #pwa-splash-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.9rem;
+      }
+      #pwa-splash-logo {
+        width: clamp(98px, 30vw, 156px);
+        height: auto;
+      }
+      @media (prefers-color-scheme: dark) {
+        #pwa-splash {
+          background: #17171b;
+          color: #f5f5f7;
+        }
+      }
+    </style>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-395HD9FM5T"></script>
@@ -38,6 +90,15 @@
     </script>
   </head>
   <body>
+    <div id="pwa-splash" aria-hidden="true">
+      <div id="pwa-splash-content">
+        <img id="pwa-splash-logo" src="/logo.png" alt="" />
+        <p id="pwa-splash-title">
+          <span id="pwa-splash-title-top">Torneo</span>
+          <span id="pwa-splash-title-main">Round Robin</span>
+        </p>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

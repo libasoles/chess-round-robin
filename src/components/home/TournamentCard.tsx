@@ -2,14 +2,13 @@ import type { Tournament } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
 import { ParticipantName } from '@/components/participants/ParticipantName'
 import { formatNameList } from '@/lib/formatNameList'
-import { useState } from 'react'
 import type { MouseEvent } from 'react'
-import { Trophy, Share2, Copy, Check } from 'lucide-react'
+import { Trophy, X } from 'lucide-react'
 
 interface TournamentCardProps {
   tournament: Tournament
   onClick?: () => void
-  canShare?: boolean
+  onDelete?: (id: string) => void
 }
 
 function formatDate(iso: string): string {
@@ -66,28 +65,15 @@ function getWinners(tournament: Tournament): string[] {
   return winners
 }
 
-export function TournamentCard({ tournament, onClick, canShare = false }: TournamentCardProps) {
-  const [copied, setCopied] = useState(false)
+export function TournamentCard({ tournament, onClick, onDelete }: TournamentCardProps) {
   const rounds = getRoundCount(tournament)
   const phases = tournament.phases.length
   const winners = getWinners(tournament)
   const dateTime = formatDateAndTimeParts(tournament.createdAt, tournament.finishedAt)
-  const canShareNative = typeof navigator.share !== 'undefined'
-  const shareUrl = tournament.jazzId ? `${window.location.origin}/t/${tournament.jazzId}/standings` : ''
 
-  function handleShare(event: MouseEvent<HTMLButtonElement>) {
+  function handleDelete(event: MouseEvent<HTMLButtonElement>) {
     event.stopPropagation()
-    if (!shareUrl) return
-
-    if (canShareNative) {
-      navigator.share({ title: 'Resultados del torneo', url: shareUrl }).catch(() => {})
-      return
-    }
-
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }).catch(() => {})
+    onDelete?.(tournament.id)
   }
 
   return (
@@ -99,17 +85,17 @@ export function TournamentCard({ tournament, onClick, canShare = false }: Tourna
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-primary">{dateTime.date}</span>
-          <span className="text-sm text-muted-foreground">{dateTime.time}</span>
+          <span className="text-xs text-muted-foreground/75">{dateTime.time}</span>
         </div>
         <div className="flex items-center gap-0.5">
-          {canShare && tournament.jazzId && (
+          {onDelete && (
             <button
               type="button"
-              onClick={handleShare}
-              className="p-1.5 text-blue-800/80 hover:text-blue-800 dark:text-blue-300/85 dark:hover:text-blue-300"
-              aria-label="Compartir"
+              onClick={handleDelete}
+              className="p-1.5 -mr-1.5 text-muted-foreground/45 hover:text-muted-foreground/70 dark:text-muted-foreground/45 dark:hover:text-muted-foreground/70"
+              aria-label="Eliminar torneo"
             >
-              {copied ? <Check className="h-4 w-4" /> : canShareNative ? <Share2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>

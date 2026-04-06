@@ -65,8 +65,8 @@ export default defineConfig({
         `${ASSET_PREFIX}apple-touch-icon.png`,
       ],
       manifest: {
-        name: "Round Robin",
-        short_name: "Round Robin",
+        name: "Torneo Round Robin",
+        short_name: "Torneo Round Robin",
         description: "Gestión de torneos de ajedrez round robin",
         theme_color: "#000000",
         background_color: "#ffffff",
