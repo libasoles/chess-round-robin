@@ -439,7 +439,7 @@ export function NewTournamentPage() {
                     return (
                       <div key={p.id}>
                         {!isSubmitRow && groupIdx !== undefined && (
-                          <div className="text-xs font-semibold text-muted-foreground pt-2 pb-1 px-1 uppercase tracking-wide">
+                          <div className="text-xs font-semibold text-muted-foreground pt-2 pb-2 px-1 uppercase tracking-wide">
                             Grupo {GROUP_NAMES[groupIdx]}
                           </div>
                         )}
