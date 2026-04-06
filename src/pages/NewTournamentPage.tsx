@@ -81,6 +81,8 @@ function SortableParticipantRow({
   submitDisabled = false,
   handleDisabled = false,
 }: SortableParticipantRowProps) {
+  // For submit row with disabled handle: still allow dropping (disabled: false)
+  // but visually disable the handle button
   const sortable = useSortable({ id: participant.id, disabled: !!isStatic });
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     isStatic
@@ -108,7 +110,6 @@ function SortableParticipantRow({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          disabled={handleDisabled || isStatic}
           {...(isStatic || handleDisabled ? {} : { ...attributes, ...listeners })}
           aria-label={`Reordenar ${participant.name || "participante"}`}
           className={`shrink-0 touch-none select-none p-1 rounded ${
