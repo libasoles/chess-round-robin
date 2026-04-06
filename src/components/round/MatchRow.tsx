@@ -9,6 +9,7 @@ interface MatchRowProps {
   participants: Map<string, Participant>;
   onResult: (matchId: string, result: MatchResult | null) => void;
   readonly?: boolean;
+  showMissingResultMessage?: boolean;
 }
 
 export function MatchRow({
@@ -16,6 +17,7 @@ export function MatchRow({
   participants,
   onResult,
   readonly = false,
+  showMissingResultMessage = false,
 }: MatchRowProps) {
   const white = participants.get(match.white);
   const black = participants.get(match.black);
@@ -89,11 +91,16 @@ export function MatchRow({
           onChange={(result) => onResult(match.id, result)}
         />
       )}
-      {readonly && match.result && match.result !== "auto_bye" && (
-        <p className="text-xs text-muted-foreground mt-1 text-center">
-          {resultLabel(match.result)}
-        </p>
-      )}
+      {readonly &&
+        (match.result && match.result !== "auto_bye" ? (
+          <p className="text-xs text-muted-foreground mt-1 text-center">
+            {resultLabel(match.result)}
+          </p>
+        ) : showMissingResultMessage ? (
+          <p className="text-xs text-muted-foreground mt-1 text-center">
+            No se cargó resultado para esta partida
+          </p>
+        ) : null)}
     </div>
   );
 }
