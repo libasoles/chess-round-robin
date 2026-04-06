@@ -1,8 +1,21 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { TournamentSettings } from '@/domain/types'
+import type { TiebreakMethod, TournamentSettings } from '@/domain/types'
 
 export type Theme = 'light' | 'dark' | 'system'
+
+const VALID_TIEBREAKS: TiebreakMethod[] = ['DE', 'SB', 'Buchholz', 'PN', 'Koya', 'TN']
+const FALLBACK_TIEBREAKS: TiebreakMethod[] = ['DE', 'SB', 'PN']
+
+function getDefaultTiebreaks(): TiebreakMethod[] {
+  const env = import.meta.env.VITE_DEFAULT_TIEBREAKS as string | undefined
+  if (!env) return FALLBACK_TIEBREAKS
+  const parsed = env
+    .split(',')
+    .map((s) => s.trim())
+    .filter((m): m is TiebreakMethod => VALID_TIEBREAKS.includes(m as TiebreakMethod))
+  return parsed.length > 0 ? parsed : FALLBACK_TIEBREAKS
+}
 
 interface SettingsState {
   arbitratorName: string | null
@@ -25,7 +38,7 @@ const DEFAULT_TOURNAMENT_SETTINGS: TournamentSettings = {
   organizerName: '',
   forfeitPoints: 1,
   byePoints: 1,
-  tiebreakOrder: ['DE', 'PN'],
+  tiebreakOrder: getDefaultTiebreaks(),
   useGroups: true,
   groupSize: 4,
 }
