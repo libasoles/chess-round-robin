@@ -138,12 +138,8 @@ export function RoundPage() {
         topBar={
           <TopBar
             title={title}
-            right={
-              <div className="flex items-center gap-1">
-                <TopBarShareAction
-                  jazzId={activeTournament.jazzId}
-                  currentRound={currentRound}
-                />
+            left={
+              <div className="flex items-center -ml-2">
                 <Button
                   variant="ghost"
                   size="icon-sm"
@@ -154,6 +150,14 @@ export function RoundPage() {
                 >
                   <X className="h-4 w-4" />
                 </Button>
+              </div>
+            }
+            right={
+              <div className="flex items-center gap-1">
+                <TopBarShareAction
+                  jazzId={activeTournament.jazzId}
+                  currentRound={currentRound}
+                />
               </div>
             }
           />
