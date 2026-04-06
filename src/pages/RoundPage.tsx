@@ -58,7 +58,9 @@ export function RoundPage() {
   }, [hydrated, activeTournament, navigate]);
 
   const currentRound = Number(roundParam) || 1;
-  const totalRounds = activeTournament ? getTotalRounds(activeTournament.phases) : 1;
+  const totalRounds = activeTournament
+    ? getTotalRounds(activeTournament.phases)
+    : 1;
   const isFirstRound = currentRound === 1;
   const isLastRound = currentRound === totalRounds;
   const canDeleteRound = totalRounds > 1;
@@ -111,7 +113,8 @@ export function RoundPage() {
   function handleConfirmDeleteRound() {
     if (!id || !canDeleteRound) return;
 
-    const nextRound = currentRound === totalRounds ? totalRounds - 1 : currentRound;
+    const nextRound =
+      currentRound === totalRounds ? totalRounds - 1 : currentRound;
     deleteRound(currentRound);
     setCurrentRound(nextRound);
     navigate(`/tournament/${id}/round/${nextRound}`, { replace: true });
@@ -135,12 +138,8 @@ export function RoundPage() {
         topBar={
           <TopBar
             title={title}
-            right={
-              <div className="flex items-center gap-1">
-                <TopBarShareAction
-                  jazzId={activeTournament.jazzId}
-                  currentRound={currentRound}
-                />
+            left={
+              <div>
                 {canDeleteRound && (
                   <Button
                     variant="ghost"
@@ -152,6 +151,14 @@ export function RoundPage() {
                     <X className="h-4 w-4" />
                   </Button>
                 )}
+              </div>
+            }
+            right={
+              <div className="flex items-center gap-1">
+                <TopBarShareAction
+                  jazzId={activeTournament.jazzId}
+                  currentRound={currentRound}
+                />
               </div>
             }
           />
@@ -226,7 +233,9 @@ export function RoundPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
+            <DialogClose render={<Button variant="outline" />}>
+              Cancelar
+            </DialogClose>
             <Button variant="destructive" onClick={handleConfirmDeleteRound}>
               Eliminar
             </Button>
