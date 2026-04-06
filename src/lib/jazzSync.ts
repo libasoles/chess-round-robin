@@ -14,7 +14,13 @@ import {
 } from './jazz'
 import { getJazzMe } from './jazzAgent'
 
-interface JazzMatchLike {
+interface JazzNodeLike {
+  $jazz: {
+    set: (key: string, value: unknown) => void
+  }
+}
+
+interface JazzMatchLike extends JazzNodeLike {
   matchId?: string
   result?: string
 }
@@ -33,8 +39,11 @@ interface JazzPhasesCollectionLike extends Iterable<JazzPhaseLike | null | undef
   }
 }
 
-interface JazzTournamentLike {
-  id?: unknown
+interface JazzTournamentLike extends JazzNodeLike {
+  $jazz: {
+    id: string
+    set: (key: string, value: unknown) => void
+  }
   owner?: unknown
   phases?: JazzPhasesCollectionLike
   finishedAt?: string
@@ -105,7 +114,7 @@ export function createJazzTournament(tournament: Tournament): string {
     { owner: group },
   )
 
-  const jazzId = (jazzTournament as JazzTournamentLike).id
+  const jazzId = (jazzTournament as JazzTournamentLike).$jazz.id
   if (typeof jazzId !== 'string') {
     throw new Error('Jazz tournament id is missing')
   }
@@ -133,7 +142,7 @@ export async function updateJazzMatch(
     for (const group of (phase?.groups ?? [])) {
       for (const match of (group?.matches ?? [])) {
         if (match?.matchId === matchId) {
-          match.result = result ?? undefined
+          match.$jazz.set('result', result ?? undefined)
           return
         }
       }
@@ -148,8 +157,8 @@ export async function finishJazzTournament(jazzId: string, finishedAt: string): 
   const tournament = await JazzTournament.load(jazzId, { loadAs: me }) as JazzTournamentLike | null
   if (!tournament) return
 
-  tournament.finishedAt = finishedAt
-  tournament.status = 'finished'
+  tournament.$jazz.set('finishedAt', finishedAt)
+  tournament.$jazz.set('status', 'finished')
 }
 
 export async function addJazzPhase(jazzId: string, newPhase: Phase): Promise<void> {
