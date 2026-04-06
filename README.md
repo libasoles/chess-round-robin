@@ -19,7 +19,6 @@ Key features:
 - **Configurable scoring** — set custom points for forfeits and byes
 - **Tournament history** — completed tournaments are persisted locally, so you can use the app offline
 - **White-label support** — easily customize branding for different clubs using environment variables
-- **PWA features** — installable as an app on mobile devices
 
 ## Demo screenshots
 
