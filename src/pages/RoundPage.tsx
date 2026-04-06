@@ -58,7 +58,9 @@ export function RoundPage() {
   }, [hydrated, activeTournament, navigate]);
 
   const currentRound = Number(roundParam) || 1;
-  const totalRounds = activeTournament ? getTotalRounds(activeTournament.phases) : 1;
+  const totalRounds = activeTournament
+    ? getTotalRounds(activeTournament.phases)
+    : 1;
   const isFirstRound = currentRound === 1;
   const isLastRound = currentRound === totalRounds;
   const canDeleteRound = totalRounds > 1;
@@ -111,7 +113,8 @@ export function RoundPage() {
   function handleConfirmDeleteRound() {
     if (!id || !canDeleteRound) return;
 
-    const nextRound = currentRound === totalRounds ? totalRounds - 1 : currentRound;
+    const nextRound =
+      currentRound === totalRounds ? totalRounds - 1 : currentRound;
     deleteRound(currentRound);
     setCurrentRound(nextRound);
     navigate(`/tournament/${id}/round/${nextRound}`, { replace: true });
@@ -225,7 +228,9 @@ export function RoundPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
+            <DialogClose render={<Button variant="outline" />}>
+              Cancelar
+            </DialogClose>
             <Button variant="destructive" onClick={handleConfirmDeleteRound}>
               Eliminar
             </Button>
