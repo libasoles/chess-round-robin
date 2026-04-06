@@ -129,6 +129,10 @@ Notes:
 - `vite.config.ts` rewrites favicon/touch icon paths automatically for non-default brands.
 - `index.html` uses `%VITE_*%` placeholders for metadata.
 
+### White label results
+
+![Tucuchess](public/demo/white-label.png)
+
 ## Available commands
 
 ```bash
