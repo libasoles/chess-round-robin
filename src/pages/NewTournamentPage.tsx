@@ -61,6 +61,10 @@ interface SortableParticipantRowProps {
   autoFocus: boolean;
   onAutoFocusHandled: () => void;
   static?: boolean;
+  submitMode?: boolean;
+  onSubmit?: (nextValue?: string) => void;
+  submitDisabled?: boolean;
+  handleDisabled?: boolean;
 }
 
 function SortableParticipantRow({
@@ -72,6 +76,10 @@ function SortableParticipantRow({
   autoFocus,
   onAutoFocusHandled,
   static: isStatic,
+  submitMode = false,
+  onSubmit,
+  submitDisabled = false,
+  handleDisabled = false,
 }: SortableParticipantRowProps) {
   const sortable = useSortable({ id: participant.id, disabled: !!isStatic });
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -100,9 +108,14 @@ function SortableParticipantRow({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          {...(isStatic ? {} : { ...attributes, ...listeners })}
+          disabled={handleDisabled || isStatic}
+          {...(isStatic || handleDisabled ? {} : { ...attributes, ...listeners })}
           aria-label={`Reordenar ${participant.name || "participante"}`}
-          className="shrink-0 touch-none select-none cursor-grab text-muted-foreground active:cursor-grabbing p-1 rounded"
+          className={`shrink-0 touch-none select-none p-1 rounded ${
+            handleDisabled || isStatic
+              ? "cursor-not-allowed text-muted-foreground/40"
+              : "cursor-grab text-muted-foreground active:cursor-grabbing"
+          }`}
         >
           <GripVertical className="h-4 w-4" />
         </button>
@@ -113,7 +126,9 @@ function SortableParticipantRow({
             onRemove={onRemove}
             suggestions={suggestions}
             canRemove={canRemove}
-            submitMode={false}
+            submitMode={submitMode}
+            onSubmit={onSubmit}
+            submitDisabled={submitDisabled}
             autoFocus={autoFocus}
             onAutoFocusHandled={onAutoFocusHandled}
           />
@@ -192,6 +207,9 @@ export function NewTournamentPage() {
   // Drag-and-drop and group preview setup
   const submitRow = participants[participants.length - 1];
   const nonSubmitParticipants = participants.slice(0, participants.length - 1);
+  // Submit row is draggable if there are other participants and it has content
+  const isSubmitRowDraggable =
+    participants.length > 1 && submitRow && submitRow.name.trim().length > 0;
 
   // Compute group preview
   const groupStartIds = new Map<string, number>();
@@ -410,14 +428,16 @@ export function NewTournamentPage() {
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={nonSubmitParticipants.map((p) => p.id)}
+                  items={participants.map((p) => p.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {nonSubmitParticipants.map((p, idx) => {
+                  {participants.map((p, idx) => {
+                    const isSubmitRow = idx === participants.length - 1;
                     const groupIdx = groupStartIds.get(p.id);
+
                     return (
                       <div key={p.id}>
-                        {groupIdx !== undefined && (
+                        {!isSubmitRow && groupIdx !== undefined && (
                           <div className="text-xs font-semibold text-muted-foreground pt-2 pb-1 px-1 uppercase tracking-wide">
                             Grupo {GROUP_NAMES[groupIdx]}
                           </div>
@@ -429,32 +449,18 @@ export function NewTournamentPage() {
                             if (participants.length > 1) setRemoveIdx(idx);
                           }}
                           suggestions={suggestions}
-                          canRemove={participants.length > 1}
+                          canRemove={participants.length > 1 && !isSubmitRow}
                           autoFocus={p.id === pendingFocusId}
                           onAutoFocusHandled={() => setPendingFocusId(null)}
+                          submitMode={isSubmitRow}
+                          onSubmit={isSubmitRow ? addParticipantRow : undefined}
+                          submitDisabled={!p.name.trim()}
+                          handleDisabled={isSubmitRow && !isSubmitRowDraggable}
                         />
                       </div>
                     );
                   })}
                 </SortableContext>
-
-                {/* Submit row — always last, never draggable */}
-                {submitRow && (
-                  <ParticipantInput
-                    value={submitRow.name}
-                    onChange={(v) =>
-                      updateParticipant(participants.length - 1, v)
-                    }
-                    onRemove={() => {}}
-                    suggestions={suggestions}
-                    canRemove={false}
-                    submitMode={true}
-                    onSubmit={addParticipantRow}
-                    submitDisabled={!submitRow.name.trim()}
-                    autoFocus={submitRow.id === pendingFocusId}
-                    onAutoFocusHandled={() => setPendingFocusId(null)}
-                  />
-                )}
 
                 <DragOverlay dropAnimation={null}>
                   {activeParticipant ? (
@@ -468,6 +474,11 @@ export function NewTournamentPage() {
                         autoFocus={false}
                         onAutoFocusHandled={() => {}}
                         static
+                        submitMode={
+                          activeParticipant.id === submitRow?.id
+                        }
+                        submitDisabled={!activeParticipant.name.trim()}
+                        handleDisabled={false}
                       />
                     </div>
                   ) : null}
