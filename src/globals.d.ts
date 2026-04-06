@@ -1,6 +1,7 @@
 declare const __APP_VERSION__: string
 
 interface ImportMetaEnv {
+  readonly VITE_GA_MEASUREMENT_ID?: string
   readonly VITE_JAZZ_API_KEY: string
   readonly VITE_BRAND?: string
   readonly VITE_BRAND_NAME?: string

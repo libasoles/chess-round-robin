@@ -13,7 +13,11 @@ import { createJazzTournament } from './lib/jazzSync'
 import { useTournamentStore } from './store/tournamentStore'
 import './index.css'
 
-ReactGA.initialize('G-395HD9FM5T')
+const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID
+
+if (gaMeasurementId) {
+  ReactGA.initialize(gaMeasurementId)
+}
 
 const JAZZ_PEER = `wss://cloud.jazz.tools/?key=${import.meta.env.VITE_JAZZ_API_KEY}` as const
 
