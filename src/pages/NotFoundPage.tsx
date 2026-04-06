@@ -3,7 +3,6 @@ import { TopBar } from "@/components/layout/TopBar";
 import { brand } from "@/lib/brand";
 
 export function NotFoundPage() {
-
   return (
     <AppShell topBar={<TopBar />}>
       <div className="flex min-h-[70svh] flex-col items-center justify-center gap-3 text-center">

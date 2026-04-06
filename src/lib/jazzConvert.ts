@@ -33,7 +33,7 @@ export function jazzTournamentToDomain(jt: unknown): Tournament | null {
       createdAt: root.createdAt as string,
       finishedAt: root.finishedAt as string | undefined,
       status: (root.status as string) === 'finished' ? 'finished' : 'active',
-      jazzId: root.id as string,
+      jazzId: (asRecord(root.$jazz)?.id as string | undefined) ?? (root.id as string | undefined),
       settings: {
         arbitratorName: settings.arbitratorName as string,
         organizerName: settings.organizerName as string | undefined,

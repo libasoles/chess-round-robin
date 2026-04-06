@@ -2,7 +2,7 @@ import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { JazzReactProvider, useJazzContextValue } from 'jazz-tools/react'
-import type { Account } from 'jazz-tools'
+import { Account } from 'jazz-tools'
 import { router } from './router'
 import { useSettingsStore } from './store/settingsStore'
 import { useHistoryStore } from './store/historyStore'
@@ -76,7 +76,7 @@ export function Root() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <JazzReactProvider sync={{ peer: JAZZ_PEER, when: 'always' }}>
+    <JazzReactProvider AccountSchema={Account} sync={{ peer: JAZZ_PEER, when: 'always' }}>
       <Root />
     </JazzReactProvider>
   </StrictMode>,
