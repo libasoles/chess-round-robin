@@ -43,6 +43,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 
 type ValidationToast = {
@@ -372,6 +373,14 @@ export function NewTournamentPage() {
 
   return (
     <>
+      <Helmet>
+        <title>Nuevo Torneo de Ajedrez | Round Robin</title>
+        <meta
+          name="description"
+          content="Creá tu torneo de ajedrez round robin en segundos: ingresá los participantes, elegir grupos y el sistema arrancará el fixture automáticamente."
+        />
+        <link rel="canonical" href="https://ajedrezroundrobin.com.ar/tournament/new" />
+      </Helmet>
       <AppShell
         topBar={
           <TopBar

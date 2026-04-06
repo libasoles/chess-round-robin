@@ -68,7 +68,7 @@ export default defineConfig({
         name: "Torneo Round Robin",
         short_name: "Torneo Round Robin",
         description: "Gestión de torneos de ajedrez round robin",
-        theme_color: "#000000",
+        theme_color: "#3b5bdb",
         background_color: "#ffffff",
         display: "standalone",
         icons: [

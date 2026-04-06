@@ -9,6 +9,7 @@ import { getTotalRounds, isRoundComplete } from "@/hooks/useCurrentRound";
 import { useHistoryStore } from "@/store/historyStore";
 import { useTournamentStore } from "@/store/tournamentStore";
 import { ArrowRight, Play, Settings } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
@@ -32,8 +33,34 @@ export function HomePage() {
     navigate(`/tournament/${activeTournament.id}/round/${displayRound}`);
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Torneos de Ajedrez Round Robin",
+    applicationCategory: "SportsApplication",
+    operatingSystem: "Web",
+    url: "https://ajedrezroundrobin.com.ar/",
+    description:
+      "Creá y gestioná torneos de ajedrez round robin. Fixture automático, tabla de posiciones y desempate. Gratis.",
+    inLanguage: "es-AR",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "ARS",
+    },
+  };
+
   return (
     <>
+      <Helmet>
+        <title>Torneo Round Robin Ajedrez | Gestión de Torneos</title>
+        <meta
+          name="description"
+          content="Creá y gestioná torneos de ajedrez round robin. Fixture automático, tabla de posiciones y desempate. Gratis."
+        />
+        <link rel="canonical" href="https://ajedrezroundrobin.com.ar/" />
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      </Helmet>
       <AppShell
         topBar={
           <TopBar

@@ -30,6 +30,7 @@ import { useGesture } from "@use-gesture/react";
 import { AlertTriangle, ArrowLeft, Check, Trash, Trophy } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("es-AR", {
@@ -139,6 +140,7 @@ export function TournamentResultsPage() {
 
   return (
     <div>
+      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
       <AppShell
         hasBottomAction
         mainProps={bind()}

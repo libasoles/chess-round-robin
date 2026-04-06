@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { JazzReactProvider, useJazzContextValue } from 'jazz-tools/react'
 import { Account } from 'jazz-tools'
+import { HelmetProvider } from 'react-helmet-async'
 import { router } from './router'
 import { useSettingsStore } from './store/settingsStore'
 import { useHistoryStore } from './store/historyStore'
@@ -88,8 +89,10 @@ export function Root() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <JazzReactProvider AccountSchema={Account} sync={{ peer: JAZZ_PEER, when: 'always' }}>
-      <Root />
-    </JazzReactProvider>
+    <HelmetProvider>
+      <JazzReactProvider AccountSchema={Account} sync={{ peer: JAZZ_PEER, when: 'always' }}>
+        <Root />
+      </JazzReactProvider>
+    </HelmetProvider>
   </StrictMode>,
 )

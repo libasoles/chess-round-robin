@@ -26,6 +26,7 @@ import { useGesture } from "@use-gesture/react";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 export function RoundPage() {
   const navigate = useNavigate();
@@ -133,6 +134,7 @@ export function RoundPage() {
 
   return (
     <div>
+      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
       <AppShell
         mainProps={bind()}
         topBar={

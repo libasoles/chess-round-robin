@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /tournament/
+Allow: /tournament/new
+
+Sitemap: https://ajedrezroundrobin.com.ar/sitemap.xml

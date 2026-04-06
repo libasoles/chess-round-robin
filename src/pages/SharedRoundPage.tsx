@@ -17,6 +17,7 @@ import { useCoState } from "jazz-tools/react";
 import { Check } from "lucide-react";
 import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const DEEP_RESOLVE = {
   settings: true,
@@ -104,6 +105,7 @@ export function SharedRoundPage() {
 
   return (
     <div>
+      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
       <AppShell
         mainProps={bind()}
         topBar={

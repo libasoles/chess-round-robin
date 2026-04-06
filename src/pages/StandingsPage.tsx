@@ -21,6 +21,7 @@ import { useTournamentStore } from '@/store/tournamentStore'
 import { useHistoryStore } from '@/store/historyStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getTotalRounds } from '@/hooks/useCurrentRound'
+import { Helmet } from 'react-helmet-async'
 
 export function StandingsPage() {
   const navigate = useNavigate()
@@ -132,6 +133,7 @@ export function StandingsPage() {
   const isActive = activeTournament.status === 'active'
   return (
     <div>
+      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
       <AppShell
         mainProps={bind()}
         topBar={

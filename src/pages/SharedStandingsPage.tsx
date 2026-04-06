@@ -12,6 +12,7 @@ import { useCoState } from "jazz-tools/react";
 import { ArrowLeft, Hourglass } from "lucide-react";
 import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const DEEP_RESOLVE = {
   settings: true,
@@ -105,6 +106,7 @@ export function SharedStandingsPage() {
         />
       }
     >
+      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
       <div className="space-y-6 pb-4">
         {hasPendingMatches && (
           <div className="flex items-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-3 text-foreground">

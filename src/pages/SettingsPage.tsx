@@ -10,6 +10,7 @@ import type { Theme } from "@/store/settingsStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { ArrowLeft, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const THEME_OPTIONS: Array<{ value: Theme; icon: typeof Sun; label: string }> =
   [
@@ -81,6 +82,7 @@ export function SettingsPage() {
         />
       }
     >
+      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
       <div className="space-y-6 pb-8">
         <Card>
           <CardContent>
