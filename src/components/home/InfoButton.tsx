@@ -152,6 +152,11 @@ export function InfoButton() {
                   : suma de puntos de todos los rivales enfrentados
                 </li>
                 <li>
+                  <TiebreakLink hash="#Sistema_Koya">Koya</TiebreakLink>:
+                  puntos logrados contra rivales que terminaron con al menos
+                  el 50% de los puntos posibles
+                </li>
+                <li>
                   <TiebreakLink hash="#Numero_de_partidas_con_las_piezas_negras">
                     PN
                   </TiebreakLink>
