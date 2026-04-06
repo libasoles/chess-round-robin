@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom'
 import { JazzReactProvider, useJazzContextValue } from 'jazz-tools/react'
 import { Account } from 'jazz-tools'
 import { HelmetProvider } from 'react-helmet-async'
+import ReactGA from 'react-ga4'
 import { router } from './router'
 import { useSettingsStore } from './store/settingsStore'
 import { useHistoryStore } from './store/historyStore'
@@ -11,6 +12,8 @@ import { setJazzMe } from './lib/jazzAgent'
 import { createJazzTournament } from './lib/jazzSync'
 import { useTournamentStore } from './store/tournamentStore'
 import './index.css'
+
+ReactGA.initialize('G-395HD9FM5T')
 
 const JAZZ_PEER = `wss://cloud.jazz.tools/?key=${import.meta.env.VITE_JAZZ_API_KEY}` as const
 

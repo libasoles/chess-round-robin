@@ -22,6 +22,7 @@ import { ArrowLeft, Hourglass } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams } from "react-router-dom";
+import ReactGA from "react-ga4";
 
 export function StandingsPage() {
   const navigate = useNavigate();
@@ -118,6 +119,7 @@ export function StandingsPage() {
   }
 
   function handleFinish() {
+    ReactGA.event("finish_tournament");
     finishTournament((finished) => {
       addToHistory(finished);
       // Add all participant names to the pool
@@ -125,6 +127,14 @@ export function StandingsPage() {
       addToParticipantsPool(names);
     });
     navigate("/");
+  }
+
+  function handleFinishButtonClick() {
+    if (hasPendingMatches) {
+      setShowFinishDialog(true);
+    } else {
+      handleFinish();
+    }
   }
 
   function goBack() {
@@ -243,15 +253,8 @@ export function StandingsPage() {
               </Button>
             )}
             <Button
-              data-analytics="finish_tournament"
               className="w-full h-12 text-base"
-              onClick={() => {
-                if (hasPendingMatches) {
-                  setShowFinishDialog(true);
-                } else {
-                  handleFinish();
-                }
-              }}
+              onClick={handleFinishButtonClick}
             >
               Terminar torneo
             </Button>
