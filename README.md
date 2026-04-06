@@ -72,7 +72,7 @@ npm run dev
 
 The app will be available at `http://localhost:5173`.
 
-## White-Label Branding (Marca Blanca)
+## White-Label Branding
 
 This project supports multiple brands using `VITE_BRAND`.
 
@@ -120,7 +120,7 @@ Environment variables:
 ```env
 VITE_BRAND=tucuchess
 VITE_BRAND_NAME=Tucuchess
-VITE_BRAND_URL=https://tucuchess.com
+VITE_BRAND_URL=https://tucuchess.ajedrezroundrobin.com.ar
 VITE_BRAND_OG_IMAGE=/brand/tucuchess/pwa-512x512.png
 VITE_BRAND_DESCRIPTION=Round-robin tournament manager for Tucuchess
 ```
