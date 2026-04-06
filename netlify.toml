@@ -1,0 +1,11 @@
+# Netlify configuration for single-page application
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA routing: redirect all non-matching routes to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
