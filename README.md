@@ -4,6 +4,8 @@
 
 A mobile-first PWA for chess clubs to manage their informal round-robin tournaments. Built with `Claude Code`.
 
+Website: [ajedrezroundrobin.com.ar](https://ajedrezroundrobin.com.ar/)
+
 ## What it does
 
 Chess Round Robin helps club arbitrators run round-robin tournaments without paperwork. You enter the participants, the app builds groups and rounds automatically, you record results match by match, and it calculates standings with tiebreaks in real time. Completed tournaments are saved to history for future reference.
