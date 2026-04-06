@@ -17,7 +17,7 @@ const env = loadEnv("", process.cwd(), "");
 const BRAND = env.VITE_BRAND ?? "default";
 const ASSET_PREFIX = BRAND === "default" ? "" : `brand/${BRAND}/`;
 
-// Plugin that rewrites favicon/touch-icon hrefs in index.html to use the brand path
+// Plugin that rewrites static index.html assets to use the active brand path
 const brandFaviconPlugin = {
   name: "brand-favicon-transform",
   transformIndexHtml(html: string) {
@@ -28,7 +28,8 @@ const brandFaviconPlugin = {
       .replace(
         /href="\/pwa-192x192\.png"/g,
         `href="/${ASSET_PREFIX}pwa-192x192.png"`,
-      );
+      )
+      .replace(/src="\/logo\.png"/g, `src="/${ASSET_PREFIX}logo.png"`);
   },
 };
 

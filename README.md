@@ -2,7 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/6783ce16-52c1-48c9-86d8-9070554ebdca/deploy-status)](https://app.netlify.com/projects/chessroundrobin/deploys)
 
-A mobile-first PWA for chess clubs to manage their informal round-robin tournaments. Built with Claude Code.
+A mobile-first PWA for chess clubs to manage their informal round-robin tournaments. Built with `Claude Code`.
 
 ## What it does
 
@@ -99,6 +99,30 @@ When `VITE_BRAND` is `default` (or unset), the app uses root assets (`/public/*`
 2. Add brand labels in [`src/lib/brand.ts`](/Users/guillermoperez/Projects/playground/chess-round-robin/src/lib/brand.ts) (`brandNames`, `brandTopLabels`, `brandAltText`).
 3. Set environment variables for that deployment:
    `VITE_BRAND`, `VITE_BRAND_NAME`, `VITE_BRAND_URL`, `VITE_BRAND_OG_IMAGE`, `VITE_BRAND_DESCRIPTION`.
+
+### Example (`tucuchess`)
+
+Brand assets:
+
+```text
+public/brand/tucuchess/
+  logo.png
+  favicon.png
+  favicon.ico
+  pwa-192x192.png
+  pwa-512x512.png
+  empty.png
+```
+
+Environment variables:
+
+```env
+VITE_BRAND=tucuchess
+VITE_BRAND_NAME=Tucuchess
+VITE_BRAND_URL=https://tucuchess.com
+VITE_BRAND_OG_IMAGE=/brand/tucuchess/pwa-512x512.png
+VITE_BRAND_DESCRIPTION=Round-robin tournament manager for Tucuchess
+```
 
 Notes:
 
