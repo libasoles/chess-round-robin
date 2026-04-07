@@ -12,7 +12,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -69,7 +69,6 @@ function CriterionBlock({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function TiebreakGuidePage() {
-  const navigate = useNavigate();
 
   return (
     <>
@@ -89,14 +88,13 @@ export function TiebreakGuidePage() {
         topBar={
           <TopBar
             left={
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
+              <Link
+                to="/guias"
                 className="p-2 -ml-2 text-foreground"
-                aria-label="Volver"
+                aria-label="Volver a guías"
               >
                 <ArrowLeft className="h-5 w-5" />
-              </button>
+              </Link>
             }
             title="Guía de desempates"
           />
@@ -342,10 +340,10 @@ export function TiebreakGuidePage() {
           {/* ── Footer ────────────────────────────────────────────────── */}
           <div className="flex items-center gap-2 pt-2 text-xs text-muted-foreground">
             <ChevronRight className="h-3.5 w-3.5" />
-            <span>
+            <Link to="/" className="underline underline-offset-2 hover:text-foreground transition-colors">
               Probá el formato en la aplicación y llevá el registro de tus
               torneos cuadrangulares.
-            </span>
+            </Link>
           </div>
         </article>
       </AppShell>

@@ -8,10 +8,11 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { SharedRoundPage } from "@/pages/SharedRoundPage";
 import { SharedStandingsPage } from "@/pages/SharedStandingsPage";
 import { StandingsPage } from "@/pages/StandingsPage";
+import { GuidesIndexPage } from "@/pages/guides/GuidesIndexPage";
 import { ThemePage } from "@/pages/ThemePage";
-import { TiebreakGuidePage } from "@/pages/TiebreakGuidePage";
+import { TiebreakGuidePage } from "@/pages/guides/TiebreakGuidePage";
 import { TournamentResultsPage } from "@/pages/TournamentResultsPage";
-import { TutorialPage } from "@/pages/TutorialPage";
+import { TutorialPage } from "@/pages/guides/TutorialPage";
 import { createBrowserRouter } from "react-router-dom";
 
 export const router = createBrowserRouter([
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
       { path: "/tournament/:id/round/:round", element: <RoundPage /> },
       { path: "/tournament/:id/standings", element: <StandingsPage /> },
       { path: "/tournament/history/:id", element: <TournamentResultsPage /> },
+      { path: "/guias", element: <GuidesIndexPage /> },
       { path: "/tutorial", element: <TutorialPage /> },
       { path: "/guia-desempates", element: <TiebreakGuidePage /> },
       { path: "/theme", element: <ThemePage /> },

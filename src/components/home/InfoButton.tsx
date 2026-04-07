@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Info } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function B({ children }: { children: React.ReactNode }) {
   return <span className="text-foreground font-medium">{children}</span>;
@@ -176,6 +177,20 @@ export function InfoButton() {
                 Todos tus <B>torneos</B> se guardan en tu dispositivo. No
                 necesitas cuenta ni conexión a internet. Los <B>torneos</B>{" "}
                 compartidos por enlace también quedan en tu <B>historial</B>.
+              </p>
+            </section>
+            <section className="space-y-1">
+              <SectionTitle>Guías</SectionTitle>
+              <p>
+                Si querés saber más,{" "}
+                <Link
+                  to="/guias"
+                  className="text-accent font-medium underline underline-offset-2"
+                  onClick={() => setOpen(false)}
+                >
+                  visitá las guías
+                </Link>
+                .
               </p>
             </section>
           </div>

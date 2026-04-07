@@ -1,5 +1,6 @@
 import { EmptyHistory } from "@/components/home/EmptyHistory";
 import { AppShell } from "@/components/layout/AppShell";
+import { TopBar } from "@/components/layout/TopBar";
 import { TopBarShareAction } from "@/components/layout/TopBarShareAction";
 import { GroupSection } from "@/components/round/GroupSection";
 import { ResultButtons } from "@/components/round/ResultButtons";
@@ -45,6 +46,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
+  ArrowLeft,
   GripVertical,
   Handshake,
   Plus,
@@ -55,6 +57,7 @@ import {
 import { useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { MdDirectionsRun } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 type OrderRow = { id: string; name: string };
 
@@ -339,7 +342,22 @@ export function TutorialPage() {
           href="https://ajedrezroundrobin.com.ar/tutorial"
         />
       </Helmet>
-      <AppShell topBar="">
+      <AppShell
+        topBar={
+          <TopBar
+            left={
+              <Link
+                to="/guias"
+                className="p-2 -ml-2 text-foreground"
+                aria-label="Volver a guías"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            }
+            title="Tutorial"
+          />
+        }
+      >
         <div className="space-y-4 pb-8">
           <h2>Torneos</h2>
 
