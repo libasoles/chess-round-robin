@@ -2,6 +2,7 @@ import { ParticipantName } from "@/components/participants/ParticipantName";
 import type { Match, MatchResult, Participant } from "@/domain/types";
 import { brand } from "@/lib/brand";
 import { Trophy } from "lucide-react";
+import { MatchResultStatus } from "./MatchResultStatus";
 import { ResultButtons } from "./ResultButtons";
 
 interface MatchRowProps {
@@ -57,9 +58,9 @@ export function MatchRow({
               <ParticipantName>{playerName}</ParticipantName>
             </div>
             {readonly ? (
-              <p className="text-xs text-muted-foreground mt-1 text-center">
+              <MatchResultStatus>
                 Punto de bye por número impar
-              </p>
+              </MatchResultStatus>
             ) : (
               <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                 <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -93,13 +94,11 @@ export function MatchRow({
       )}
       {readonly &&
         (match.result && match.result !== "auto_bye" ? (
-          <p className="text-xs text-muted-foreground mt-1 text-center">
-            {resultLabel(match.result)}
-          </p>
+          <MatchResultStatus>{resultLabel(match.result)}</MatchResultStatus>
         ) : showMissingResultMessage ? (
-          <p className="text-xs text-muted-foreground mt-1 text-center">
-            No se cargó resultado para esta partida
-          </p>
+          <MatchResultStatus>
+            No se marcó resultado para esta partida
+          </MatchResultStatus>
         ) : null)}
     </div>
   );

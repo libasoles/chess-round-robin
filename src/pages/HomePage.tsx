@@ -70,7 +70,7 @@ export function HomePage() {
                 <button
                   type="button"
                   onClick={() => navigate("/settings")}
-                  className="md:hidden p-1 text-muted-foreground hover:text-foreground"
+                  className="p-1 text-muted-foreground hover:text-foreground"
                   aria-label="Configuración"
                 >
                   <Settings className="h-5 w-5" />

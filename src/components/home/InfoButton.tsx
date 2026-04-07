@@ -11,11 +11,11 @@ import { Info } from "lucide-react";
 import { useState } from "react";
 
 function B({ children }: { children: React.ReactNode }) {
-  return <span className="text-chart-2 font-medium">{children}</span>;
+  return <span className="text-foreground font-medium">{children}</span>;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="font-semibold text-chart-1">{children}</h3>;
+  return <h3 className="font-semibold text-chart-2">{children}</h3>;
 }
 
 const TIEBREAK_ARTICLE =
@@ -33,7 +33,7 @@ function TiebreakLink({
       href={`${TIEBREAK_ARTICLE}${hash}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-chart-4 font-medium underline underline-offset-2"
+      className="text-accent font-medium underline underline-offset-2"
     >
       {children}
     </a>
@@ -48,7 +48,7 @@ export function InfoButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="md:hidden p-1 text-muted-foreground hover:text-foreground"
+        className="p-1 text-muted-foreground hover:text-foreground"
         aria-label="¿Cómo funciona?"
       >
         <Info className="h-5 w-5" />
@@ -57,7 +57,7 @@ export function InfoButton() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           showCloseButton={true}
-          className="inset-0 translate-x-0 translate-y-0 top-0 left-0 h-dvh max-h-none w-screen max-w-none rounded-none overflow-y-auto flex flex-col"
+          className="inset-0 top-0 left-0 h-dvh w-screen max-h-none max-w-none translate-x-0 translate-y-0 rounded-none overflow-y-auto flex flex-col sm:inset-auto sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[min(80vh,48rem)] sm:w-[min(42rem,calc(100vw-2rem))] sm:max-w-[min(42rem,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
         >
           <DialogHeader>
             <DialogTitle>¿Cómo funciona?</DialogTitle>
@@ -72,7 +72,7 @@ export function InfoButton() {
                   href="https://en.wikipedia.org/wiki/Round-robin_tournament#Berger_tables"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-chart-4 font-medium underline underline-offset-2"
+                  className="text-accent font-medium underline underline-offset-2"
                 >
                   rueda de Berger
                 </a>

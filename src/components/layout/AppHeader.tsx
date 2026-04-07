@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Settings } from 'lucide-react'
 import { brand } from '@/lib/brand'
 
 export function AppHeader() {
@@ -11,13 +10,6 @@ export function AppHeader() {
           <span className="text-xs">{brand.topLabel}</span>
           <span className="-mt-1 text-lg">Round Robin</span>
         </span>
-      </Link>
-      <Link
-        to="/settings"
-        aria-label="Configuración"
-        className="hidden md:flex p-2 text-muted-foreground hover:text-foreground"
-      >
-        <Settings className="h-5 w-5" />
       </Link>
     </header>
   )

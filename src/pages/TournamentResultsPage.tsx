@@ -29,8 +29,8 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { useGesture } from "@use-gesture/react";
 import { AlertTriangle, ArrowLeft, Check, Trash, Trophy } from "lucide-react";
 import { useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("es-AR", {
@@ -140,7 +140,9 @@ export function TournamentResultsPage() {
 
   return (
     <div>
-      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <AppShell
         hasBottomAction
         mainProps={bind()}
@@ -176,7 +178,7 @@ export function TournamentResultsPage() {
           {hasPending && (
             <div className="flex items-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-3 text-foreground">
               <AlertTriangle className="h-4 w-4 shrink-0 text-primary" />
-              <p className="text-sm font-medium">
+              <p className="text-sm font-medium text-primary">
                 Quedaron partidas sin resultados cargados
               </p>
             </div>
@@ -190,10 +192,10 @@ export function TournamentResultsPage() {
                 {startDate}
               </Badge>
               <div className="flex flex-col items-end text-sm leading-tight">
-                <span className="font-medium text-foreground">
+                <span className="font-medium text-foreground text-xs">
                   Inicio {startTime}
                 </span>
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground text-xs">
                   Duración {duration}
                 </span>
               </div>

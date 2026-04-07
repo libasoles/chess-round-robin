@@ -8,6 +8,7 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { SharedRoundPage } from "@/pages/SharedRoundPage";
 import { SharedStandingsPage } from "@/pages/SharedStandingsPage";
 import { StandingsPage } from "@/pages/StandingsPage";
+import { ThemePage } from "@/pages/ThemePage";
 import { TournamentResultsPage } from "@/pages/TournamentResultsPage";
 import { TutorialPage } from "@/pages/TutorialPage";
 import { createBrowserRouter } from "react-router-dom";
@@ -24,9 +25,18 @@ export const router = createBrowserRouter([
       { path: "/tournament/:id/standings", element: <StandingsPage /> },
       { path: "/tournament/history/:id", element: <TournamentResultsPage /> },
       { path: "/tutorial", element: <TutorialPage /> },
+      { path: "/theme", element: <ThemePage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },
-  { path: "/t/:jazzId/round/:round", element: <SharedRoundPage />, errorElement: <RouteErrorPage /> },
-  { path: "/t/:jazzId/standings", element: <SharedStandingsPage />, errorElement: <RouteErrorPage /> },
+  {
+    path: "/t/:jazzId/round/:round",
+    element: <SharedRoundPage />,
+    errorElement: <RouteErrorPage />,
+  },
+  {
+    path: "/t/:jazzId/standings",
+    element: <SharedStandingsPage />,
+    errorElement: <RouteErrorPage />,
+  },
 ]);
