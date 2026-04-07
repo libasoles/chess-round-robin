@@ -79,6 +79,9 @@ interface TournamentState {
   setCurrentRound: (round: number) => void
   deleteRound: (round: number) => void
   createNewPhase: (selectedParticipantIds: string[]) => void
+  createNewPhaseWithGroups: (
+    groupedParticipants: Array<Array<{ id?: string; name: string }>>
+  ) => void
   finishTournament: (onFinish: (t: Tournament) => void) => void
   setJazzId: (tournamentId: string, jazzId: string) => void
 
@@ -248,6 +251,72 @@ export const useTournamentStore = create<TournamentState>()(
         })
 
         const newPhase: Phase = { index: activeTournament.phases.length, groups }
+        const firstNewRound = lastRound + 1
+
+        set((s) => {
+          if (!s.activeTournament) return s
+          return {
+            activeTournament: {
+              ...s.activeTournament,
+              phases: [...s.activeTournament.phases, newPhase],
+            },
+            currentRound: firstNewRound,
+          }
+        })
+
+        if (activeTournament.jazzId) {
+          addJazzPhase(activeTournament.jazzId, newPhase).catch((e) =>
+            console.warn('[jazz] addJazzPhase failed', e),
+          )
+        }
+      },
+
+      createNewPhaseWithGroups: (groupedParticipants) => {
+        const { activeTournament } = get()
+        if (!activeTournament) return
+
+        const lastRound = maxRoundAcrossPhases(activeTournament)
+
+        // Collect all non-bye participants from existing phases by id
+        const participantMap = new Map<string, { id: string; name: string; isBye: boolean }>()
+        for (const phase of activeTournament.phases) {
+          for (const group of phase.groups) {
+            for (const p of group.participants) {
+              if (!p.isBye) participantMap.set(p.id, p)
+            }
+          }
+        }
+
+        // Continue group naming from first unused GROUP_NAME
+        const usedNames = activeTournament.phases.flatMap((p) => p.groups.map((g) => g.name))
+        const firstUnusedIdx = GROUP_NAMES.findIndex((n) => !usedNames.includes(n))
+        const availableNames = GROUP_NAMES.slice(firstUnusedIdx >= 0 ? firstUnusedIdx : 0)
+
+        // Convert input format to Groups
+        const groups: Group[] = groupedParticipants.map((groupParticipants, idx) => {
+          const participants = groupParticipants.map((p) => {
+            if (p.id) {
+              const existing = participantMap.get(p.id)
+              if (existing) return existing
+            }
+            // New participant
+            return { id: generateId(), name: p.name, isBye: false }
+          })
+          const name = availableNames[idx] ?? `GROUP_${idx + 1}`
+          return { name, participants, matches: [] }
+        })
+
+        // Generate pairings with round offset
+        const groupsWithMatches: Group[] = groups.map((g): Group => {
+          const matches = generateRoundRobinPairings(g)
+          const offsetMatches: Match[] = matches.map((m): Match => ({
+            ...m,
+            round: m.round + lastRound,
+          }))
+          return { ...g, matches: offsetMatches }
+        })
+
+        const newPhase: Phase = { index: activeTournament.phases.length, groups: groupsWithMatches }
         const firstNewRound = lastRound + 1
 
         set((s) => {

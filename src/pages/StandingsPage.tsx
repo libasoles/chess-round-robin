@@ -4,6 +4,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { TopBarShareAction } from "@/components/layout/TopBarShareAction";
 import { ResultsOfficials } from "@/components/standings/ResultsOfficials";
 import { StandingsTable } from "@/components/standings/StandingsTable";
+import { NewPhaseModal } from "@/components/standings/NewPhaseModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -33,7 +34,6 @@ export function StandingsPage() {
   const {
     activeTournament,
     setCurrentRound,
-    createNewPhase,
     finishTournament,
   } = useTournamentStore();
   const { addToHistory } = useHistoryStore();
@@ -65,55 +65,18 @@ export function StandingsPage() {
     ),
   );
 
-  // Collect all participants across all phases for the advance selector
-  const allParticipants = new Map<string, string>();
-  for (const phase of phases) {
-    for (const group of phase.groups) {
-      for (const p of group.participants) {
-        if (!p.isBye) allParticipants.set(p.id, p.name);
-      }
-    }
-  }
-
-  const currentTournamentId = activeTournament?.id ?? null;
-  const [selectionState, setSelectionState] = useState<{
-    tournamentId: string | null;
-    hasCustomSelection: boolean;
-    ids: Set<string>;
-  }>({
-    tournamentId: currentTournamentId,
-    hasCustomSelection: false,
-    ids: new Set(),
-  });
-  const selectedIds =
-    selectionState.tournamentId === currentTournamentId &&
-    selectionState.hasCustomSelection
-      ? selectionState.ids
-      : new Set(allParticipants.keys());
-
-  function toggleSelect(id: string) {
-    setSelectionState((prev) => {
-      const isCurrentTournament = prev.tournamentId === currentTournamentId;
-      const base =
-        isCurrentTournament && prev.hasCustomSelection
-          ? prev.ids
-          : new Set(allParticipants.keys());
-
-      const next = new Set(base);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return {
-        tournamentId: currentTournamentId,
-        hasCustomSelection: true,
-        ids: next,
-      };
-    });
-  }
+  const [showNewPhaseModal, setShowNewPhaseModal] = useState(false);
 
   function handleNewPhase() {
-    if (!activeTournament) return;
-    createNewPhase([...selectedIds]);
-    const totalRounds = getTotalRounds(activeTournament.phases);
+    setShowNewPhaseModal(true);
+  }
+
+  function handleConfirmNewPhase(
+    grouped: Array<Array<{ id?: string; name: string }>>,
+  ) {
+    const store = useTournamentStore.getState();
+    store.createNewPhaseWithGroups(grouped);
+    const totalRounds = getTotalRounds(activeTournament!.phases);
     setCurrentRound(totalRounds + 1);
     navigate(`/tournament/${id}/round/${totalRounds + 1}`);
   }
@@ -123,6 +86,14 @@ export function StandingsPage() {
     finishTournament((finished) => {
       addToHistory(finished);
       // Add all participant names to the pool
+      const allParticipants = new Map<string, string>();
+      for (const phase of finished.phases) {
+        for (const group of phase.groups) {
+          for (const p of group.participants) {
+            if (!p.isBye) allParticipants.set(p.id, p.name);
+          }
+        }
+      }
       const names = [...allParticipants.values()];
       addToParticipantsPool(names);
     });
@@ -216,15 +187,7 @@ export function StandingsPage() {
                         </CardHeader>
                       )}
                       <CardContent>
-                        <StandingsTable
-                          group={group}
-                          settings={settings}
-                          showAdvanceSelector={
-                            useGroups && isActive && !hasPendingMatches
-                          }
-                          selectedIds={selectedIds}
-                          onToggleAdvance={toggleSelect}
-                        />
+                        <StandingsTable group={group} settings={settings} />
                       </CardContent>
                     </Card>
                   );
@@ -247,7 +210,6 @@ export function StandingsPage() {
                 variant="outline"
                 className="w-full h-12 text-base"
                 onClick={handleNewPhase}
-                disabled={selectedIds.size < 2}
               >
                 Nueva Fase
               </Button>
@@ -284,6 +246,15 @@ export function StandingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {activeTournament && (
+        <NewPhaseModal
+          open={showNewPhaseModal}
+          onOpenChange={setShowNewPhaseModal}
+          activeTournament={activeTournament}
+          onConfirm={handleConfirmNewPhase}
+        />
+      )}
     </div>
   );
 }

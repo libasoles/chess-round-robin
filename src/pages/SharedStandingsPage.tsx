@@ -137,7 +137,6 @@ export function SharedStandingsPage() {
                     <StandingsTable
                       group={group}
                       settings={settings}
-                      showAdvanceSelector={false}
                     />
                   </CardContent>
                 </Card>
