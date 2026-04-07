@@ -6,8 +6,15 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { ParticipantInput } from "@/components/tournament/ParticipantInput";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, GripVertical, AlertCircle, AlertTriangle } from "lucide-react";
+import {
+  X,
+  GripVertical,
+  AlertCircle,
+  AlertTriangle,
+  Plus,
+} from "lucide-react";
 import type {
+  DragCancelEvent,
   DragEndEvent,
   DragOverEvent,
   DragStartEvent,
@@ -47,6 +54,48 @@ type ModalGroup = {
 
 function genId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function cloneGroups(groups: ModalGroup[]): ModalGroup[] {
+  return groups.map((group) => ({
+    ...group,
+    participants: [...group.participants],
+  }));
+}
+
+function findParticipantLocation(groups: ModalGroup[], participantUid: string) {
+  for (let groupIdx = 0; groupIdx < groups.length; groupIdx++) {
+    const partIdx = groups[groupIdx].participants.findIndex(
+      (participant) => participant.uid === participantUid,
+    );
+    if (partIdx !== -1) {
+      return { groupIdx, partIdx };
+    }
+  }
+
+  return null;
+}
+
+function findDropTarget(groups: ModalGroup[], targetUid: string) {
+  for (let groupIdx = 0; groupIdx < groups.length; groupIdx++) {
+    const group = groups[groupIdx];
+
+    if (group.uid === targetUid) {
+      return {
+        groupIdx,
+        partIdx: Math.max(0, group.participants.length - 1),
+      };
+    }
+
+    const partIdx = group.participants
+      .slice(0, -1)
+      .findIndex((participant) => participant.uid === targetUid);
+    if (partIdx !== -1) {
+      return { groupIdx, partIdx };
+    }
+  }
+
+  return null;
 }
 
 interface SortableParticipantRowProps {
@@ -144,23 +193,22 @@ function SortableParticipantRow({
   );
 }
 
-function DroppableGroupContent({
-  groupUid,
-  children,
-  isActiveTarget,
-}: {
+function DroppableGroupContent({ children }: { children: React.ReactNode }) {
+  return <div className="space-y-2">{children}</div>;
+}
+
+interface DroppableGroupProps {
   groupUid: string;
   children: React.ReactNode;
-  isActiveTarget: boolean;
-}) {
-  const { setNodeRef, isOver } = useDroppable({ id: groupUid });
+}
+
+function DroppableGroup({ groupUid, children }: DroppableGroupProps) {
+  const { isOver, setNodeRef } = useDroppable({ id: groupUid });
   return (
     <div
       ref={setNodeRef}
-      className={`space-y-2 bg-card rounded-lg border p-3 transition-all ${
-        isActiveTarget || isOver
-          ? "border-primary/60 ring-2 ring-primary/30 bg-primary/8"
-          : "border-border"
+      className={`space-y-2 rounded-md transition-colors ${
+        isOver ? "bg-primary/5" : ""
       }`}
     >
       {children}
@@ -188,9 +236,7 @@ export function NewPhaseModal({
   const [activeParticipantId, setActiveParticipantId] = useState<string | null>(
     null,
   );
-  const [activeOverGroupId, setActiveOverGroupId] = useState<string | null>(
-    null,
-  );
+  const dragSnapshotRef = useRef<ModalGroup[] | null>(null);
   const toastTimeoutsRef = useRef<number[]>([]);
 
   const sensors = useSensors(
@@ -381,89 +427,87 @@ export function NewPhaseModal({
   }
 
   function handleDragStart(event: DragStartEvent) {
+    dragSnapshotRef.current = cloneGroups(groups);
     setActiveParticipantId(event.active.id as string);
   }
 
   function handleDragOver(event: DragOverEvent) {
-    const { over } = event;
-    if (!over) {
-      setActiveOverGroupId(null);
-      return;
-    }
-    // Check if over.id is a group uid
-    const overGroupId = groups.find((g) => g.uid === over.id)?.uid || null;
-    setActiveOverGroupId(overGroupId);
-  }
-
-  function handleDragEnd(event: DragEndEvent) {
-    setActiveParticipantId(null);
-    setActiveOverGroupId(null);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    // Find source group
-    let sourceGroupIdx = -1;
-    let sourcePartIdx = -1;
-    for (let gi = 0; gi < groups.length; gi++) {
-      for (let pi = 0; pi < groups[gi].participants.length; pi++) {
-        if (groups[gi].participants[pi].uid === active.id) {
-          sourceGroupIdx = gi;
-          sourcePartIdx = pi;
-        }
-      }
-    }
-    if (sourceGroupIdx === -1) return;
-
-    // Find destination: could be a participant uid OR a group uid (for empty space drops)
-    let destGroupIdx = -1;
-    let destPartIdx = -1;
-    for (let gi = 0; gi < groups.length; gi++) {
-      // Check if over.id is a group uid
-      if (groups[gi].uid === over.id) {
-        destGroupIdx = gi;
-        destPartIdx = groups[gi].participants.length; // append to end
-        break;
-      }
-      // Check if over.id is a participant uid
-      for (let pi = 0; pi < groups[gi].participants.length; pi++) {
-        if (groups[gi].participants[pi].uid === over.id) {
-          destGroupIdx = gi;
-          destPartIdx = pi;
-        }
-      }
-    }
-    if (destGroupIdx === -1) return;
-
-    // Move participant
     setGroups((prev) => {
-      const next = prev.map((g) => ({
-        ...g,
-        participants: [...g.participants],
-      }));
+      const source = findParticipantLocation(prev, String(active.id));
+      const destination = findDropTarget(prev, String(over.id));
+      if (!source || !destination || source.groupIdx === destination.groupIdx) {
+        return prev;
+      }
 
-      const participant = next[sourceGroupIdx].participants[sourcePartIdx];
+      const next = cloneGroups(prev);
+      const participant = next[source.groupIdx].participants[source.partIdx];
       if (!participant) return prev;
 
-      if (sourceGroupIdx === destGroupIdx) {
-        // Same group: use arrayMove for correct reordering
-        next[sourceGroupIdx].participants = arrayMove(
-          next[sourceGroupIdx].participants,
-          sourcePartIdx,
-          destPartIdx,
-        );
-      } else {
-        // Cross-group: remove from source, insert into destination
-        next[sourceGroupIdx].participants.splice(sourcePartIdx, 1);
-        // Clamp destPartIdx to valid range
-        const clampedDest = Math.min(
-          destPartIdx,
-          next[destGroupIdx].participants.length,
-        );
-        next[destGroupIdx].participants.splice(clampedDest, 0, participant);
-      }
+      next[source.groupIdx].participants.splice(source.partIdx, 1);
+
+      const targetInsertIndex = Math.min(
+        destination.partIdx,
+        Math.max(0, next[destination.groupIdx].participants.length - 1),
+      );
+      next[destination.groupIdx].participants.splice(
+        targetInsertIndex,
+        0,
+        participant,
+      );
 
       return next;
     });
+  }
+
+  function finishDrag() {
+    dragSnapshotRef.current = null;
+    setActiveParticipantId(null);
+  }
+
+  function handleDragCancel(_: DragCancelEvent) {
+    if (dragSnapshotRef.current) {
+      setGroups(cloneGroups(dragSnapshotRef.current));
+    }
+    finishDrag();
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over) {
+      if (dragSnapshotRef.current) {
+        setGroups(cloneGroups(dragSnapshotRef.current));
+      }
+      finishDrag();
+      return;
+    }
+
+    if (active.id === over.id) {
+      finishDrag();
+      return;
+    }
+
+    setGroups((prev) => {
+      const source = findParticipantLocation(prev, String(active.id));
+      const destination = findDropTarget(prev, String(over.id));
+      if (!source || !destination) return prev;
+      if (source.groupIdx !== destination.groupIdx) return prev;
+
+      if (source.partIdx === destination.partIdx) return prev;
+
+      const next = cloneGroups(prev);
+      next[source.groupIdx].participants = arrayMove(
+        next[source.groupIdx].participants,
+        source.partIdx,
+        destination.partIdx,
+      );
+      return next;
+    });
+
+    finishDrag();
   }
 
   function showValidationToasts(messages: string[]) {
@@ -552,6 +596,7 @@ export function NewPhaseModal({
               collisionDetection={closestCorners}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
+              onDragCancel={handleDragCancel}
               onDragEnd={handleDragEnd}
             >
               {groups.map((group, groupIdx) => {
@@ -559,10 +604,6 @@ export function NewPhaseModal({
                   (p) => p.name.trim().length > 0,
                 );
                 const canRemoveGroup = filledParticipants.length === 0;
-                // Exclude submit row (last item) from draggable items
-                const draggableUids = group.participants
-                  .slice(0, -1)
-                  .map((p) => p.uid);
 
                 const titleColorClass =
                   filledParticipants.length > 0 && filledParticipants.length < 2
@@ -591,72 +632,105 @@ export function NewPhaseModal({
                       )}
                     </div>
 
-                    <DroppableGroupContent
-                      groupUid={group.uid}
-                      isActiveTarget={activeOverGroupId === group.uid}
-                    >
-                      <SortableContext
-                        items={draggableUids}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        {group.participants.map((p, partIdx) => {
-                          const isSubmitRow =
-                            partIdx === group.participants.length - 1;
-                          return (
-                            <SortableParticipantRow
-                              key={p.uid}
-                              participant={p}
-                              onChange={(v) =>
-                                updateParticipantInGroup(groupIdx, partIdx, v)
-                              }
-                              onRemove={() =>
-                                removeParticipantFromGroup(groupIdx, partIdx)
-                              }
-                              suggestions={suggestions}
-                              canRemove={
-                                group.participants.length > 1 && !isSubmitRow
-                              }
-                              autoFocus={p.uid === pendingFocusId}
-                              onAutoFocusHandled={() => setPendingFocusId(null)}
-                              submitMode={isSubmitRow}
-                              onSubmit={
-                                isSubmitRow
-                                  ? (nextValue) =>
-                                      addParticipantToGroup(groupIdx, nextValue)
-                                  : undefined
-                              }
-                              submitDisabled={!p.name.trim()}
-                              handleDisabled={
-                                isSubmitRow &&
-                                group.participants.filter((p) => p.name.trim())
-                                  .length === 0
-                              }
-                            />
-                          );
-                        })}
-                      </SortableContext>
-                    </DroppableGroupContent>
+                    <div className="space-y-2 bg-card rounded-lg border border-border p-3">
+                      <DroppableGroup groupUid={group.uid}>
+                        <SortableContext
+                          items={group.participants
+                            .slice(0, -1)
+                            .map((p) => p.uid)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          <DroppableGroupContent>
+                            {group.participants
+                              .slice(0, -1)
+                              .map((p, partIdx) => (
+                                <SortableParticipantRow
+                                  key={p.uid}
+                                  participant={p}
+                                  onChange={(v) =>
+                                    updateParticipantInGroup(
+                                      groupIdx,
+                                      partIdx,
+                                      v,
+                                    )
+                                  }
+                                  onRemove={() =>
+                                    removeParticipantFromGroup(
+                                      groupIdx,
+                                      partIdx,
+                                    )
+                                  }
+                                  suggestions={suggestions}
+                                  canRemove={group.participants.length > 1}
+                                  autoFocus={p.uid === pendingFocusId}
+                                  onAutoFocusHandled={() =>
+                                    setPendingFocusId(null)
+                                  }
+                                  submitMode={false}
+                                />
+                              ))}
+                          </DroppableGroupContent>
+                        </SortableContext>
+                      </DroppableGroup>
 
-                    {filledParticipants.length > 0 &&
-                      filledParticipants.length < 2 && (
-                        <div className="rounded-md bg-destructive/10 border border-destructive/30 px-3 py-2 flex items-center gap-2 text-xs text-destructive">
-                          <AlertCircle className="h-4 w-4 shrink-0" />
+                      {(() => {
+                        const submitRow =
+                          group.participants[group.participants.length - 1];
+                        const filledCount = group.participants.filter((p) =>
+                          p.name.trim(),
+                        ).length;
+                        return (
+                          <SortableParticipantRow
+                            key={submitRow.uid}
+                            participant={submitRow}
+                            onChange={(v) =>
+                              updateParticipantInGroup(
+                                groupIdx,
+                                group.participants.length - 1,
+                                v,
+                              )
+                            }
+                            onRemove={() =>
+                              removeParticipantFromGroup(
+                                groupIdx,
+                                group.participants.length - 1,
+                              )
+                            }
+                            suggestions={suggestions}
+                            canRemove={false}
+                            autoFocus={submitRow.uid === pendingFocusId}
+                            onAutoFocusHandled={() => setPendingFocusId(null)}
+                            submitMode={true}
+                            onSubmit={(nextValue) =>
+                              addParticipantToGroup(groupIdx, nextValue)
+                            }
+                            submitDisabled={!submitRow.name.trim()}
+                            handleDisabled={filledCount === 0}
+                          />
+                        );
+                      })()}
+
+                      {filledParticipants.length > 0 &&
+                        filledParticipants.length < 2 && (
+                          <div className="rounded-md bg-destructive/10 border border-destructive/30 px-3 py-2 flex items-center gap-2 text-sm text-destructive">
+                            <AlertCircle className="h-4 w-4 shrink-0" />
+                            <span>
+                              Este grupo debe tener al menos 2 participantes
+                              para confirmar.
+                            </span>
+                          </div>
+                        )}
+
+                      {filledParticipants.length > 4 && (
+                        <div className="rounded-md bg-secondary/10 border border-secondary/30 px-3 py-2 flex items-center gap-2 text-sm text-secondary">
+                          <AlertTriangle className="h-4 w-4 shrink-0" />
                           <span>
-                            Este grupo debe tener al menos 2 participantes para
-                            confirmar.
+                            Este grupo tiene {filledParticipants.length}{" "}
+                            participantes. Se recomienda máximo 4.
                           </span>
                         </div>
                       )}
-
-                    {filledParticipants.length > 4 && (
-                      <div className="rounded-md bg-secondary/10 border border-secondary/30 px-3 py-2 flex items-center gap-2 text-xs text-secondary">
-                        <AlertTriangle className="h-4 w-4 shrink-0" />
-                        <span>
-                          Este grupo tiene {filledParticipants.length}{" "}
-                          participantes. Se recomienda máximo 4.
-                        </span>
-                      </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}
@@ -682,13 +756,15 @@ export function NewPhaseModal({
               </DragOverlay>
             </DndContext>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={addNewGroup}
-              className="w-full py-2 px-3 rounded-lg border border-dashed border-border hover:border-primary hover:bg-primary/5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="mb-3 h-auto w-full justify-start gap-2 py-0 text-muted-foreground hover:text-foreground"
             >
-              + Nuevo Grupo
-            </button>
+              <Plus className="h-5 w-5" />
+              <span>Agregar Grupo</span>
+            </Button>
           </div>
 
           <div className="sticky bottom-0 z-20 border-t border-border bg-muted/50 px-4 py-3 sm:py-4 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end shrink-0">
