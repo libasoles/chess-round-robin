@@ -142,16 +142,17 @@ export function RoundPage() {
             title={title}
             left={
               <div className="flex items-center -ml-2">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground hover:text-destructive"
-                  aria-label="Eliminar ronda"
-                  disabled={!canDeleteRound}
-                  onClick={() => setIsDeleteDialogOpen(true)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                {canDeleteRound && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-muted-foreground hover:text-destructive"
+                    aria-label="Eliminar ronda"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             }
             right={

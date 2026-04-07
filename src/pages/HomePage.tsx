@@ -128,6 +128,7 @@ export function HomePage() {
         <div className="max-w-lg mx-auto">
           <Button
             className="w-full h-12 text-base"
+            disabled={Boolean(activeTournament)}
             onClick={() => navigate("/tournament/new")}
           >
             Nuevo Torneo
