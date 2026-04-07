@@ -435,7 +435,7 @@ export function NewPhaseModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="fixed inset-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-sm sm:max-h-[90vh] rounded-none sm:rounded-xl flex flex-col p-0 gap-0 overflow-hidden"
+          className="inset-0! sm:inset-auto! sm:top-1/2! sm:left-1/2! sm:-translate-x-1/2! sm:-translate-y-1/2! sm:max-w-sm! sm:max-h-[90vh]! rounded-none! sm:rounded-xl! flex! flex-col! p-0! gap-0! overflow-hidden!"
         >
           <div className="sticky top-0 z-20 border-b border-border bg-popover px-4 py-3 sm:py-4 flex flex-row items-center justify-between gap-2 shrink-0">
             <DialogTitle className="text-base sm:text-lg">Nueva Fase</DialogTitle>
