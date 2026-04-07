@@ -10,6 +10,7 @@
 
 const BRAND = import.meta.env.VITE_BRAND ?? "default";
 const PREFIX = BRAND === "default" ? "" : `/brand/${BRAND}`;
+const SITE_URL = (import.meta.env.VITE_BRAND_URL ?? "").replace(/\/+$/, "");
 
 const brandNames = {
   default: "Round Robin",
@@ -60,4 +61,21 @@ export const brand = {
 
   /** Favicon path */
   faviconPath: `${PREFIX}/favicon.png`,
+
+  /** Public canonical site URL for this brand */
+  siteUrl: SITE_URL,
 };
+
+export function buildBrandUrl(pathname = "/") {
+  const normalizedPath = pathname.startsWith("/") ? pathname : `/${pathname}`;
+
+  if (brand.siteUrl) {
+    return `${brand.siteUrl}${normalizedPath}`;
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}${normalizedPath}`;
+  }
+
+  return normalizedPath;
+}

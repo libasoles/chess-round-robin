@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Share2, Check, Copy } from 'lucide-react'
+import { buildBrandUrl } from '@/lib/brand'
 
 interface TopBarShareActionProps {
   jazzId?: string
@@ -12,7 +13,7 @@ export function TopBarShareAction({ jazzId, currentRound, className }: TopBarSha
 
   if (!jazzId) return null
 
-  const shareUrl = `${window.location.origin}/t/${jazzId}/round/${currentRound ?? 1}`
+  const shareUrl = buildBrandUrl(`/t/${jazzId}/round/${currentRound ?? 1}`)
   const canShare = typeof navigator.share !== 'undefined'
 
   function handleShare() {

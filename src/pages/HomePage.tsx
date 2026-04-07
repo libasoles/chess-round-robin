@@ -6,6 +6,7 @@ import { BottomAction } from "@/components/layout/BottomAction";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { getTotalRounds, isRoundComplete } from "@/hooks/useCurrentRound";
+import { buildBrandUrl } from "@/lib/brand";
 import { useHistoryStore } from "@/store/historyStore";
 import { useTournamentStore } from "@/store/tournamentStore";
 import { ArrowRight, Play, Settings } from "lucide-react";
@@ -39,7 +40,7 @@ export function HomePage() {
     name: "Torneos de Ajedrez Round Robin",
     applicationCategory: "SportsApplication",
     operatingSystem: "Web",
-    url: "https://ajedrezroundrobin.com.ar/",
+    url: buildBrandUrl("/"),
     description:
       "Creá y gestioná torneos de ajedrez round robin. Fixture automático, tabla de posiciones y desempate. Gratis.",
     inLanguage: "es-AR",
@@ -58,7 +59,7 @@ export function HomePage() {
           name="description"
           content="Creá y gestioná torneos de ajedrez round robin. Fixture automático, tabla de posiciones y desempate. Gratis."
         />
-        <link rel="canonical" href="https://ajedrezroundrobin.com.ar/" />
+        <link rel="canonical" href={buildBrandUrl("/")} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
       <AppShell
