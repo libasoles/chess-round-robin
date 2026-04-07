@@ -67,7 +67,7 @@ export default defineConfig({
       ],
       manifest: {
         name: "Torneo Round Robin",
-        short_name: "Torneo Round Robin",
+        short_name: "Round Robin",
         description: "Gestión de torneos de ajedrez round robin",
         theme_color: "#3b5bdb",
         background_color: "#ffffff",
