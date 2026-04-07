@@ -46,6 +46,10 @@ type ModalGroup = {
   isUserCreated: boolean;
 };
 
+function toParticipantNameKey(name: string): string {
+  return normalizeName(name).toLowerCase();
+}
+
 function genId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
@@ -386,6 +390,18 @@ export function NewPhaseModal({
       const normalized = normalizeName(nextValue ?? lastParticipant.name ?? "");
       if (!normalized) return prev;
 
+      const duplicateExists = prev.some((currentGroup) =>
+        currentGroup.participants.some(
+          (participant) =>
+            participant.uid !== lastParticipant.uid &&
+            toParticipantNameKey(participant.name) === toParticipantNameKey(normalized),
+        ),
+      );
+      if (duplicateExists) {
+        showValidationToasts([`El participante "${normalized}" ya existe`]);
+        return prev;
+      }
+
       const newUid = genId();
       const participants = [...group.participants];
       // Update the last (submit) row with the normalized name
@@ -548,6 +564,28 @@ export function NewPhaseModal({
 
     if (groupsWithTooFew.length > 0) {
       showValidationToasts(["Cada grupo debe tener al menos 2 participantes"]);
+      return;
+    }
+
+    const seenNames = new Set<string>();
+    const duplicateNames = new Set<string>();
+    for (const group of nonEmptyGroups) {
+      for (const participant of group.participants) {
+        if (!participant.name.trim()) continue;
+        const normalized = normalizeName(participant.name);
+        const key = toParticipantNameKey(normalized);
+        if (seenNames.has(key)) {
+          duplicateNames.add(normalized);
+          continue;
+        }
+        seenNames.add(key);
+      }
+    }
+
+    if (duplicateNames.size > 0) {
+      showValidationToasts([
+        `Nombres de participantes duplicados: ${[...duplicateNames].join(", ")}`,
+      ]);
       return;
     }
 

@@ -53,6 +53,10 @@ type ValidationToast = {
 
 type ParticipantRow = { id: string; name: string };
 
+function toParticipantNameKey(name: string): string {
+  return normalizeName(name).toLowerCase();
+}
+
 function genId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
@@ -271,6 +275,16 @@ export function NewTournamentPage() {
     if (!lastRow) return;
     const normalized = normalizeName(nextValue ?? lastRow.name ?? "");
     if (!normalized) return;
+
+    const duplicateExists = participants.some(
+      (participant) =>
+        participant.id !== lastRow.id &&
+        toParticipantNameKey(participant.name) === toParticipantNameKey(normalized),
+    );
+    if (duplicateExists) {
+      showValidationToasts([`El participante "${normalized}" ya existe`]);
+      return;
+    }
 
     const newId = genId();
     setParticipants((prev) => {
