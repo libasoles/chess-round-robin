@@ -6,7 +6,7 @@ export const BYE_PARTICIPANT: Participant = {
   isBye: true,
 }
 
-export const GROUP_NAMES = ['ALFA', 'BETA', 'GAMMA', 'DELTA', 'EPSILON', 'ZETA'] as const
+export const GROUP_NAMES = ['ALFA', 'BETA', 'GAMMA', 'DELTA', 'EPSILON', 'ZETA', 'ETA', 'THETA', 'IOTA', 'KAPPA', 'LAMBDA', 'MU', 'NU', 'XI', 'OMICRON', 'PI', 'RHO', 'SIGMA', 'TAU', 'UPSILON', 'PHI', 'JI', 'PSI', 'OMEGA'] as const
 
 /**
  * Capitalize the first letter of each word; lowercase all other letters.

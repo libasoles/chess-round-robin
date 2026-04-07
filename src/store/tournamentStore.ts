@@ -168,8 +168,10 @@ export const useTournamentStore = create<TournamentState>()(
               matches: group.matches
                 .filter((m) => m.round !== round)
                 .map((m): Match => (m.round > round ? { ...m, round: m.round - 1 } : m)),
-            })),
+            }))
+            .filter((group) => group.matches.length > 0),
           }))
+          .filter((phase) => phase.groups.length > 0)
 
           const nextCurrentRound =
             s.currentRound > round
