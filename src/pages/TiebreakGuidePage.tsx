@@ -1,7 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
@@ -9,17 +9,14 @@ import {
   ChevronRight,
   Crown,
   Handshake,
-  Swords,
   Trophy,
-  Users,
-  Zap,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function SectionNumber({ n }: { n: number }) {
+function SectionNumber({ n }: { n: number | string }) {
   return (
     <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
       {n}
@@ -31,7 +28,7 @@ function SectionHeading({
   n,
   children,
 }: {
-  n: number;
+  n: string;
   children: React.ReactNode;
 }) {
   return (
