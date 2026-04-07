@@ -7,8 +7,6 @@ import { ParticipantInput } from '@/components/tournament/ParticipantInput'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -437,10 +435,10 @@ export function NewPhaseModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden"
+          className="fixed inset-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-sm sm:max-h-[90vh] rounded-none sm:rounded-xl flex flex-col p-0 gap-0 overflow-hidden"
         >
-          <DialogHeader className="sticky top-0 z-10 border-b border-border bg-popover px-4 py-4 flex flex-row items-center justify-between gap-2">
-            <DialogTitle>Nueva Fase</DialogTitle>
+          <div className="sticky top-0 z-20 border-b border-border bg-popover px-4 py-3 sm:py-4 flex flex-row items-center justify-between gap-2 shrink-0">
+            <DialogTitle className="text-base sm:text-lg">Nueva Fase</DialogTitle>
             <button
               type="button"
               onClick={() => onOpenChange(false)}
@@ -449,9 +447,9 @@ export function NewPhaseModal({
             >
               <X className="h-5 w-5" />
             </button>
-          </DialogHeader>
+          </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-4 sm:py-6 space-y-6">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCorners}
@@ -555,18 +553,18 @@ export function NewPhaseModal({
             </button>
           </div>
 
-          <DialogFooter className="border-t border-border bg-muted/50 px-4 py-4">
+          <div className="sticky bottom-0 z-20 border-t border-border bg-muted/50 px-4 py-3 sm:py-4 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end shrink-0">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto h-11 sm:h-9"
             >
               Cancelar
             </Button>
-            <Button onClick={handleConfirm} className="w-full sm:w-auto">
+            <Button onClick={handleConfirm} className="w-full sm:w-auto h-11 sm:h-9">
               Confirmar
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
