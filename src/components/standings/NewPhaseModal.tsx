@@ -6,13 +6,7 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { ParticipantInput } from "@/components/tournament/ParticipantInput";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  X,
-  GripVertical,
-  AlertCircle,
-  AlertTriangle,
-  Plus,
-} from "lucide-react";
+import { X, GripVertical, Plus } from "lucide-react";
 import type {
   DragCancelEvent,
   DragEndEvent,
@@ -364,18 +358,20 @@ export function NewPhaseModal({
       const next = [...prev];
       const group = next[groupIdx];
       if (!group) return prev;
-      group.participants = group.participants.filter((_, i) => i !== partIdx);
+
+      const participants = group.participants.filter((_, i) => i !== partIdx);
 
       // Ensure there's always an empty submit row at the end
-      const lastParticipant = group.participants[group.participants.length - 1];
+      const lastParticipant = participants[participants.length - 1];
       if (!lastParticipant || lastParticipant.name.trim().length > 0) {
-        group.participants.push({
+        participants.push({
           uid: genId(),
           existingId: undefined,
           name: "",
         });
       }
 
+      next[groupIdx] = { ...group, participants };
       return next;
     });
   }
@@ -713,7 +709,6 @@ export function NewPhaseModal({
                       {filledParticipants.length > 0 &&
                         filledParticipants.length < 2 && (
                           <div className="rounded-md bg-destructive/10 border border-destructive/30 px-3 py-2 flex items-center gap-2 text-sm text-destructive">
-                            <AlertCircle className="h-4 w-4 shrink-0" />
                             <span>
                               Este grupo debe tener al menos 2 participantes
                               para confirmar.
@@ -723,7 +718,6 @@ export function NewPhaseModal({
 
                       {filledParticipants.length > 4 && (
                         <div className="rounded-md bg-secondary/10 border border-secondary/30 px-3 py-2 flex items-center gap-2 text-sm text-secondary">
-                          <AlertTriangle className="h-4 w-4 shrink-0" />
                           <span>
                             Este grupo tiene {filledParticipants.length}{" "}
                             participantes. Se recomienda máximo 4.

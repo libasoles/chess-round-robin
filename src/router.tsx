@@ -9,6 +9,7 @@ import { SharedRoundPage } from "@/pages/SharedRoundPage";
 import { SharedStandingsPage } from "@/pages/SharedStandingsPage";
 import { StandingsPage } from "@/pages/StandingsPage";
 import { ThemePage } from "@/pages/ThemePage";
+import { TiebreakGuidePage } from "@/pages/TiebreakGuidePage";
 import { TournamentResultsPage } from "@/pages/TournamentResultsPage";
 import { TutorialPage } from "@/pages/TutorialPage";
 import { createBrowserRouter } from "react-router-dom";
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
       { path: "/tournament/:id/standings", element: <StandingsPage /> },
       { path: "/tournament/history/:id", element: <TournamentResultsPage /> },
       { path: "/tutorial", element: <TutorialPage /> },
+      { path: "/guia-desempates", element: <TiebreakGuidePage /> },
       { path: "/theme", element: <ThemePage /> },
       { path: "*", element: <NotFoundPage /> },
     ],

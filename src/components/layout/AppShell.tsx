@@ -24,8 +24,14 @@ export function AppShell({ topBar, children, hasBottomAction, mainProps }: AppSh
       <main
         ref={mainRef}
         {...mainProps}
-        className={`flex-1 overflow-y-auto px-4 py-4 ${hasBottomAction ? 'pb-36' : ''}`}
-        style={{ touchAction: 'pan-y', ...mainProps?.style }}
+        className="flex-1 overflow-y-auto px-4 py-4"
+        style={{
+          touchAction: 'pan-y',
+          paddingBottom: hasBottomAction
+            ? 'calc(var(--bottom-action-height, 0px) + 1rem)'
+            : undefined,
+          ...mainProps?.style,
+        }}
       >
         {children}
       </main>
