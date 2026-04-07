@@ -135,9 +135,9 @@ function generateDetailedReport(): DetailedReport[] {
       const reportGroups = groups.map((group) => {
         const nameMap = new Map(group.participants.map((p) => [p.id, p.name]))
 
-        // Match display
+        // Match display (includes auto_bye to show complete picture)
         const matchDisplay = group.matches
-          .filter((m) => m.result !== null && m.result !== 'auto_bye')
+          .filter((m) => m.result !== null)
           .sort((a, b) => a.round - b.round)
           .map((m) => ({
             round: m.round,
