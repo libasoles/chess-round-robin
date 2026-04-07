@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "brand:generate": "npx tsx scripts/generateBrandAssets.ts",
+    "pdf:generate": "npx tsx scripts/generatePdf.ts",
     "tucuchess": "git checkout tucuchess && git rebase main; s=$?; git checkout main; exit $s"
   },
   "dependencies": {
@@ -55,6 +56,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "puppeteer": "^24.40.0",
     "sharp": "^0.33.5",
     "to-ico": "^1.1.5",
     "typescript": "~5.9.3",
