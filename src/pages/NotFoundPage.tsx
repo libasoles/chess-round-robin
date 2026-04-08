@@ -13,9 +13,9 @@ export function NotFoundPage() {
           loading="lazy"
         />
         <p className="empty-history-text text-muted-foreground text-base md:text-lg">
-          No encontramos el torneo.
+          No encontramos esta página.
           <br />
-          Quizás fue borrado.
+          Revisa el enlace o vuelve al inicio.
         </p>
       </div>
     </AppShell>

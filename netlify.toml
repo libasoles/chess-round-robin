@@ -4,8 +4,69 @@
   command = "npm run build"
   publish = "dist"
 
-# SPA routing: redirect all non-matching routes to index.html
+# Preserve SEO/static assets ahead of the SPA fallback.
 [[redirects]]
-  from = "/*"
+  from = "/sitemap.xml"
+  to = "/sitemap.xml"
+  status = 200
+
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+
+# Rewrite only known SPA routes. Unknown paths will fall through to 404.html.
+[[redirects]]
+  from = "/settings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tournament/new"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tournament/:id/round/:round"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tournament/:id/standings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tournament/history/:id"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/guias"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tutorial"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/guia-desempates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/theme"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/t/:jazzId/round/:round"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/t/:jazzId/standings"
   to = "/index.html"
   status = 200
