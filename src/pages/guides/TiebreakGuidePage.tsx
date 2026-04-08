@@ -28,7 +28,7 @@ function SectionHeading({
   n,
   children,
 }: {
-  n: string;
+  n: string | number;
   children: React.ReactNode;
 }) {
   return (
