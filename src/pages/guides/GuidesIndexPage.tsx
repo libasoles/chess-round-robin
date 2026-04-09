@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
+import { buildBrandUrl } from "@/lib/brand";
 import { ArrowLeft, BookOpen, ChevronRight, Trophy } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
@@ -30,6 +31,7 @@ export function GuidesIndexPage() {
           name="description"
           content="Guías y tutoriales para organizar torneos de ajedrez round robin."
         />
+        <link rel="canonical" href={buildBrandUrl("/guias")} />
       </Helmet>
 
       <AppShell
