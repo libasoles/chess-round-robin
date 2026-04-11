@@ -15,7 +15,7 @@ import { jazzTournamentToDomain } from "@/lib/jazzConvert";
 import { useGesture } from "@use-gesture/react";
 import { useCoState } from "jazz-tools/react";
 import { Check } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
@@ -45,14 +45,20 @@ export function SharedRoundPage() {
 
   // Keep the last valid conversion so live updates never flash to "loading/unavailable"
   // while Jazz briefly re-resolves nested CoValues after a mutation.
-  const lastValidRef = useRef<Tournament | null>(null);
+  const [lastValidTournament, setLastValidTournament] =
+    useState<Tournament | null>(null);
   const rawTournament = jazzTournamentToDomain(jazzTournament);
-  if (rawTournament !== null) lastValidRef.current = rawTournament;
-  const tournament = lastValidRef.current;
+  useEffect(() => {
+    if (rawTournament !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Keep the last resolved tournament while Jazz briefly re-resolves nested values.
+      setLastValidTournament(rawTournament);
+    }
+  }, [rawTournament]);
+  const tournament = rawTournament ?? lastValidTournament;
 
   const bind = useGesture({
     onDrag: ({ swipe: [swipeX] }) => {
-      const t = lastValidRef.current;
+      const t = rawTournament ?? lastValidTournament;
       if (!t) return;
       const total = getTotalRounds(t.phases);
       if (swipeX === -1) {

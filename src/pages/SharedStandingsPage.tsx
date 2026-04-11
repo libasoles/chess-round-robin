@@ -10,7 +10,7 @@ import { jazzTournamentToDomain } from "@/lib/jazzConvert";
 import { useGesture } from "@use-gesture/react";
 import { useCoState } from "jazz-tools/react";
 import { ArrowLeft, Hourglass } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
@@ -36,14 +36,20 @@ export function SharedStandingsPage() {
 
   // Keep the last valid conversion so live updates never flash to "loading/unavailable"
   // while Jazz briefly re-resolves nested CoValues after a mutation.
-  const lastValidRef = useRef<Tournament | null>(null);
+  const [lastValidTournament, setLastValidTournament] =
+    useState<Tournament | null>(null);
   const rawTournament = jazzTournamentToDomain(jazzTournament);
-  if (rawTournament !== null) lastValidRef.current = rawTournament;
-  const tournament = lastValidRef.current;
+  useEffect(() => {
+    if (rawTournament !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Keep the last resolved tournament while Jazz briefly re-resolves nested values.
+      setLastValidTournament(rawTournament);
+    }
+  }, [rawTournament]);
+  const tournament = rawTournament ?? lastValidTournament;
 
   const bind = useGesture({
     onDrag: ({ swipe: [swipeX] }) => {
-      const t = lastValidRef.current;
+      const t = rawTournament ?? lastValidTournament;
       if (!t || swipeX !== 1) return;
       navigate(`/t/${jazzId}/round/${getTotalRounds(t.phases)}`);
     },
@@ -71,6 +77,7 @@ export function SharedStandingsPage() {
 
   const { settings, phases } = tournament;
   const lastRound = getTotalRounds(phases);
+  const isActive = tournament.status === "active";
   const hasPendingMatches = phases.some((phase) =>
     phase.groups.some((group) =>
       group.matches.some((match) => match.result == null),
@@ -97,12 +104,12 @@ export function SharedStandingsPage() {
             </button>
           }
           title={hasPendingMatches ? "Resultados provisorios" : "Resultados"}
-          right={
+          right={isActive ? (
             <span className="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400 pr-1">
               <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
               En vivo
             </span>
-          }
+          ) : undefined}
         />
       }
     >
