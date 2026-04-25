@@ -19,7 +19,7 @@ import { useHistoryStore } from "@/store/historyStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTournamentStore } from "@/store/tournamentStore";
 import { useGesture } from "@use-gesture/react";
-import { ArrowLeft, Hourglass } from "lucide-react";
+import { ArrowLeft, Hourglass, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams } from "react-router-dom";
@@ -144,10 +144,20 @@ export function StandingsPage() {
             }
             title={hasPendingMatches ? "Resultados provisorios" : "Resultados"}
             right={
-              <TopBarShareAction
-                jazzId={activeTournament.jazzId}
-                currentRound={getTotalRounds(activeTournament.phases)}
-              />
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/tournament/${id}/settings`)}
+                  className="p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Configuración"
+                >
+                  <Settings className="h-5 w-5" />
+                </button>
+                <TopBarShareAction
+                  jazzId={activeTournament.jazzId}
+                  currentRound={getTotalRounds(activeTournament.phases)}
+                />
+              </div>
             }
           />
         }

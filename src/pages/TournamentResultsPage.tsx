@@ -27,7 +27,7 @@ import {
 import { useHistoryStore } from "@/store/historyStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useGesture } from "@use-gesture/react";
-import { AlertTriangle, ArrowLeft, Check, Trash, Trophy } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, Settings, Trash, Trophy } from "lucide-react";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -164,12 +164,24 @@ export function TournamentResultsPage() {
                 : `Resultados Ronda ${currentRound}`
             }
             right={
-              canShareTournament ? (
-                <TopBarShareAction
-                  jazzId={tournament.jazzId}
-                  currentRound={currentRound ?? totalRounds}
-                />
-              ) : null
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(`/tournament/history/${id}/settings`)
+                  }
+                  className="p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Configuración"
+                >
+                  <Settings className="h-5 w-5" />
+                </button>
+                {canShareTournament && (
+                  <TopBarShareAction
+                    jazzId={tournament.jazzId}
+                    currentRound={currentRound ?? totalRounds}
+                  />
+                )}
+              </div>
             }
           />
         }

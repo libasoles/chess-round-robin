@@ -84,6 +84,9 @@ interface TournamentState {
   ) => void
   finishTournament: (onFinish: (t: Tournament) => void) => void
   setJazzId: (tournamentId: string, jazzId: string) => void
+  updateActiveTournamentSettings: (
+    patch: Partial<Pick<TournamentSettings, 'byePoints' | 'tiebreakOrder'>>,
+  ) => void
 
   setDraftParticipants: (names: string[]) => void
   updateDraftParticipant: (index: number, name: string) => void
@@ -358,6 +361,17 @@ export const useTournamentStore = create<TournamentState>()(
         onFinish(finished)
         set({ activeTournament: null, currentRound: 1 })
       },
+
+      updateActiveTournamentSettings: (patch) =>
+        set((s) => {
+          if (!s.activeTournament || s.activeTournament.status !== 'active') return s
+          return {
+            activeTournament: {
+              ...s.activeTournament,
+              settings: { ...s.activeTournament.settings, ...patch },
+            },
+          }
+        }),
 
       setJazzId: (tournamentId, jazzId) =>
         set((s) => {

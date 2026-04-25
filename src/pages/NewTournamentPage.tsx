@@ -41,7 +41,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, X } from "lucide-react";
+import { GripVertical, Settings, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
@@ -399,14 +399,24 @@ export function NewTournamentPage() {
         topBar={
           <TopBar
             right={
-              <button
-                type="button"
-                onClick={() => setShowCancelDialog(true)}
-                className="p-2 text-muted-foreground hover:text-foreground"
-                aria-label="Cancelar"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => navigate("/tournament/new/settings")}
+                  className="p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Configuración"
+                >
+                  <Settings className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCancelDialog(true)}
+                  className="p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Cancelar"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             }
           />
         }

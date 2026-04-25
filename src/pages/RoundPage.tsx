@@ -23,7 +23,7 @@ import {
 } from "@/hooks/useCurrentRound";
 import { useTournamentStore } from "@/store/tournamentStore";
 import { useGesture } from "@use-gesture/react";
-import { Check, X } from "lucide-react";
+import { Check, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -157,6 +157,14 @@ export function RoundPage() {
             }
             right={
               <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/tournament/${id}/settings`)}
+                  className="p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Configuración"
+                >
+                  <Settings className="h-5 w-5" />
+                </button>
                 <TopBarShareAction
                   jazzId={activeTournament.jazzId}
                   currentRound={currentRound}

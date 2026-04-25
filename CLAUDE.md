@@ -50,7 +50,7 @@ Berger circle method algorithm. `bergerTable(n)` returns `(n-1)` rounds of `[whi
 ### Data model invariants
 
 - **Raw results only:** `Match.result` stores the outcome (`white_win`, `draw`, `forfeit_white`, `auto_bye`, etc.). Points are always derived by calculation — never stored. This allows recalculation when `forfeitPoints` or `byePoints` settings change.
-- **Snapshot settings:** `Tournament.settings` is an immutable snapshot of `TournamentSettings` at creation time. Changing `AppSettings` never affects existing tournaments.
+- **Snapshot settings:** `Tournament.settings` is a snapshot of `TournamentSettings` at creation time. Changing `AppSettings` never affects existing tournaments. Most fields are immutable, but `byePoints` and `tiebreakOrder` can be edited in-place via `updateActiveTournamentSettings` (in `tournamentStore`) while `status === 'active'`. Once `status === 'finished'`, all fields are immutable.
 - **Bye participant:** `id: 'bye'`, `isBye: true`. Bye matches are pre-resolved as `auto_bye` when the fixture is generated. The Bye is excluded from standings.
 - **Group sizes:** `buildGroupSizes` returns real participant counts (sizes of 3 are valid — they get a Bye added dynamically by `generateRoundRobinPairings`). Exceptions: n=3 → `[4]` and n=5 → `[6]` already include the Bye slot in the size.
 

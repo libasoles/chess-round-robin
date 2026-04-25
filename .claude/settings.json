@@ -29,7 +29,10 @@
       "Bash(git commit -m 'fix: header title should show brand topLabel instead of generic text:*)",
       "Bash(git commit -m 'fix: improve background removal algorithm to eliminate white borders:*)",
       "Bash(git commit:*)",
-      "Bash(pkill -f \"vite\")"
+      "Bash(pkill -f \"vite\")",
+      "Bash(git rebase:*)",
+      "Bash(git stash:*)",
+      "Bash(git push:*)"
     ],
     "additionalDirectories": [
       "/tmp"

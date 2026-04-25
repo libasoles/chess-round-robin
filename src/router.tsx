@@ -11,6 +11,7 @@ import { StandingsPage } from "@/pages/StandingsPage";
 import { GuidesIndexPage } from "@/pages/guides/GuidesIndexPage";
 import { ThemePage } from "@/pages/ThemePage";
 import { TiebreakGuidePage } from "@/pages/guides/TiebreakGuidePage";
+import { TournamentConfigPage } from "@/pages/TournamentConfigPage";
 import { TournamentResultsPage } from "@/pages/TournamentResultsPage";
 import { TutorialPage } from "@/pages/guides/TutorialPage";
 import { createBrowserRouter } from "react-router-dom";
@@ -23,9 +24,12 @@ export const router = createBrowserRouter([
       { path: "/", element: <HomePage /> },
       { path: "/settings", element: <SettingsPage /> },
       { path: "/tournament/new", element: <NewTournamentPage /> },
+      { path: "/tournament/new/settings", element: <TournamentConfigPage /> },
       { path: "/tournament/:id/round/:round", element: <RoundPage /> },
       { path: "/tournament/:id/standings", element: <StandingsPage /> },
+      { path: "/tournament/:id/settings", element: <TournamentConfigPage /> },
       { path: "/tournament/history/:id", element: <TournamentResultsPage /> },
+      { path: "/tournament/history/:id/settings", element: <TournamentConfigPage /> },
       { path: "/guias", element: <GuidesIndexPage /> },
       { path: "/tutorial", element: <TutorialPage /> },
       { path: "/guia-desempates", element: <TiebreakGuidePage /> },
