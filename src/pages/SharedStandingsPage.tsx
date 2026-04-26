@@ -2,12 +2,14 @@ import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
 import { ResultsOfficials } from "@/components/standings/ResultsOfficials";
 import { StandingsTable } from "@/components/standings/StandingsTable";
+import { SharedTournamentState } from "@/components/tournament/SharedTournamentState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Tournament } from "@/domain/types";
 import { getTotalRounds } from "@/hooks/useCurrentRound";
 import { JazzTournament } from "@/lib/jazz";
 import { jazzTournamentToDomain } from "@/lib/jazzConvert";
 import { useGesture } from "@use-gesture/react";
+import { CoValueLoadingState } from "jazz-tools";
 import { useCoState } from "jazz-tools/react";
 import { ArrowLeft, Hourglass } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -46,6 +48,9 @@ export function SharedStandingsPage() {
     }
   }, [rawTournament]);
   const tournament = rawTournament ?? lastValidTournament;
+  const isTournamentLoading =
+    !tournament &&
+    jazzTournament?.$jazz.loadingState === CoValueLoadingState.LOADING;
 
   const bind = useGesture({
     onDrag: ({ swipe: [swipeX] }) => {
@@ -55,12 +60,12 @@ export function SharedStandingsPage() {
     },
   });
 
-  if (!tournament && !jazzTournament) {
+  if (isTournamentLoading) {
     return (
       <AppShell topBar={<TopBar title="Cargando…" />}>
-        <p className="text-muted-foreground text-sm text-center pt-8">
+        <SharedTournamentState alt="Cargando torneo">
           Cargando torneo…
-        </p>
+        </SharedTournamentState>
       </AppShell>
     );
   }
@@ -68,9 +73,9 @@ export function SharedStandingsPage() {
   if (!tournament) {
     return (
       <AppShell topBar={<TopBar title="No disponible" />}>
-        <p className="text-muted-foreground text-sm text-center pt-8">
+        <SharedTournamentState alt="Torneo no disponible">
           Este torneo no está disponible o el link es incorrecto.
-        </p>
+        </SharedTournamentState>
       </AppShell>
     );
   }

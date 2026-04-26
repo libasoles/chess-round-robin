@@ -2,6 +2,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { BottomAction } from "@/components/layout/BottomAction";
 import { TopBar } from "@/components/layout/TopBar";
 import { GroupSection } from "@/components/round/GroupSection";
+import { SharedTournamentState } from "@/components/tournament/SharedTournamentState";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BYE_PARTICIPANT } from "@/domain/participants";
 import type { Participant, Tournament } from "@/domain/types";
@@ -13,6 +14,7 @@ import {
 import { JazzTournament } from "@/lib/jazz";
 import { jazzTournamentToDomain } from "@/lib/jazzConvert";
 import { useGesture } from "@use-gesture/react";
+import { CoValueLoadingState } from "jazz-tools";
 import { useCoState } from "jazz-tools/react";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -55,6 +57,9 @@ export function SharedRoundPage() {
     }
   }, [rawTournament]);
   const tournament = rawTournament ?? lastValidTournament;
+  const isTournamentLoading =
+    !tournament &&
+    jazzTournament?.$jazz.loadingState === CoValueLoadingState.LOADING;
 
   useEffect(() => {
     const t = rawTournament ?? lastValidTournament;
@@ -79,12 +84,12 @@ export function SharedRoundPage() {
     },
   });
 
-  if (!tournament && !jazzTournament) {
+  if (isTournamentLoading) {
     return (
       <AppShell topBar={<TopBar title="Cargando…" />}>
-        <p className="text-muted-foreground text-sm text-center pt-8">
+        <SharedTournamentState alt="Cargando torneo">
           Cargando torneo…
-        </p>
+        </SharedTournamentState>
       </AppShell>
     );
   }
@@ -92,9 +97,9 @@ export function SharedRoundPage() {
   if (!tournament) {
     return (
       <AppShell topBar={<TopBar title="No disponible" />}>
-        <p className="text-muted-foreground text-sm text-center pt-8">
+        <SharedTournamentState alt="Torneo no disponible">
           Este torneo no está disponible o el link es incorrecto.
-        </p>
+        </SharedTournamentState>
       </AppShell>
     );
   }
