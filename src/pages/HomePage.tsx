@@ -12,12 +12,22 @@ import { useTournamentStore } from "@/store/tournamentStore";
 import { ArrowRight, Play, Settings } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export function HomePage() {
   const navigate = useNavigate();
   const { tournaments, removeTournament } = useHistoryStore();
   const { activeTournament, currentRound, setCurrentRound } =
     useTournamentStore();
+
+  useEffect(() => {
+    const prefetch = () => { import('jazz-tools').catch(() => {}) }
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(prefetch)
+    } else {
+      setTimeout(prefetch, 200)
+    }
+  }, [])
 
   const totalRounds = activeTournament
     ? getTotalRounds(activeTournament.phases)

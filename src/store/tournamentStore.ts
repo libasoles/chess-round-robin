@@ -21,12 +21,6 @@ import {
   type AddParticipantResult,
 } from "@/domain/addParticipant";
 import { useSettingsStore } from "@/store/settingsStore";
-import {
-  updateJazzMatch,
-  finishJazzTournament,
-  addJazzPhase,
-  createJazzTournament,
-} from "@/lib/jazzSync";
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -176,9 +170,11 @@ export const useTournamentStore = create<TournamentState>()(
             result,
           );
           if (updated.jazzId) {
-            updateJazzMatch(updated.jazzId, matchId, result).catch((e) =>
-              console.warn("[jazz] updateJazzMatch failed", e),
-            );
+            import('@/lib/jazzSync').then(({ updateJazzMatch }) =>
+              updateJazzMatch(updated.jazzId!, matchId, result).catch((e) =>
+                console.warn("[jazz] updateJazzMatch failed", e),
+              )
+            )
           }
           return { activeTournament: updated };
         }),
@@ -192,9 +188,11 @@ export const useTournamentStore = create<TournamentState>()(
             null,
           );
           if (updated.jazzId) {
-            updateJazzMatch(updated.jazzId, matchId, null).catch((e) =>
-              console.warn("[jazz] updateJazzMatch failed", e),
-            );
+            import('@/lib/jazzSync').then(({ updateJazzMatch }) =>
+              updateJazzMatch(updated.jazzId!, matchId, null).catch((e) =>
+                console.warn("[jazz] updateJazzMatch failed", e),
+              )
+            )
           }
           return { activeTournament: updated };
         }),
@@ -239,18 +237,24 @@ export const useTournamentStore = create<TournamentState>()(
 
         // Re-create the Jazz CoValue so visitors no longer see the deleted round
         let newJazzId = tournament.jazzId;
-        if (tournament.jazzId) {
-          try {
-            newJazzId = createJazzTournament({ ...tournament, phases: nextPhases });
-          } catch (e) {
-            console.warn('[jazz] re-createJazzTournament after deleteRound failed', e);
-          }
-        }
-
         set({
           activeTournament: { ...tournament, phases: nextPhases, jazzId: newJazzId },
           currentRound: nextCurrentRound,
         });
+        if (tournament.jazzId) {
+          import('@/lib/jazzSync').then(({ createJazzTournament }) => {
+            try {
+              const updatedJazzId = createJazzTournament({ ...tournament, phases: nextPhases });
+              set((s) => ({
+                activeTournament: s.activeTournament
+                  ? { ...s.activeTournament, jazzId: updatedJazzId }
+                  : s.activeTournament,
+              }));
+            } catch (e) {
+              console.warn('[jazz] re-createJazzTournament after deleteRound failed', e);
+            }
+          });
+        }
       },
 
       createNewPhase: (selectedParticipantIds) => {
@@ -351,8 +355,10 @@ export const useTournamentStore = create<TournamentState>()(
         });
 
         if (activeTournament.jazzId) {
-          addJazzPhase(activeTournament.jazzId, newPhase).catch((e) =>
-            console.warn("[jazz] addJazzPhase failed", e),
+          import('@/lib/jazzSync').then(({ addJazzPhase }) =>
+            addJazzPhase(activeTournament.jazzId!, newPhase).catch((e) =>
+              console.warn("[jazz] addJazzPhase failed", e),
+            )
           );
         }
       },
@@ -433,8 +439,10 @@ export const useTournamentStore = create<TournamentState>()(
         });
 
         if (activeTournament.jazzId) {
-          addJazzPhase(activeTournament.jazzId, newPhase).catch((e) =>
-            console.warn("[jazz] addJazzPhase failed", e),
+          import('@/lib/jazzSync').then(({ addJazzPhase }) =>
+            addJazzPhase(activeTournament.jazzId!, newPhase).catch((e) =>
+              console.warn("[jazz] addJazzPhase failed", e),
+            )
           );
         }
       },
@@ -450,8 +458,10 @@ export const useTournamentStore = create<TournamentState>()(
         };
 
         if (finished.jazzId) {
-          finishJazzTournament(finished.jazzId, finished.finishedAt!).catch(
-            (e) => console.warn("[jazz] finishJazzTournament failed", e),
+          import('@/lib/jazzSync').then(({ finishJazzTournament }) =>
+            finishJazzTournament(finished.jazzId!, finished.finishedAt!).catch(
+              (e) => console.warn("[jazz] finishJazzTournament failed", e),
+            )
           );
         }
 
