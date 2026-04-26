@@ -61,40 +61,42 @@ export function TournamentParticipantsList({
 
   return (
     <div className="space-y-3">
-      {state !== "groups-full" && state !== "readonly-round1-complete" && (
-        <>
-          <div
-            className="rounded-lg px-4 py-3 text-sm [&_svg]:pointer-events-none [&_svg]:shrink-0
+      {state !== "readonly-finished" &&
+        state !== "readonly-round1-complete" &&
+        state !== "groups-full" && (
+          <>
+            <div
+              className="rounded-lg px-4 py-3 text-sm [&_svg]:pointer-events-none [&_svg]:shrink-0
             [&_svg:not([class*='size-'])]:size-4 
             bg-destructive/10 
             text-foreground
             dark:bg-destructive/20
             dark:hover:bg-destructive/30
             flex justify-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-flag mt-1 text-destructive"
-              aria-hidden="true"
             >
-              <path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"></path>
-            </svg>
-            <p>
-              {" "}
-              Si agregas participantes ahora, se conservará el emparejamiento de
-              la primer ronda pero se recrearán las demás.
-            </p>
-          </div>
-        </>
-      )}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-flag mt-1 text-destructive"
+                aria-hidden="true"
+              >
+                <path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"></path>
+              </svg>
+              <p>
+                {" "}
+                Si agregas participantes ahora, se conservará el emparejamiento
+                de la primer ronda pero se recrearán las demás.
+              </p>
+            </div>
+          </>
+        )}
 
       {state === "readonly-round1-complete" && (
         <div className="rounded-lg border border-accent bg-muted px-4 py-3 text-sm text-muted-foreground">
