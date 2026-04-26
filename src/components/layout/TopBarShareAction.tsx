@@ -5,15 +5,20 @@ import { buildBrandUrl } from '@/lib/brand'
 interface TopBarShareActionProps {
   jazzId?: string
   currentRound?: number
+  standings?: boolean
   className?: string
 }
 
-export function TopBarShareAction({ jazzId, currentRound, className }: TopBarShareActionProps) {
+export function TopBarShareAction({ jazzId, currentRound, standings, className }: TopBarShareActionProps) {
   const [copied, setCopied] = useState(false)
 
   if (!jazzId) return null
 
-  const shareUrl = buildBrandUrl(`/t/${jazzId}/round/${currentRound ?? 1}`)
+  const shareUrl = buildBrandUrl(
+    standings
+      ? `/t/${jazzId}/standings`
+      : `/t/${jazzId}/round/${currentRound ?? 1}`
+  )
   const canShare = typeof navigator.share !== 'undefined'
 
   function handleShare() {

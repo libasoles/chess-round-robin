@@ -8,7 +8,7 @@ export type TiebreakInfo = {
 
 export const TIEBREAK_INFO = {
   DE: {
-    shortLabel: "DE",
+    shortLabel: "ED",
     name: "Encuentro Directo",
     description:
       "Si dos participantes empatan en puntos, queda arriba quien ganó la partida entre ellos. En empates múltiples se evalúan las partidas entre los jugadores empatados.",

@@ -56,6 +56,15 @@ export function SharedRoundPage() {
   }, [rawTournament]);
   const tournament = rawTournament ?? lastValidTournament;
 
+  useEffect(() => {
+    const t = rawTournament ?? lastValidTournament;
+    if (!t) return;
+    const total = getTotalRounds(t.phases);
+    if (total > 0 && currentRound > total) {
+      navigate(`/t/${jazzId}/round/${total}`, { replace: true });
+    }
+  }, [rawTournament, lastValidTournament, currentRound, jazzId, navigate]);
+
   const bind = useGesture({
     onDrag: ({ swipe: [swipeX] }) => {
       const t = rawTournament ?? lastValidTournament;

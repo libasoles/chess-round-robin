@@ -144,7 +144,7 @@ export function StandingsPage() {
               <div className="flex items-center gap-1">
                 <TopBarShareAction
                   jazzId={activeTournament.jazzId}
-                  currentRound={getTotalRounds(activeTournament.phases)}
+                  standings
                 />
                 <button
                   type="button"

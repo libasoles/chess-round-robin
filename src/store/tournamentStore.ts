@@ -25,6 +25,7 @@ import {
   updateJazzMatch,
   finishJazzTournament,
   addJazzPhase,
+  createJazzTournament,
 } from "@/lib/jazzSync";
 
 function generateId(): string {
@@ -200,50 +201,57 @@ export const useTournamentStore = create<TournamentState>()(
 
       setCurrentRound: (round) => set({ currentRound: round }),
 
-      deleteRound: (round) =>
-        set((s) => {
-          const tournament = s.activeTournament;
-          if (!tournament) return s;
+      deleteRound: (round) => {
+        const s = get();
+        const tournament = s.activeTournament;
+        if (!tournament) return;
 
-          const totalRounds = maxRoundAcrossPhases(tournament);
-          if (totalRounds <= 1 || round < 1 || round > totalRounds) return s;
+        const totalRounds = maxRoundAcrossPhases(tournament);
+        if (totalRounds <= 1 || round < 1 || round > totalRounds) return;
 
-          const nextPhases = tournament.phases
-            .map(
-              (phase): Phase => ({
-                ...phase,
-                groups: phase.groups
-                  .map(
-                    (group): Group => ({
-                      ...group,
-                      matches: group.matches
-                        .filter((m) => m.round !== round)
-                        .map(
-                          (m): Match =>
-                            m.round > round ? { ...m, round: m.round - 1 } : m,
-                        ),
-                    }),
-                  )
-                  .filter((group) => group.matches.length > 0),
-              }),
-            )
-            .filter((phase) => phase.groups.length > 0);
+        const nextPhases = tournament.phases
+          .map(
+            (phase): Phase => ({
+              ...phase,
+              groups: phase.groups
+                .map(
+                  (group): Group => ({
+                    ...group,
+                    matches: group.matches
+                      .filter((m) => m.round !== round)
+                      .map(
+                        (m): Match =>
+                          m.round > round ? { ...m, round: m.round - 1 } : m,
+                      ),
+                  }),
+                )
+                .filter((group) => group.matches.length > 0),
+            }),
+          )
+          .filter((phase) => phase.groups.length > 0);
 
-          const nextCurrentRound =
-            s.currentRound > round
-              ? s.currentRound - 1
-              : s.currentRound === round
-                ? Math.max(1, s.currentRound - 1)
-                : s.currentRound;
+        const nextCurrentRound =
+          s.currentRound > round
+            ? s.currentRound - 1
+            : s.currentRound === round
+              ? Math.max(1, s.currentRound - 1)
+              : s.currentRound;
 
-          return {
-            activeTournament: {
-              ...tournament,
-              phases: nextPhases,
-            },
-            currentRound: nextCurrentRound,
-          };
-        }),
+        // Re-create the Jazz CoValue so visitors no longer see the deleted round
+        let newJazzId = tournament.jazzId;
+        if (tournament.jazzId) {
+          try {
+            newJazzId = createJazzTournament({ ...tournament, phases: nextPhases });
+          } catch (e) {
+            console.warn('[jazz] re-createJazzTournament after deleteRound failed', e);
+          }
+        }
+
+        set({
+          activeTournament: { ...tournament, phases: nextPhases, jazzId: newJazzId },
+          currentRound: nextCurrentRound,
+        });
+      },
 
       createNewPhase: (selectedParticipantIds) => {
         const { activeTournament } = get();
