@@ -39,7 +39,15 @@ export function SharedRoundPage() {
     jazzId: string;
     round: string;
   }>();
-  const currentRound = Number(roundParam) || 1;
+  const routeRound = Number(roundParam) || 1;
+
+  // Use local state for the displayed round so that tab/swipe navigation is
+  // instant while React Router commits the URL update synchronously.
+  const [displayRound, setDisplayRound] = useState(routeRound);
+
+  useEffect(() => {
+    setDisplayRound(routeRound);
+  }, [routeRound]);
 
   const jazzTournament = useCoState(JazzTournament, jazzId, {
     resolve: DEEP_RESOLVE,
@@ -65,10 +73,22 @@ export function SharedRoundPage() {
     const t = rawTournament ?? lastValidTournament;
     if (!t) return;
     const total = getTotalRounds(t.phases);
-    if (total > 0 && currentRound > total) {
-      navigate(`/t/${jazzId}/round/${total}`, { replace: true });
+    if (total > 0 && displayRound > total) {
+      goToRound(total);
     }
-  }, [rawTournament, lastValidTournament, currentRound, jazzId, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawTournament, lastValidTournament, displayRound]);
+
+  // Navigate to a round: update local state immediately and keep React Router
+  // in sync so route changes can render the matching shared page.
+  function goToRound(round: number) {
+    setDisplayRound(round);
+    navigate(`/t/${jazzId}/round/${round}`, { replace: true, flushSync: true });
+  }
+
+  function goToStandings() {
+    navigate(`/t/${jazzId}/standings`, { flushSync: true });
+  }
 
   const bind = useGesture({
     onDrag: ({ swipe: [swipeX] }) => {
@@ -76,10 +96,10 @@ export function SharedRoundPage() {
       if (!t) return;
       const total = getTotalRounds(t.phases);
       if (swipeX === -1) {
-        if (currentRound < total) navigate(`/t/${jazzId}/round/${currentRound + 1}`, { replace: true });
-        else navigate(`/t/${jazzId}/standings`);
+        if (displayRound < total) goToRound(displayRound + 1);
+        else goToStandings();
       } else if (swipeX === 1) {
-        if (currentRound > 1) navigate(`/t/${jazzId}/round/${currentRound - 1}`, { replace: true });
+        if (displayRound > 1) goToRound(displayRound - 1);
       }
     },
   });
@@ -105,7 +125,7 @@ export function SharedRoundPage() {
   }
 
   const totalRounds = getTotalRounds(tournament.phases);
-  const roundMatches = getCurrentRoundMatches(tournament.phases, currentRound);
+  const roundMatches = getCurrentRoundMatches(tournament.phases, displayRound);
 
   const participants = new Map<string, Participant>();
   participants.set(BYE_PARTICIPANT.id, BYE_PARTICIPANT);
@@ -117,11 +137,7 @@ export function SharedRoundPage() {
     }
   }
 
-  const title = `Ronda ${currentRound}`;
-
-  function goToRound(round: number) {
-    navigate(`/t/${jazzId}/round/${round}`, { replace: true });
-  }
+  const title = `Ronda ${displayRound}`;
 
   return (
     <div>
@@ -164,10 +180,10 @@ export function SharedRoundPage() {
 
       <BottomAction>
         <Tabs
-          value={String(currentRound)}
+          value={String(displayRound)}
           onValueChange={(val) => {
             if (val === "fin") {
-              navigate(`/t/${jazzId}/standings`);
+              goToStandings();
             } else {
               goToRound(Number(val));
             }
@@ -181,8 +197,8 @@ export function SharedRoundPage() {
             {Array.from({ length: totalRounds }, (_, i) => i + 1).map((r) => {
               const done = isRoundComplete(tournament.phases, r);
               const triggerLabel =
-                totalRounds > 4 ? r : r === currentRound ? `Ronda ${r}` : r;
-              const isDenseModeCurrent = totalRounds > 4 && r === currentRound;
+                totalRounds > 4 ? r : r === displayRound ? `Ronda ${r}` : r;
+              const isDenseModeCurrent = totalRounds > 4 && r === displayRound;
               return (
                 <TabsTrigger
                   key={r}

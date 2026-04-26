@@ -56,7 +56,9 @@ export function SharedStandingsPage() {
     onDrag: ({ swipe: [swipeX] }) => {
       const t = rawTournament ?? lastValidTournament;
       if (!t || swipeX !== 1) return;
-      navigate(`/t/${jazzId}/round/${getTotalRounds(t.phases)}`);
+      navigate(`/t/${jazzId}/round/${getTotalRounds(t.phases)}`, {
+        flushSync: true,
+      });
     },
   });
 
@@ -90,7 +92,7 @@ export function SharedStandingsPage() {
   );
 
   function goBack() {
-    navigate(`/t/${jazzId}/round/${lastRound}`);
+    navigate(`/t/${jazzId}/round/${lastRound}`, { flushSync: true });
   }
 
   return (
