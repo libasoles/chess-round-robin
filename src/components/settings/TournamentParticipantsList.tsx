@@ -108,7 +108,7 @@ export function TournamentParticipantsList({
         {groups.map((g) => (
           <div key={g.name} className="space-y-1">
             {showGroupHeaders && (
-              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <div className="text-[11px] uppercase tracking-wide text-chart-2">
                 GRUPO {g.name}
               </div>
             )}

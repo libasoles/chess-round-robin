@@ -208,7 +208,7 @@ export function TournamentConfigPage() {
         {readonly && (
           <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
             <Lock className="h-4 w-4 shrink-0" />
-            <p>Torneo finalizado — configuración solo lectura.</p>
+            <p>Torneo finalizado. La configuración no es editable.</p>
           </div>
         )}
 
