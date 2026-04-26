@@ -1,5 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { TIEBREAK_INFO } from "@/domain/tiebreakInfo";
 import type { TiebreakMethod } from "@/domain/types";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import {
@@ -24,12 +25,18 @@ import { GripVertical } from "lucide-react";
 import { useState } from "react";
 
 const ALL_METHODS: Array<{ method: TiebreakMethod; label: string }> = [
-  { method: "DE", label: "Encuentro Directo (ED)" },
-  { method: "TN", label: "Tablas con Negras (TN)" },
-  { method: "SB", label: "Sonneborn-Berger (SB)" },
-  { method: "Buchholz", label: "Buchholz" },
-  { method: "Koya", label: "Koya" },
-  { method: "PN", label: "Partidas Ganadas con Negras (PN)" },
+  { method: "DE", label: `Encuentro Directo (${TIEBREAK_INFO.DE.shortLabel})` },
+  { method: "TN", label: `Tablas con Negras (${TIEBREAK_INFO.TN.shortLabel})` },
+  { method: "SB", label: `Sonneborn-Berger (${TIEBREAK_INFO.SB.shortLabel})` },
+  {
+    method: "Buchholz",
+    label: `Buchholz (${TIEBREAK_INFO.Buchholz.shortLabel})`,
+  },
+  { method: "Koya", label: `Koya (${TIEBREAK_INFO.Koya.shortLabel})` },
+  {
+    method: "PN",
+    label: `Partidas Ganadas con Negras (${TIEBREAK_INFO.PN.shortLabel})`,
+  },
 ];
 
 interface TiebreakListProps {
