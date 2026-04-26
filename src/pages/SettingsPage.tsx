@@ -4,13 +4,20 @@ import { ArbitratorField } from "@/components/settings/ArbitratorField";
 import { ParticipantsPool } from "@/components/settings/ParticipantsPool";
 import { PointSelector } from "@/components/settings/PointSelector";
 import { TiebreakList } from "@/components/settings/TiebreakList";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type { TiebreakMethod } from "@/domain/types";
 import type { Theme } from "@/store/settingsStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { ArrowLeft, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { TiebreakInfo } from "@/components/settings/TiebreakInfo";
 
 const THEME_OPTIONS: Array<{ value: Theme; icon: typeof Sun; label: string }> =
   [
@@ -82,7 +89,9 @@ export function SettingsPage() {
         />
       }
     >
-      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="space-y-6 pb-8">
         <Card>
           <CardContent>
@@ -98,6 +107,9 @@ export function SettingsPage() {
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Desempates
             </CardTitle>
+            <CardAction className="-mr-2">
+              <TiebreakInfo />
+            </CardAction>
           </CardHeader>
           <CardContent>
             <TiebreakList

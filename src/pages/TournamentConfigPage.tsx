@@ -1,14 +1,25 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
 import { PointSelector } from "@/components/settings/PointSelector";
+import { TiebreakInfo } from "@/components/settings/TiebreakInfo";
 import { TiebreakList } from "@/components/settings/TiebreakList";
 import {
   TournamentParticipantsList,
   type ParticipantsListState,
 } from "@/components/settings/TournamentParticipantsList";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { findTargetGroup } from "@/domain/addParticipant";
-import type { TiebreakMethod, Tournament, TournamentSettings } from "@/domain/types";
+import type {
+  TiebreakMethod,
+  Tournament,
+  TournamentSettings,
+} from "@/domain/types";
 import { isRoundComplete } from "@/hooks/useCurrentRound";
 import { useHistoryStore } from "@/store/historyStore";
 import type { Theme } from "@/store/settingsStore";
@@ -59,12 +70,8 @@ export function TournamentConfigPage() {
     };
   }, []);
 
-  const {
-    lastTournamentSettings,
-    setLastTournamentSettings,
-    theme,
-    setTheme,
-  } = useSettingsStore();
+  const { lastTournamentSettings, setLastTournamentSettings, theme, setTheme } =
+    useSettingsStore();
   const {
     activeTournament,
     updateActiveTournamentSettings,
@@ -211,7 +218,7 @@ export function TournamentConfigPage() {
               mode === "active"
                 ? activeTournament
                 : isHistoryRoute
-                  ? historyTournament ?? null
+                  ? (historyTournament ?? null)
                   : null;
             if (!sourceTournament) return null;
 
@@ -256,6 +263,9 @@ export function TournamentConfigPage() {
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Desempates
             </CardTitle>
+            <CardAction className="-mr-2">
+              <TiebreakInfo />
+            </CardAction>
           </CardHeader>
           <CardContent>
             <div
