@@ -6,6 +6,7 @@ import { GroupSection } from "@/components/round/GroupSection";
 import { ResultButtons } from "@/components/round/ResultButtons";
 import { ArbitratorField } from "@/components/settings/ArbitratorField";
 import { ParticipantsPool } from "@/components/settings/ParticipantsPool";
+import { TiebreakInfo } from "@/components/settings/TiebreakInfo";
 import { TiebreakList } from "@/components/settings/TiebreakList";
 import { StandingsTable } from "@/components/standings/StandingsTable";
 import { ParticipantInput } from "@/components/tournament/ParticipantInput";
@@ -417,7 +418,7 @@ export function TutorialPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Agregado de participantes</CardTitle>
+              <CardTitle>Inscripción de participantes</CardTitle>
               <CardDescription>
                 <p>
                   Agregas nuevos participantes escribiendo su nombre y tocando
@@ -440,6 +441,35 @@ export function TutorialPage() {
             </CardHeader>
             <CardContent>
               <ParticipantOrderDemo />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Agregado de participantes</CardTitle>
+              <CardDescription>
+                <p>
+                  A veces alguien llega tarde. Si aún no terminó la primer
+                  ronda, puedes agregar más participantes desde el ícono{" "}
+                  <Settings className="h-4 w-4 text-chart-1 inline" />.
+                </p>
+                <br />
+                <p>
+                  También puedes corregir los métodos de desempate y el puntaje
+                  de bye durante el torneo. Una vez que el torneo finalice, la
+                  configuración no será editable.
+                </p>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              Agregar participantes implica{" "}
+              <span className="text-chart-1">
+                recalcular los emparejamientos
+              </span>{" "}
+              de las rondas. Pero como algunos jugadores pueden haber comenzado
+              sus partidas, decidimos no modificar la primer ronda, y recalcular
+              solo las siguientes. Si cargaste datos en esas rondas, se
+              perderán.
             </CardContent>
           </Card>
 
@@ -519,7 +549,9 @@ export function TutorialPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Desempates</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                Desempates <TiebreakInfo />
+              </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">

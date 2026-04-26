@@ -70,7 +70,7 @@ export function InfoButton() {
                 Las <B>partidas</B> se asignan automáticamente usando el método
                 de la{" "}
                 <a
-                  href="https://en.wikipedia.org/wiki/Round-robin_tournament#Berger_tables"
+                  href="https://handbook.fide.com/chapter/C05Annex1"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-accent font-medium underline underline-offset-2"
