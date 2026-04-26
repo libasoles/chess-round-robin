@@ -1,5 +1,14 @@
 import { Check } from 'lucide-react'
+import { useState } from 'react'
 import { ParticipantName } from '@/components/participants/ParticipantName'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { TIEBREAK_INFO } from '@/domain/tiebreakInfo'
 import type { Group, StandingEntry, TiebreakMethod, TournamentSettings } from '@/domain/types'
 import { computeRankedStandings } from '@/domain/tiebreaks'
 import { formatNameList } from '@/lib/formatNameList'
@@ -25,38 +34,43 @@ function explainUnresolvedTie(
           m => (m.white === a && m.black === b) || (m.white === b && m.black === a),
         )
         if (!match || match.result === null) {
-          results.push({ label: 'Encuentro Directo', reason: 'La partida no tiene un resultado registrado.' })
+          results.push({ label: TIEBREAK_INFO.DE.name, reason: 'La partida no tiene un resultado registrado.' })
         } else if (match.result === 'draw') {
-          results.push({ label: 'Encuentro Directo', reason: 'su partida enfrentada terminó en tablas.' })
+          results.push({ label: TIEBREAK_INFO.DE.name, reason: 'su partida enfrentada terminó en tablas.' })
         } else {
           // This shouldn't happen in an unresolved tie, but be safe
-          results.push({ label: 'Encuentro Directo', reason: 'su partida enfrentada tiene resultado decisivo.' })
+          results.push({ label: TIEBREAK_INFO.DE.name, reason: 'su partida enfrentada tiene resultado decisivo.' })
         }
       } else {
         // 3+ players: explain multi-way DE logic
         results.push({
-          label: 'Encuentro Directo',
+          label: TIEBREAK_INFO.DE.name,
           reason: `los ${tiedIds.length} jugadores quedan igualados al considerar sus partidas mutuas.`,
         })
       }
+    } else if (method === 'TN') {
+      results.push({
+        label: TIEBREAK_INFO.TN.name,
+        reason: 'quedan igualados al considerar el resultado directo y las tablas con piezas negras.',
+      })
     } else if (method === 'SB') {
       results.push({
-        label: 'Sonneborn-Berger',
+        label: TIEBREAK_INFO.SB.name,
         reason: 'tienen la misma puntuación considerando calidad de rivales vencidos.',
       })
     } else if (method === 'Buchholz') {
       results.push({
-        label: 'Buchholz',
+        label: TIEBREAK_INFO.Buchholz.name,
         reason: 'tienen la misma puntuación acumulada de rivales enfrentados.',
       })
     } else if (method === 'PN') {
       results.push({
-        label: 'Partidas con Negras',
+        label: TIEBREAK_INFO.PN.name,
         reason: 'todos tienen el mismo número de victorias jugando con negras.',
       })
     } else if (method === 'Koya') {
       results.push({
-        label: 'Sistema Koya',
+        label: TIEBREAK_INFO.Koya.name,
         reason: 'tienen la misma puntuación contra rivales clasificados (≥50% puntos).',
       })
     } else {
@@ -77,11 +91,59 @@ function ordinal(rank: number): string {
   return `${rank}°`
 }
 
+function formatScore(score: number): string {
+  return score % 1 === 0 ? String(score) : score.toFixed(1)
+}
+
+function TiebreakHeaderButton({
+  method,
+  onClick,
+}: {
+  method: TiebreakMethod
+  onClick: (method: TiebreakMethod) => void
+}) {
+  const info = TIEBREAK_INFO[method]
+
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(method)}
+      className="mx-auto inline-flex h-6 min-w-6 items-center justify-center rounded px-1 text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      aria-label={`Ver explicación de ${info.name}`}
+    >
+      {info.shortLabel}
+    </button>
+  )
+}
+
+function TiebreakCheckButton({
+  method,
+  onClick,
+}: {
+  method: TiebreakMethod
+  onClick: (method: TiebreakMethod) => void
+}) {
+  const info = TIEBREAK_INFO[method]
+
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(method)}
+      className="mx-auto inline-flex size-6 items-center justify-center rounded text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      aria-label={`Ver explicación de ${info.name}`}
+    >
+      <Check className="h-4 w-4" />
+    </button>
+  )
+}
+
 export function StandingsTable({
   group,
   settings,
 }: StandingsTableProps) {
+  const [selectedTiebreak, setSelectedTiebreak] = useState<TiebreakMethod | null>(null)
   const entries = computeRankedStandings(group, settings)
+  const selectedTiebreakInfo = selectedTiebreak ? TIEBREAK_INFO[selectedTiebreak] : null
 
   // Only show tiebreak columns for methods that actually resolved at least one tie
   const usedTiebreaks = new Set(entries.map(e => e.tiebreakUsed).filter((m): m is TiebreakMethod => m !== null))
@@ -108,7 +170,7 @@ export function StandingsTable({
             <th className="w-12 text-center pb-2 font-medium">Pts</th>
             {tiebreakCols.map((m) => (
               <th key={m} className="w-12 text-center pb-2 font-medium">
-                {m}
+                <TiebreakHeaderButton method={m} onClick={setSelectedTiebreak} />
               </th>
             ))}
             <th className="w-12 text-right pb-2 font-medium">Pos.</th>
@@ -124,53 +186,54 @@ export function StandingsTable({
                   <ParticipantName>{name}</ParticipantName>
                 </td>
                 <td className="py-2 text-center">
-                  {entry.points % 1 === 0 ? entry.points : entry.points.toFixed(1)}
+                  {formatScore(entry.points)}
                 </td>
                 {tiebreakCols.map((m) => {
-                  if (m === 'DE') {
-                    return (
-                      <td key="DE" className="py-2 text-center">
-                        {entry.tiebreakUsed === 'DE' && (
-                          <Check className="h-4 w-4 mx-auto text-primary" />
-                        )}
-                      </td>
-                    )
-                  }
-                  const score = entry.tiebreakScores[m]
                   const isDeciding = entry.tiebreakUsed === m
-                  if (m === 'SB') {
+
+                  if (m === 'DE' || m === 'TN') {
                     return (
                       <td key={m} className="py-2 text-center">
                         {isDeciding ? (
-                          <Check className="h-4 w-4 mx-auto text-primary" />
+                          <TiebreakCheckButton method={m} onClick={setSelectedTiebreak} />
                         ) : null}
                       </td>
                     )
                   }
-                  if (m === 'PN') {
+
+                  const score = entry.tiebreakScores[m]
+
+                  if (m === 'Koya') {
                     return (
-                      <td key={m} className="py-2 text-center">
+                      <td key={m} className={`py-2 text-center${isDeciding ? ' font-semibold text-foreground' : ' text-muted-foreground'}`}>
+                        {score !== undefined ? formatScore(score) : null}
                         {isDeciding ? (
-                          <Check className="h-4 w-4 mx-auto text-primary" />
+                          <span className="ml-0.5 inline-flex align-middle">
+                            <TiebreakCheckButton method={m} onClick={setSelectedTiebreak} />
+                          </span>
                         ) : null}
                       </td>
                     )
                   }
-                  if (m === 'Buchholz') {
+
+                  if (m === 'SB' || m === 'PN' || m === 'Buchholz') {
                     return (
                       <td key={m} className="py-2 text-center">
                         {isDeciding ? (
-                          <Check className="h-4 w-4 mx-auto text-primary" />
+                          <TiebreakCheckButton method={m} onClick={setSelectedTiebreak} />
                         ) : null}
                       </td>
                     )
                   }
+
                   return (
                     <td key={m} className={`py-2 text-center${isDeciding ? ' font-semibold text-foreground' : ' text-muted-foreground'}`}>
-                      {score !== undefined
-                        ? (score % 1 === 0 ? score : score.toFixed(1))
-                        : null}
-                      {isDeciding && <span className="ml-0.5 text-primary">✓</span>}
+                      {score !== undefined ? formatScore(score) : null}
+                      {isDeciding ? (
+                        <span className="ml-0.5 inline-flex align-middle">
+                          <TiebreakCheckButton method={m} onClick={setSelectedTiebreak} />
+                        </span>
+                      ) : null}
                     </td>
                   )
                 })}
@@ -197,6 +260,25 @@ export function StandingsTable({
           </div>
         )
       })}
+      <Dialog
+        open={selectedTiebreak !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedTiebreak(null)
+        }}
+      >
+        <DialogContent>
+          {selectedTiebreakInfo ? (
+            <DialogHeader>
+              <DialogTitle>
+                {selectedTiebreakInfo.shortLabel} - {selectedTiebreakInfo.name}
+              </DialogTitle>
+              <DialogDescription>
+                {selectedTiebreakInfo.description}
+              </DialogDescription>
+            </DialogHeader>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
