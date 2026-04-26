@@ -401,7 +401,7 @@ export function TutorialPage() {
                 <Label htmlFor="tutorial-arbitrator">Árbitro</Label>
                 <Input
                   id="tutorial-arbitrator"
-                  placeholder="José Raúl Capablanca"
+                  placeholder="Nombre"
                   className="h-12 text-base"
                 />
               </div>

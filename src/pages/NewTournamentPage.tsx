@@ -467,7 +467,7 @@ export function NewTournamentPage() {
                   id="arbitrator"
                   value={arbitrator}
                   onChange={(e) => setArbitrator(e.target.value)}
-                  placeholder="José Raúl Capablanca"
+                  placeholder="Nombre"
                   className="text-base h-12"
                 />
               </div>

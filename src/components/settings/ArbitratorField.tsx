@@ -18,7 +18,7 @@ export function ArbitratorField({ value, onChange }: ArbitratorFieldProps) {
         id="arbitrator-name"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="José Raúl Capablanca"
+        placeholder="..."
         className="text-base h-12"
       />
       {!value.trim() && (
