@@ -2,8 +2,14 @@ import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
 import { PointSelector } from "@/components/settings/PointSelector";
 import { TiebreakList } from "@/components/settings/TiebreakList";
+import {
+  TournamentParticipantsList,
+  type ParticipantsListState,
+} from "@/components/settings/TournamentParticipantsList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { TiebreakMethod, TournamentSettings } from "@/domain/types";
+import { findTargetGroup } from "@/domain/addParticipant";
+import type { TiebreakMethod, Tournament, TournamentSettings } from "@/domain/types";
+import { isRoundComplete } from "@/hooks/useCurrentRound";
 import { useHistoryStore } from "@/store/historyStore";
 import type { Theme } from "@/store/settingsStore";
 import { useSettingsStore } from "@/store/settingsStore";
@@ -59,8 +65,14 @@ export function TournamentConfigPage() {
     theme,
     setTheme,
   } = useSettingsStore();
-  const { activeTournament, updateActiveTournamentSettings } =
-    useTournamentStore();
+  const {
+    activeTournament,
+    updateActiveTournamentSettings,
+    addParticipantToActiveTournament,
+    setDraftParticipants,
+    abandonTournament,
+  } = useTournamentStore();
+  const [addError, setAddError] = useState<string | null>(null);
   const historyTournament = useHistoryStore((s) =>
     s.tournaments.find((t) => t.id === id),
   );
@@ -108,6 +120,30 @@ export function TournamentConfigPage() {
     } else if (mode === "active") {
       updateActiveTournamentSettings({ byePoints: value });
     }
+  }
+
+  function handleAddParticipant(name: string) {
+    setAddError(null);
+    const res = addParticipantToActiveTournament(name);
+    if (!res.ok) {
+      const messages: Record<string, string> = {
+        "duplicate-name": "Ya hay un participante con ese nombre.",
+        "invalid-name": "El nombre no puede estar vacío.",
+        "round1-complete": "La primera ronda ya está completa.",
+        "groups-full": "No hay cupo en ningún grupo.",
+        "no-active-phase": "No hay un torneo activo.",
+      };
+      setAddError(messages[res.reason] ?? "No se pudo agregar.");
+    }
+  }
+
+  function handleStartNewTournamentWithSamePeople(t: Tournament) {
+    const names = t.phases[0]!.groups.flatMap((g) =>
+      g.participants.filter((p) => !p.isBye).map((p) => p.name),
+    );
+    setDraftParticipants(names);
+    abandonTournament();
+    navigate("/tournament/new");
   }
 
   function updateTiebreakOrder(order: TiebreakMethod[]) {
@@ -168,6 +204,52 @@ export function TournamentConfigPage() {
             <p>Torneo finalizado — configuración solo lectura.</p>
           </div>
         )}
+
+        {mode !== "template" &&
+          (() => {
+            const sourceTournament =
+              mode === "active"
+                ? activeTournament
+                : isHistoryRoute
+                  ? historyTournament ?? null
+                  : null;
+            if (!sourceTournament) return null;
+
+            const phase0 = sourceTournament.phases[0];
+            if (!phase0) return null;
+
+            let listState: ParticipantsListState;
+            if (mode === "readonly") {
+              listState = "readonly-finished";
+            } else if (!isRoundComplete(sourceTournament.phases, 1)) {
+              const target = findTargetGroup(sourceTournament);
+              listState = target.full ? "groups-full" : "editable";
+            } else {
+              listState = "readonly-round1-complete";
+            }
+
+            return (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                    Participantes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TournamentParticipantsList
+                    groups={phase0.groups}
+                    state={listState}
+                    groupSize={sourceTournament.settings.groupSize}
+                    onAdd={handleAddParticipant}
+                    onStartNewTournament={() =>
+                      handleStartNewTournamentWithSamePeople(sourceTournament)
+                    }
+                    errorMessage={addError}
+                  />
+                </CardContent>
+              </Card>
+            );
+          })()}
 
         <Card>
           <CardHeader>

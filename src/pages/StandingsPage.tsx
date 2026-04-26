@@ -31,11 +31,8 @@ export function StandingsPage() {
   const [hydrated, setHydrated] = useState(() =>
     useTournamentStore.persist.hasHydrated(),
   );
-  const {
-    activeTournament,
-    setCurrentRound,
-    finishTournament,
-  } = useTournamentStore();
+  const { activeTournament, setCurrentRound, finishTournament } =
+    useTournamentStore();
   const { addToHistory } = useHistoryStore();
   const { addToParticipantsPool } = useSettingsStore();
 
@@ -145,6 +142,10 @@ export function StandingsPage() {
             title={hasPendingMatches ? "Resultados provisorios" : "Resultados"}
             right={
               <div className="flex items-center gap-1">
+                <TopBarShareAction
+                  jazzId={activeTournament.jazzId}
+                  currentRound={getTotalRounds(activeTournament.phases)}
+                />
                 <button
                   type="button"
                   onClick={() => navigate(`/tournament/${id}/settings`)}
@@ -153,10 +154,6 @@ export function StandingsPage() {
                 >
                   <Settings className="h-5 w-5" />
                 </button>
-                <TopBarShareAction
-                  jazzId={activeTournament.jazzId}
-                  currentRound={getTotalRounds(activeTournament.phases)}
-                />
               </div>
             }
           />

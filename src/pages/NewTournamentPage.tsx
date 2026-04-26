@@ -165,7 +165,8 @@ export function NewTournamentPage() {
     participantsPool,
     setOrganizerName,
   } = useSettingsStore();
-  const { createTournament } = useTournamentStore();
+  const { createTournament, draftParticipants, setDraftParticipants } =
+    useTournamentStore();
   const currentArbitratorName = (
     arbitratorName ??
     lastTournamentSettings.arbitratorName ??
@@ -179,9 +180,17 @@ export function NewTournamentPage() {
 
   const [arbitrator, setArbitrator] = useState(currentArbitratorName);
   const [organizer, setOrganizer] = useState(currentOrganizerName);
-  const [participants, setParticipants] = useState<ParticipantRow[]>([
-    { id: genId(), name: "" },
-  ]);
+  const [participants, setParticipants] = useState<ParticipantRow[]>(() => {
+    // Initialize from draftParticipants if any non-empty names exist
+    const hasNonEmpty = draftParticipants.some((n) => n.trim().length > 0);
+    if (hasNonEmpty) {
+      return draftParticipants.map((name) => ({
+        id: genId(),
+        name,
+      }));
+    }
+    return [{ id: genId(), name: "" }];
+  });
   const [useGroups, setUseGroups] = useState(false);
   const groupSize = 4;
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -211,6 +220,26 @@ export function NewTournamentPage() {
       toastTimeoutsRef.current = [];
     };
   }, []);
+
+  // Sync with draftParticipants from store when navigating back or revisiting this page
+  useEffect(() => {
+    const hasNonEmpty = draftParticipants.some((n) => n.trim().length > 0);
+    const isParticipantsEmpty = participants.every((p) => !p.name.trim());
+    // Only sync if draft has names and local participants are all empty
+    if (hasNonEmpty && isParticipantsEmpty) {
+      setParticipants(
+        draftParticipants.map((name) => ({
+          id: genId(),
+          name,
+        })),
+      );
+    }
+  }, [draftParticipants]);
+
+  // Persist local participants to store so they survive navigation (e.g. to settings)
+  useEffect(() => {
+    setDraftParticipants(participants.map((p) => p.name));
+  }, [participants, setDraftParticipants]);
 
   // Suggestions = pool minus already-entered names
   const enteredNames = new Set(
@@ -279,7 +308,8 @@ export function NewTournamentPage() {
     const duplicateExists = participants.some(
       (participant) =>
         participant.id !== lastRow.id &&
-        toParticipantNameKey(participant.name) === toParticipantNameKey(normalized),
+        toParticipantNameKey(participant.name) ===
+          toParticipantNameKey(normalized),
     );
     if (duplicateExists) {
       showValidationToasts([`El participante "${normalized}" ya existe`]);
@@ -393,7 +423,10 @@ export function NewTournamentPage() {
           name="description"
           content="Creá tu torneo de ajedrez round robin en segundos: ingresá los participantes, elegir grupos y el sistema arrancará el fixture automáticamente."
         />
-        <link rel="canonical" href="https://ajedrezroundrobin.com.ar/tournament/new" />
+        <link
+          rel="canonical"
+          href="https://ajedrezroundrobin.com.ar/tournament/new"
+        />
       </Helmet>
       <AppShell
         topBar={

@@ -32,7 +32,8 @@
       "Bash(pkill -f \"vite\")",
       "Bash(git rebase:*)",
       "Bash(git stash:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx vitest *)"
     ],
     "additionalDirectories": [
       "/tmp"

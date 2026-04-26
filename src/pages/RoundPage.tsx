@@ -134,7 +134,9 @@ export function RoundPage() {
 
   return (
     <div>
-      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <AppShell
         mainProps={bind()}
         topBar={
@@ -157,6 +159,10 @@ export function RoundPage() {
             }
             right={
               <div className="flex items-center gap-1">
+                <TopBarShareAction
+                  jazzId={activeTournament.jazzId}
+                  currentRound={currentRound}
+                />
                 <button
                   type="button"
                   onClick={() => navigate(`/tournament/${id}/settings`)}
@@ -165,10 +171,6 @@ export function RoundPage() {
                 >
                   <Settings className="h-5 w-5" />
                 </button>
-                <TopBarShareAction
-                  jazzId={activeTournament.jazzId}
-                  currentRound={currentRound}
-                />
               </div>
             }
           />
