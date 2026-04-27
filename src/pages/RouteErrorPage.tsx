@@ -42,16 +42,14 @@ function mapErrorToViewModel(error: unknown): ErrorViewModel {
   if (error instanceof Error) {
     return {
       title: "Algo salió mal",
-      description:
-        "No nos lo esperábamos. Puedes reintentar la carga de página, o volver al inicio.",
+      description: "Intenta recargar la página, o volver al inicio.",
       debugText: `${error.name}: ${error.message}\n${error.stack ?? "No stack trace available."}`,
     };
   }
 
   return {
     title: "Algo salió mal",
-    description:
-      "No nos lo esperábamos. Puedes reintentar la carga de página, o volver al inicio.",
+    description: "Intenta recargar la página, o volver al inicio.",
     debugText: `Unknown error type: ${String(error)}`,
   };
 }
@@ -83,7 +81,7 @@ export function RouteErrorPage() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            {viewModel.statusCode ? `Error ${viewModel.statusCode}` : "Ups!"}
+            {viewModel.statusCode ? `Error ${viewModel.statusCode}` : "Oh no!"}
           </p>
           <h1 className="mt-1 text-xl font-semibold">{viewModel.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">

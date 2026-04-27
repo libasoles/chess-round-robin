@@ -91,8 +91,8 @@ export function TournamentParticipantsList({
               </svg>
               <p>
                 {" "}
-                Si agregas participantes ahora, se conservará el emparejamiento
-                de la primer ronda pero se recrearán las demás.
+                Si agregas participantes, se conservará el emparejamiento de la
+                primer ronda, pero se recrearán las demás.
               </p>
             </div>
           </>
@@ -100,7 +100,7 @@ export function TournamentParticipantsList({
 
       {state === "readonly-round1-complete" && (
         <div className="rounded-lg border border-accent bg-muted px-4 py-3 text-sm text-muted-foreground">
-          La primera ronda ya finalizó — no se pueden sumar más jugadores.
+          La primera ronda ya finalizó. No se puede sumar jugadores.
         </div>
       )}
 
