@@ -63,6 +63,31 @@ function updateMatchInTournament(
   };
 }
 
+function findChangedGroup(
+  previous: Tournament,
+  next: Tournament,
+): { phaseIndex: number; groupName: string; group: Group } | null {
+  for (let phaseIdx = 0; phaseIdx < next.phases.length; phaseIdx++) {
+    const nextPhase = next.phases[phaseIdx];
+    const previousPhase = previous.phases[phaseIdx];
+    if (!nextPhase || !previousPhase) continue;
+
+    for (let groupIdx = 0; groupIdx < nextPhase.groups.length; groupIdx++) {
+      const nextGroup = nextPhase.groups[groupIdx];
+      const previousGroup = previousPhase.groups[groupIdx];
+      if (!nextGroup || !previousGroup) continue;
+      if (nextGroup !== previousGroup) {
+        return {
+          phaseIndex: nextPhase.index,
+          groupName: nextGroup.name,
+          group: nextGroup,
+        };
+      }
+    }
+  }
+  return null;
+}
+
 /**
  * Like assignParticipantsToGroups but uses a custom names list
  * (for new phases where group names must continue from previous phases).
@@ -236,7 +261,7 @@ export const useTournamentStore = create<TournamentState>()(
               : s.currentRound;
 
         // Re-create the Jazz CoValue so visitors no longer see the deleted round
-        let newJazzId = tournament.jazzId;
+        const newJazzId = tournament.jazzId;
         set({
           activeTournament: { ...tournament, phases: nextPhases, jazzId: newJazzId },
           currentRound: nextCurrentRound,
@@ -469,17 +494,25 @@ export const useTournamentStore = create<TournamentState>()(
         set({ activeTournament: null, currentRound: 1 });
       },
 
-      updateActiveTournamentSettings: (patch) =>
-        set((s) => {
-          if (!s.activeTournament || s.activeTournament.status !== "active")
-            return s;
-          return {
-            activeTournament: {
-              ...s.activeTournament,
-              settings: { ...s.activeTournament.settings, ...patch },
-            },
-          };
-        }),
+      updateActiveTournamentSettings: (patch) => {
+        const { activeTournament } = get();
+        if (!activeTournament || activeTournament.status !== "active") return;
+
+        const updated: Tournament = {
+          ...activeTournament,
+          settings: { ...activeTournament.settings, ...patch },
+        };
+
+        set({ activeTournament: updated });
+
+        if (updated.jazzId) {
+          import("@/lib/jazzSync").then(({ updateJazzTournamentSettings }) =>
+            updateJazzTournamentSettings(updated.jazzId!, patch).catch((e) =>
+              console.warn("[jazz] updateJazzTournamentSettings failed", e),
+            ),
+          );
+        }
+      },
 
       addParticipantToActiveTournament: (name) => {
         const { activeTournament } = get();
@@ -489,8 +522,22 @@ export const useTournamentStore = create<TournamentState>()(
         const result = addParticipantPure(activeTournament, name);
         if (!result.ok) return result;
         set({ activeTournament: result.tournament });
-        // Note: Jazz sync for in-place phase mutation isn't implemented yet;
-        // local persistence handles state across reloads.
+
+        const changedGroup = findChangedGroup(
+          activeTournament,
+          result.tournament,
+        );
+        if (result.tournament.jazzId && changedGroup) {
+          import("@/lib/jazzSync").then(({ replaceJazzGroup }) =>
+            replaceJazzGroup(
+              result.tournament.jazzId!,
+              changedGroup.phaseIndex,
+              changedGroup.groupName,
+              changedGroup.group,
+            ).catch((e) => console.warn("[jazz] replaceJazzGroup failed", e)),
+          );
+        }
+
         return result;
       },
 
