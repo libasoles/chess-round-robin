@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+**Referencia de dominio:**
+
+- La terminología y conceptos clave del dominio están documentados en [DOMAIN.md](DOMAIN.md). Consultar ese archivo para definiciones precisas y reglas de negocio.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Commands
@@ -14,11 +18,13 @@ npm run coverage     # generate coverage report for src/domain/ and src/lib/
 ```
 
 Run a single test file:
+
 ```bash
 npx vitest run src/domain/__tests__/groupSizes.test.ts
 ```
 
 Run tests matching a name pattern:
+
 ```bash
 npx vitest run --reporter=verbose -t "bergerTable"
 ```
@@ -33,15 +39,15 @@ All business logic lives in `src/domain/` as pure functions with no React depend
 
 ### `src/domain/` — pure business logic
 
-| File | Responsibility |
-|---|---|
-| `types.ts` | All shared TypeScript types (`Match`, `Group`, `Tournament`, `TournamentSettings`, etc.) |
-| `groupSizes.ts` | `buildGroupSizes(n, useGroups)` — distributes n participants into groups per spec table |
+| File              | Responsibility                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| `types.ts`        | All shared TypeScript types (`Match`, `Group`, `Tournament`, `TournamentSettings`, etc.)                |
+| `groupSizes.ts`   | `buildGroupSizes(n, useGroups)` — distributes n participants into groups per spec table                 |
 | `participants.ts` | `normalizeName`, `validateParticipants`, `assignParticipantsToGroups`, `BYE_PARTICIPANT`, `GROUP_NAMES` |
-| `scoring.ts` | `resolveMatchPoints` — maps `MatchResult` to points for both sides |
-| `standings.ts` | `computeStandings` — accumulates points per participant, excludes Bye |
-| `tiebreaks.ts` | `applyDirectEncounter`, `computeSonnebornBerger`, `rankWithTiebreaks` |
-| `roundRobin.ts` | `generateRoundRobinPairings` — generates fixture using Berger tables, marks auto_bye matches |
+| `scoring.ts`      | `resolveMatchPoints` — maps `MatchResult` to points for both sides                                      |
+| `standings.ts`    | `computeStandings` — accumulates points per participant, excludes Bye                                   |
+| `tiebreaks.ts`    | `applyDirectEncounter`, `computeSonnebornBerger`, `rankWithTiebreaks`                                   |
+| `roundRobin.ts`   | `generateRoundRobinPairings` — generates fixture using Berger tables, marks auto_bye matches            |
 
 ### `src/lib/berger.ts`
 
@@ -131,14 +137,14 @@ Tests live in `src/domain/__tests__/` and `src/lib/__tests__/`. Vitest is config
 
 All brand images live in `public/`. The current brand is the default chess knight ("Troia" knight illustration, blue + gold).
 
-| File | Size | Used in | Purpose |
-|---|---|---|---|
-| `logo.png` | 431×488 · 163 KB | `AppHeader.tsx` (`h-10 w-10`) | Brand logo displayed in the top navigation bar |
-| `favicon.ico` | 32×32 · 2.8 KB | `index.html` `<link rel="icon">` | Browser tab icon (ICO format, legacy/universal) |
-| `favicon.png` | 32×32 · 2.8 KB | `index.html` `<link rel="icon" type="image/png">` | Browser tab icon (PNG format, modern browsers) |
-| `pwa-192x192.png` | 192×192 · 30 KB | `index.html` `apple-touch-icon`, `vite.config.ts` PWA manifest | PWA home-screen icon (small) + iOS bookmark icon |
+| File              | Size             | Used in                                                                     | Purpose                                                   |
+| ----------------- | ---------------- | --------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `logo.png`        | 431×488 · 163 KB | `AppHeader.tsx` (`h-10 w-10`)                                               | Brand logo displayed in the top navigation bar            |
+| `favicon.ico`     | 32×32 · 2.8 KB   | `index.html` `<link rel="icon">`                                            | Browser tab icon (ICO format, legacy/universal)           |
+| `favicon.png`     | 32×32 · 2.8 KB   | `index.html` `<link rel="icon" type="image/png">`                           | Browser tab icon (PNG format, modern browsers)            |
+| `pwa-192x192.png` | 192×192 · 30 KB  | `index.html` `apple-touch-icon`, `vite.config.ts` PWA manifest              | PWA home-screen icon (small) + iOS bookmark icon          |
 | `pwa-512x512.png` | 512×512 · 151 KB | `index.html` OG/Twitter meta, `vite.config.ts` PWA manifest (also maskable) | PWA home-screen icon (large) + social share preview image |
-| `empty.png` | 627×913 · 489 KB | `EmptyHistory.tsx`, `NotFoundPage.tsx` | Empty-state illustration (knight on cart) |
+| `empty.png`       | 627×913 · 489 KB | `EmptyHistory.tsx`, `NotFoundPage.tsx`                                      | Empty-state illustration (knight on cart)                 |
 
 ### White-label / multi-brand strategy
 
