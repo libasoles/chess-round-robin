@@ -167,40 +167,24 @@ export async function updateJazzMatch(
   }
 }
 
-export async function replaceJazzGroup(
+export async function replaceJazzTournamentPhases(
   jazzId: string,
-  phaseIndex: number,
-  groupName: string,
-  group: DomainGroup,
+  phases: Phase[],
 ): Promise<void> {
   const me = getJazzMe()
   if (!me) return
 
   const tournament = await JazzTournament.load(jazzId, {
-    resolve: {
-      phases: {
-        $each: {
-          groups: { $each: { participants: { $each: true }, matches: { $each: true } } },
-        },
-      },
-    },
+    resolve: { phases: true },
     loadAs: me,
   }) as JazzTournamentLike | null
   if (!tournament) return
 
   const owner = tournament.owner as Group | undefined
-  const phases = tournament.phases
-  if (!owner || !phases) return
+  if (!owner) return
 
-  for (const phase of phases) {
-    if (phase?.index !== phaseIndex) continue
-    for (const jazzGroup of phase.groups ?? []) {
-      if (jazzGroup?.name !== groupName) continue
-      jazzGroup.$jazz.set('participants', buildJazzParticipantList(group, owner))
-      jazzGroup.$jazz.set('matches', buildJazzMatchList(group, owner))
-      return
-    }
-  }
+  const jazzPhases = phases.map((phase) => buildJazzPhase(phase, owner))
+  tournament.$jazz.set('phases', JazzPhaseList.create(jazzPhases, { owner }))
 }
 
 export async function updateJazzTournamentSettings(

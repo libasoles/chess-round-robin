@@ -63,31 +63,6 @@ function updateMatchInTournament(
   };
 }
 
-function findChangedGroup(
-  previous: Tournament,
-  next: Tournament,
-): { phaseIndex: number; groupName: string; group: Group } | null {
-  for (let phaseIdx = 0; phaseIdx < next.phases.length; phaseIdx++) {
-    const nextPhase = next.phases[phaseIdx];
-    const previousPhase = previous.phases[phaseIdx];
-    if (!nextPhase || !previousPhase) continue;
-
-    for (let groupIdx = 0; groupIdx < nextPhase.groups.length; groupIdx++) {
-      const nextGroup = nextPhase.groups[groupIdx];
-      const previousGroup = previousPhase.groups[groupIdx];
-      if (!nextGroup || !previousGroup) continue;
-      if (nextGroup !== previousGroup) {
-        return {
-          phaseIndex: nextPhase.index,
-          groupName: nextGroup.name,
-          group: nextGroup,
-        };
-      }
-    }
-  }
-  return null;
-}
-
 /**
  * Like assignParticipantsToGroups but uses a custom names list
  * (for new phases where group names must continue from previous phases).
@@ -523,18 +498,14 @@ export const useTournamentStore = create<TournamentState>()(
         if (!result.ok) return result;
         set({ activeTournament: result.tournament });
 
-        const changedGroup = findChangedGroup(
-          activeTournament,
-          result.tournament,
-        );
-        if (result.tournament.jazzId && changedGroup) {
-          import("@/lib/jazzSync").then(({ replaceJazzGroup }) =>
-            replaceJazzGroup(
+        if (result.tournament.jazzId) {
+          import("@/lib/jazzSync").then(({ replaceJazzTournamentPhases }) =>
+            replaceJazzTournamentPhases(
               result.tournament.jazzId!,
-              changedGroup.phaseIndex,
-              changedGroup.groupName,
-              changedGroup.group,
-            ).catch((e) => console.warn("[jazz] replaceJazzGroup failed", e)),
+              result.tournament.phases,
+            ).catch((e) =>
+              console.warn("[jazz] replaceJazzTournamentPhases failed", e),
+            ),
           );
         }
 

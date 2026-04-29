@@ -41,6 +41,10 @@ function realParticipants(g: Group): Participant[] {
   return g.participants.filter((p) => !p.isBye)
 }
 
+function totalRounds(group: Group): number {
+  return Math.max(0, ...group.matches.map((m) => m.round))
+}
+
 function expectValidRoundRobin(group: Group, expectedRealCount: number) {
   const N = expectedRealCount % 2 === 0 ? expectedRealCount : expectedRealCount + 1
   const expectedRounds = N - 1
@@ -110,6 +114,50 @@ describe('addParticipantToActiveTournament', () => {
     const r1 = g.matches.filter((m) => m.round === 1)
     const eveId = realParticipants(g).find((p) => p.name === 'Eve')!.id
     expect(r1.some((m) => m.white === eveId || m.black === eveId)).toBe(true)
+  })
+
+  it('expands a started 4-player tournament to 5 players with new rounds and preserved round-1 state', () => {
+    const t = makeTournament(['A', 'B', 'C', 'D'])
+    const beforeGroup = t.phases[0]!.groups[0]!
+    const r1Before = beforeGroup.matches.filter((m) => m.round === 1)
+    const firstRound1MatchId = r1Before[0]!.id
+    const tWithResult: Tournament = {
+      ...t,
+      jazzId: 'co_zshared',
+      phases: [
+        {
+          ...t.phases[0]!,
+          groups: [
+            {
+              ...beforeGroup,
+              matches: beforeGroup.matches.map((m) =>
+                m.id === firstRound1MatchId ? { ...m, result: 'white_win' as const } : m,
+              ),
+            },
+          ],
+        },
+      ],
+    }
+
+    expect(totalRounds(beforeGroup)).toBe(3)
+
+    const res = addParticipantToActiveTournament(tWithResult, 'Eve')
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+
+    const afterGroup = res.tournament.phases[0]!.groups[0]!
+    const eve = realParticipants(afterGroup).find((p) => p.name === 'Eve')
+    expect(eve).toBeDefined()
+    expect(realParticipants(afterGroup)).toHaveLength(5)
+    expect(totalRounds(afterGroup)).toBe(5)
+
+    for (const match of r1Before) {
+      const preserved = afterGroup.matches.find((m) => m.id === match.id)
+      expect(preserved).toBeDefined()
+      expect(preserved?.round).toBe(1)
+    }
+    expect(afterGroup.matches.find((m) => m.id === firstRound1MatchId)?.result).toBe('white_win')
+    expect(afterGroup.matches.some((m) => m.white === eve!.id || m.black === eve!.id)).toBe(true)
   })
 
   it('preserves existing round-1 matches (ids and results)', () => {
