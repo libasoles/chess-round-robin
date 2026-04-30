@@ -165,8 +165,12 @@ export function NewTournamentPage() {
     participantsPool,
     setOrganizerName,
   } = useSettingsStore();
-  const { createTournament, draftParticipants, setDraftParticipants } =
-    useTournamentStore();
+  const {
+    createTournament,
+    draftParticipants,
+    setDraftParticipants,
+    resetDraftParticipants,
+  } = useTournamentStore();
   const currentArbitratorName = (
     arbitratorName ??
     lastTournamentSettings.arbitratorName ??
@@ -412,6 +416,7 @@ export function NewTournamentPage() {
   }
 
   function handleCancel() {
+    resetDraftParticipants();
     navigate("/");
   }
 

@@ -26,6 +26,10 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function createEmptyDraftParticipants(): string[] {
+  return [""];
+}
+
 /** Returns the global max round number across all groups in all phases */
 function maxRoundAcrossPhases(tournament: Tournament): number {
   let max = 0;
@@ -91,7 +95,7 @@ function assignWithNames(
 interface TournamentState {
   activeTournament: Tournament | null;
   currentRound: number; // 1-based global round number
-  draftParticipants: string[]; // ephemeral, NOT persisted
+  draftParticipants: string[];
 
   createTournament: (names: string[], settings: TournamentSettings) => string;
   abandonTournament: () => void;
@@ -111,6 +115,7 @@ interface TournamentState {
   addParticipantToActiveTournament: (name: string) => AddParticipantResult;
 
   setDraftParticipants: (names: string[]) => void;
+  resetDraftParticipants: () => void;
   updateDraftParticipant: (index: number, name: string) => void;
   addDraftParticipant: () => void;
   removeDraftParticipant: (index: number) => void;
@@ -121,7 +126,7 @@ export const useTournamentStore = create<TournamentState>()(
     (set, get) => ({
       activeTournament: null,
       currentRound: 1,
-      draftParticipants: ["", "", "", ""],
+      draftParticipants: createEmptyDraftParticipants(),
 
       createTournament: (names, settings) => {
         const cleanNames = names.map(normalizeName).filter((n) => n.length > 0);
@@ -154,7 +159,11 @@ export const useTournamentStore = create<TournamentState>()(
           status: "active",
         };
 
-        set({ activeTournament: tournament, currentRound: 1 });
+        set({
+          activeTournament: tournament,
+          currentRound: 1,
+          draftParticipants: createEmptyDraftParticipants(),
+        });
         useSettingsStore.getState().addOwnedTournamentId(tournament.id);
         return tournament.id;
       },
@@ -519,6 +528,9 @@ export const useTournamentStore = create<TournamentState>()(
         }),
 
       setDraftParticipants: (names) => set({ draftParticipants: names }),
+
+      resetDraftParticipants: () =>
+        set({ draftParticipants: createEmptyDraftParticipants() }),
 
       updateDraftParticipant: (index, name) =>
         set((s) => {

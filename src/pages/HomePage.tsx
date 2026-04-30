@@ -17,8 +17,12 @@ import { useEffect } from "react";
 export function HomePage() {
   const navigate = useNavigate();
   const { tournaments, removeTournament } = useHistoryStore();
-  const { activeTournament, currentRound, setCurrentRound } =
-    useTournamentStore();
+  const {
+    activeTournament,
+    currentRound,
+    setCurrentRound,
+    resetDraftParticipants,
+  } = useTournamentStore();
 
   useEffect(() => {
     const prefetch = () => { import('jazz-tools').catch(() => {}) }
@@ -42,6 +46,11 @@ export function HomePage() {
     if (!activeTournament) return;
     setCurrentRound(displayRound);
     navigate(`/tournament/${activeTournament.id}/round/${displayRound}`);
+  }
+
+  function startNewTournament() {
+    resetDraftParticipants();
+    navigate("/tournament/new");
   }
 
   const jsonLd = {
@@ -140,7 +149,7 @@ export function HomePage() {
           <Button
             className="w-full h-12 text-base"
             disabled={Boolean(activeTournament)}
-            onClick={() => navigate("/tournament/new")}
+            onClick={startNewTournament}
           >
             Nuevo Torneo
           </Button>
