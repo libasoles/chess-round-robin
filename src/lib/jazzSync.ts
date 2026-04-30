@@ -175,7 +175,13 @@ export async function replaceJazzTournamentPhases(
   if (!me) return
 
   const tournament = await JazzTournament.load(jazzId, {
-    resolve: { phases: true },
+    resolve: {
+      phases: {
+        $each: {
+          groups: { $each: true },
+        },
+      },
+    },
     loadAs: me,
   }) as JazzTournamentLike | null
   if (!tournament) return
@@ -183,8 +189,18 @@ export async function replaceJazzTournamentPhases(
   const owner = tournament.owner as Group | undefined
   if (!owner) return
 
-  const jazzPhases = phases.map((phase) => buildJazzPhase(phase, owner))
-  tournament.$jazz.set('phases', JazzPhaseList.create(jazzPhases, { owner }))
+  for (const domainPhase of phases) {
+    for (const jazzPhase of (tournament.phases ?? [])) {
+      if (jazzPhase?.index !== domainPhase.index) continue
+      for (const domainGroup of domainPhase.groups) {
+        for (const jazzGroup of (jazzPhase.groups ?? [])) {
+          if (jazzGroup?.name !== domainGroup.name) continue
+          jazzGroup.$jazz.set('participants', buildJazzParticipantList(domainGroup, owner))
+          jazzGroup.$jazz.set('matches', buildJazzMatchList(domainGroup, owner))
+        }
+      }
+    }
+  }
 }
 
 export async function updateJazzTournamentSettings(
