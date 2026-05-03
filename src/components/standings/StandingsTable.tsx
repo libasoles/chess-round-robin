@@ -149,7 +149,7 @@ function TiebreakScoreButton({
     <button
       type="button"
       onClick={() => onClick(method)}
-      className="mx-auto inline-flex h-6 min-w-6 items-center justify-center rounded px-1 text-xs font-medium tabular-nums text-muted hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="mx-auto inline-flex h-6 min-w-6 items-center justify-center rounded px-1 text-xs font-medium tabular-nums text-muted-foreground opacity-70 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       aria-label={`Ver explicación de ${info.name}`}
     >
       {formatScore(score)}
@@ -228,7 +228,7 @@ export function StandingsTable({ group, settings }: StandingsTableProps) {
                   return (
                     <td
                       key={m}
-                      className="py-2 text-center text-muted-foreground"
+                      className="py-2 text-center text-muted-foreground opacity-70"
                     >
                       {score !== undefined ? (
                         isDeciding ? (
@@ -238,9 +238,7 @@ export function StandingsTable({ group, settings }: StandingsTableProps) {
                             onClick={setSelectedTiebreak}
                           />
                         ) : (
-                          <span className="tabular-nums">
-                            {formatScore(score)}
-                          </span>
+                          <span className="tabular-nums"></span>
                         )
                       ) : null}
                     </td>
