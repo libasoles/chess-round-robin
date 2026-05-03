@@ -94,7 +94,7 @@ export function MatchRow({
       )}
       {readonly &&
         (match.result && match.result !== "auto_bye" ? (
-          <MatchResultStatus>{resultLabel(match.result)}</MatchResultStatus>
+          <MatchResultStatus>{resultContent(match.result)}</MatchResultStatus>
         ) : showMissingResultMessage ? (
           <MatchResultStatus>
             No se marcó resultado para esta partida
@@ -102,6 +102,28 @@ export function MatchRow({
         ) : null)}
     </div>
   );
+}
+
+function resultContent(result: MatchResult) {
+  if (result === "white_win") {
+    return (
+      <span className="inline-flex items-center gap-1.5">
+        <Trophy className="h-4 w-4 text-primary" />
+        <span>Ganan blancas</span>
+      </span>
+    );
+  }
+
+  if (result === "black_win") {
+    return (
+      <span className="inline-flex items-center gap-1.5">
+        <span>Ganan negras</span>
+        <Trophy className="h-4 w-4 text-primary" />
+      </span>
+    );
+  }
+
+  return resultLabel(result);
 }
 
 function resultLabel(result: MatchResult): string {
