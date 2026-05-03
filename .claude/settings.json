@@ -1,4 +1,17 @@
 {
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash(git push*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/guillermoperez/Projects/playground/chess-round-robin/.claude/scripts/sync-tucuchess.sh"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Bash(npm list:*)",
@@ -33,7 +46,9 @@
       "Bash(git rebase:*)",
       "Bash(git stash:*)",
       "Bash(git push:*)",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Bash(git -C /Users/guillermoperez/Projects/playground/chess-round-robin branch -a)",
+      "Bash(chmod +x /Users/guillermoperez/Projects/playground/chess-round-robin/.claude/scripts/sync-tucuchess.sh)"
     ],
     "additionalDirectories": [
       "/tmp"
