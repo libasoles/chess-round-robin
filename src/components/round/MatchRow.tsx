@@ -107,7 +107,7 @@ export function MatchRow({
 function resultContent(result: MatchResult) {
   if (result === "white_win") {
     return (
-      <div className="flex items-center justify-evenly gap-1.5">
+      <div className="flex w-full items-center justify-evenly gap-1.5">
         <Trophy className="h-4 w-4 text-primary" />
         <span>Ganan blancas</span>
         <span className="h-4 w-4"></span>
@@ -117,7 +117,7 @@ function resultContent(result: MatchResult) {
 
   if (result === "black_win") {
     return (
-      <div className="flex items-center justify-evenly gap-1.5">
+      <div className="flex w-full items-center justify-evenly gap-1.5">
         <span className="h-4 w-4"></span>
         <span>Ganan negras</span>
         <Trophy className="h-4 w-4 text-primary" />

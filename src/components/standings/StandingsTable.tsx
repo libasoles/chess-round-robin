@@ -149,7 +149,7 @@ function TiebreakScoreButton({
     <button
       type="button"
       onClick={() => onClick(method)}
-      className="mx-auto inline-flex h-6 min-w-6 items-center justify-center rounded px-1 text-xs font-medium tabular-nums text-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="mx-auto inline-flex h-6 min-w-6 items-center justify-center rounded px-1 text-xs font-medium tabular-nums text-muted hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       aria-label={`Ver explicación de ${info.name}`}
     >
       {formatScore(score)}
