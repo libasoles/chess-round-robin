@@ -50,13 +50,17 @@ interface JazzPhasesCollectionLike extends Iterable<JazzPhaseLike | null | undef
 interface JazzTournamentLike extends JazzNodeLike {
   $jazz: {
     id: string
+    owner?: unknown
     set: (key: string, value: unknown) => void
   }
-  owner?: unknown
   settings?: JazzSettingsLike
   phases?: JazzPhasesCollectionLike
   finishedAt?: string
   status?: string
+}
+
+function getJazzTournamentOwner(tournament: JazzTournamentLike): Group | undefined {
+  return tournament.$jazz.owner as Group | undefined
 }
 
 function buildJazzParticipantList(group: DomainGroup, owner: Group) {
@@ -186,21 +190,12 @@ export async function replaceJazzTournamentPhases(
   }) as JazzTournamentLike | null
   if (!tournament) return
 
-  const owner = tournament.owner as Group | undefined
+  const owner = getJazzTournamentOwner(tournament)
   if (!owner) return
 
-  for (const domainPhase of phases) {
-    for (const jazzPhase of (tournament.phases ?? [])) {
-      if (jazzPhase?.index !== domainPhase.index) continue
-      for (const domainGroup of domainPhase.groups) {
-        for (const jazzGroup of (jazzPhase.groups ?? [])) {
-          if (jazzGroup?.name !== domainGroup.name) continue
-          jazzGroup.$jazz.set('participants', buildJazzParticipantList(domainGroup, owner))
-          jazzGroup.$jazz.set('matches', buildJazzMatchList(domainGroup, owner))
-        }
-      }
-    }
-  }
+  const jazzPhases = phases.map((phase) => buildJazzPhase(phase, owner))
+  const phaseList = JazzPhaseList.create(jazzPhases, { owner })
+  tournament.$jazz.set('phases', phaseList)
 }
 
 export async function updateJazzTournamentSettings(
@@ -245,7 +240,9 @@ export async function addJazzPhase(jazzId: string, newPhase: Phase): Promise<voi
   }) as JazzTournamentLike | null
   if (!tournament) return
 
-  const group = tournament.owner as Group
-  const jazzPhase = buildJazzPhase(newPhase, group)
+  const owner = getJazzTournamentOwner(tournament)
+  if (!owner) return
+
+  const jazzPhase = buildJazzPhase(newPhase, owner)
   tournament.phases?.$jazz.push(jazzPhase)
 }
