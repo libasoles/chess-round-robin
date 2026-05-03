@@ -295,8 +295,12 @@ describe('computeRankedStandings', () => {
       expect(e.tiebreakScores.SB).toBeTypeOf('number')
       expect(e.tiebreakScores.Buchholz).toBeTypeOf('number')
       expect(e.tiebreakScores.PN).toBeTypeOf('number')
-      expect(e.tiebreakScores.DE).toBeUndefined()  // DE has no numeric score
     })
+    const deScores = standings
+      .map(e => e.tiebreakScores.DE)
+      .filter((score): score is number => score !== undefined)
+    expect(deScores.length).toBeGreaterThan(0)
+    deScores.forEach(score => expect(score).toBeTypeOf('number'))
   })
 
   it('tied players share the same rank', () => {

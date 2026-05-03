@@ -1,4 +1,3 @@
-import { Check } from 'lucide-react'
 import { useState } from 'react'
 import { ParticipantName } from '@/components/participants/ParticipantName'
 import {
@@ -116,11 +115,13 @@ function TiebreakHeaderButton({
   )
 }
 
-function TiebreakCheckButton({
+function TiebreakScoreButton({
   method,
+  score,
   onClick,
 }: {
   method: TiebreakMethod
+  score: number
   onClick: (method: TiebreakMethod) => void
 }) {
   const info = TIEBREAK_INFO[method]
@@ -129,10 +130,10 @@ function TiebreakCheckButton({
     <button
       type="button"
       onClick={() => onClick(method)}
-      className="mx-auto inline-flex size-6 items-center justify-center rounded text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="mx-auto inline-flex h-6 min-w-6 items-center justify-center rounded px-1 text-xs font-medium tabular-nums text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       aria-label={`Ver explicación de ${info.name}`}
     >
-      <Check className="h-4 w-4" />
+      {formatScore(score)}
     </button>
   )
 }
@@ -190,49 +191,16 @@ export function StandingsTable({
                 </td>
                 {tiebreakCols.map((m) => {
                   const isDeciding = entry.tiebreakUsed === m
-
-                  if (m === 'DE' || m === 'TN') {
-                    return (
-                      <td key={m} className="py-2 text-center">
-                        {isDeciding ? (
-                          <TiebreakCheckButton method={m} onClick={setSelectedTiebreak} />
-                        ) : null}
-                      </td>
-                    )
-                  }
-
                   const score = entry.tiebreakScores[m]
 
-                  if (m === 'Koya') {
-                    return (
-                      <td key={m} className={`py-2 text-center${isDeciding ? ' font-semibold text-foreground' : ' text-muted-foreground'}`}>
-                        {score !== undefined ? formatScore(score) : null}
-                        {isDeciding ? (
-                          <span className="ml-0.5 inline-flex align-middle">
-                            <TiebreakCheckButton method={m} onClick={setSelectedTiebreak} />
-                          </span>
-                        ) : null}
-                      </td>
-                    )
-                  }
-
-                  if (m === 'SB' || m === 'PN' || m === 'Buchholz') {
-                    return (
-                      <td key={m} className="py-2 text-center">
-                        {isDeciding ? (
-                          <TiebreakCheckButton method={m} onClick={setSelectedTiebreak} />
-                        ) : null}
-                      </td>
-                    )
-                  }
-
                   return (
-                    <td key={m} className={`py-2 text-center${isDeciding ? ' font-semibold text-foreground' : ' text-muted-foreground'}`}>
-                      {score !== undefined ? formatScore(score) : null}
-                      {isDeciding ? (
-                        <span className="ml-0.5 inline-flex align-middle">
-                          <TiebreakCheckButton method={m} onClick={setSelectedTiebreak} />
-                        </span>
+                    <td key={m} className="py-2 text-center text-muted-foreground">
+                      {score !== undefined ? (
+                        isDeciding ? (
+                          <TiebreakScoreButton method={m} score={score} onClick={setSelectedTiebreak} />
+                        ) : (
+                          <span className="tabular-nums">{formatScore(score)}</span>
+                        )
                       ) : null}
                     </td>
                   )

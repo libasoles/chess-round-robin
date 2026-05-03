@@ -2,6 +2,8 @@ import type { Group, StandingEntry, TiebreakMethod, TournamentSettings } from '.
 import { computeStandings } from './standings'
 import { resolveMatchPoints } from './scoring'
 
+type MiniTournamentScoring = 'DE' | 'TN'
+
 /**
  * Computes the Sonneborn-Berger score for a participant.
  *
@@ -158,6 +160,50 @@ export function computeKoya(
   return koya
 }
 
+function computeMiniTournamentScores(
+  tied: string[],
+  group: Group,
+  scoring: MiniTournamentScoring,
+): Map<string, number> | null {
+  if (tied.length < 2) return null
+
+  const tiedSet = new Set(tied)
+  const miniScores = new Map<string, number>(tied.map(id => [id, 0]))
+  let hasAnyPlayedMatch = false
+
+  for (const match of group.matches) {
+    if (!tiedSet.has(match.white) || !tiedSet.has(match.black)) continue
+    if (match.result === null) continue
+
+    hasAnyPlayedMatch = true
+
+    if (match.result === 'white_win' || match.result === 'forfeit_black') {
+      miniScores.set(match.white, miniScores.get(match.white)! + 1)
+    } else if (match.result === 'black_win' || match.result === 'forfeit_white') {
+      miniScores.set(match.black, miniScores.get(match.black)! + 1)
+    } else if (match.result === 'draw') {
+      if (scoring === 'TN') {
+        miniScores.set(match.black, miniScores.get(match.black)! + 1)
+      } else {
+        miniScores.set(match.white, miniScores.get(match.white)! + 0.5)
+        miniScores.set(match.black, miniScores.get(match.black)! + 0.5)
+      }
+    }
+    // 'auto_bye' cannot occur between two real players; ignored
+  }
+
+  return hasAnyPlayedMatch ? miniScores : null
+}
+
+function computeMiniTournamentScore(
+  participantId: string,
+  tied: string[],
+  group: Group,
+  scoring: MiniTournamentScoring,
+): number | undefined {
+  return computeMiniTournamentScores(tied, group, scoring)?.get(participantId)
+}
+
 /**
  * Applies Direct Encounter tiebreak to N >= 2 tied participants.
  *
@@ -175,32 +221,8 @@ export function applyDirectEncounter(
   tied: string[],
   group: Group,
 ): string[][] | null {
-  if (tied.length < 2) return null
-
-  const tiedSet = new Set(tied)
-  const miniScores = new Map<string, number>(tied.map(id => [id, 0]))
-  let hasAnyPlayedMatch = false
-
-  // Compute mini-tournament scores: only matches between tied players
-  for (const match of group.matches) {
-    if (!tiedSet.has(match.white) || !tiedSet.has(match.black)) continue
-    if (match.result === null) continue // unplayed match → omitted
-
-    hasAnyPlayedMatch = true
-
-    // Natural scoring: win=1, draw=0.5, loss=0 (NOT configurable forfeitPoints)
-    if (match.result === 'white_win' || match.result === 'forfeit_black') {
-      miniScores.set(match.white, miniScores.get(match.white)! + 1)
-    } else if (match.result === 'black_win' || match.result === 'forfeit_white') {
-      miniScores.set(match.black, miniScores.get(match.black)! + 1)
-    } else if (match.result === 'draw') {
-      miniScores.set(match.white, miniScores.get(match.white)! + 0.5)
-      miniScores.set(match.black, miniScores.get(match.black)! + 0.5)
-    }
-    // 'auto_bye' cannot occur between two real players; ignored
-  }
-
-  if (!hasAnyPlayedMatch) return null
+  const miniScores = computeMiniTournamentScores(tied, group, 'DE')
+  if (!miniScores) return null
 
   // Sort by mini-tournament score and group
   const scored = tied.map(id => ({ id, score: miniScores.get(id)! }))
@@ -228,30 +250,8 @@ export function applyTablaConNegras(
   tied: string[],
   group: Group,
 ): string[][] | null {
-  if (tied.length < 2) return null
-
-  const tiedSet = new Set(tied)
-  const miniScores = new Map<string, number>(tied.map(id => [id, 0]))
-  let hasAnyPlayedMatch = false
-
-  for (const match of group.matches) {
-    if (!tiedSet.has(match.white) || !tiedSet.has(match.black)) continue
-    if (match.result === null) continue
-
-    hasAnyPlayedMatch = true
-
-    if (match.result === 'white_win' || match.result === 'forfeit_black') {
-      miniScores.set(match.white, miniScores.get(match.white)! + 1)
-    } else if (match.result === 'black_win' || match.result === 'forfeit_white') {
-      miniScores.set(match.black, miniScores.get(match.black)! + 1)
-    } else if (match.result === 'draw') {
-      // Special rule: draw with black pieces counts as 1 pt; white gets 0
-      miniScores.set(match.black, miniScores.get(match.black)! + 1)
-    }
-    // 'auto_bye' cannot occur between two real players; ignored
-  }
-
-  if (!hasAnyPlayedMatch) return null
+  const miniScores = computeMiniTournamentScores(tied, group, 'TN')
+  if (!miniScores) return null
 
   const scored = tied.map(id => ({ id, score: miniScores.get(id)! }))
   scored.sort((a, b) => b.score - a.score)
@@ -525,10 +525,16 @@ export function computeRankedStandings(
           ? findFirstResolvingMethod(id, coTied, group, settings)
           : null
 
-      // Compute numeric tiebreak scores for all enabled non-DE methods
+      // Compute numeric tiebreak scores for all enabled methods.
       const tiebreakScores: Partial<Record<TiebreakMethod, number>> = {}
       for (const method of settings.tiebreakOrder) {
-        if (method !== 'DE' && method !== 'TN') {
+        if (method === 'DE') {
+          const score = computeMiniTournamentScore(id, [id, ...coTied], group, 'DE')
+          if (score !== undefined) tiebreakScores[method] = score
+        } else if (method === 'TN') {
+          const score = computeMiniTournamentScore(id, [id, ...coTied], group, 'TN')
+          if (score !== undefined) tiebreakScores[method] = score
+        } else {
           tiebreakScores[method] = computeScoreForMethod(method, id, group, settings)
         }
       }
