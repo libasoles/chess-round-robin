@@ -6,6 +6,8 @@ A mobile-first PWA for chess clubs to manage their informal round-robin tourname
 
 Website: [ajedrezroundrobin.com.ar](https://ajedrezroundrobin.com.ar/)
 
+Not intended to be reviewed by recruiters 🙏. It's a simple project coded with AI in a black-box fashion. A personal project, not part of a portfolio.
+
 ## What it does
 
 Chess Round Robin helps club arbitrators run round-robin tournaments without paperwork. You enter the participants, the app builds groups and rounds automatically, you record results match by match, and it calculates standings with tiebreaks in real time. Completed tournaments are saved to history for future reference.
